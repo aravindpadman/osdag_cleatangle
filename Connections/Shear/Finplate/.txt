@@ -1,0 +1,12 @@
+Fri, 27 Nov 2015 10:17:54 ERROR :Design requires double lines of bolt which is not possible in the given cleat section 
+Fri, 27 Nov 2015 10:17:54 WARNING :Increase leg size of cleat section 
+Fri, 27 Nov 2015 10:17:54 ERROR :Design requires double lines of bolt which is not possible in the given cleat section 
+Fri, 27 Nov 2015 10:17:54 WARNING :Increase leg size of cleat section 
+Fri, 27 Nov 2015 10:17:54 ERROR : Design is not safe 
+Fri, 27 Nov 2015 10:17:54 ERROR :=========End Of design=========== 
+Fri, 27 Nov 2015 10:18:01 ERROR :Design requires double lines of bolt which is not possible in the given cleat section 
+Fri, 27 Nov 2015 10:18:01 WARNING :Increase leg size of cleat section 
+Fri, 27 Nov 2015 10:18:01 ERROR : Design is not safe 
+Fri, 27 Nov 2015 10:18:01 ERROR :=========End Of design=========== 
+Fri, 27 Nov 2015 10:18:14 INFO : Overall finplate connection design is safe 
+Fri, 27 Nov 2015 10:18:14 INFO :=========End Of design=========== 
