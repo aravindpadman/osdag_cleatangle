@@ -471,7 +471,9 @@ def cleatAngleConn(uiObj):
     thk_thinner =0.0
     if connectivity == 'Column flange-Beam web':
         thk_thinner = min(cleat_thk , column_f_t) 
-    if connectivity == 'Column web-Beam web':
+    elif connectivity == 'Column web-Beam web':
+        thk_thinner = min(cleat_thk , column_w_t)
+    else:
         thk_thinner = min(cleat_thk , column_w_t)
         
     c_end_dist = 0.0

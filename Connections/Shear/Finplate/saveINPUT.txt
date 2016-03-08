@@ -18,7 +18,7 @@ p8
 I250
 sS'Connectivity'
 p9
-S'Column flange-Beam web'
+S'Column web-Beam web'
 p10
 ssS'Load'
 p11
@@ -41,10 +41,10 @@ p19
 (dp20
 S'Grade'
 p21
-F8.8
+F10.8
 sS'Diameter (mm)'
 p22
-I20
+I16
 sS'Type'
 p23
 S'HSFG'

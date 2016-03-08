@@ -1166,13 +1166,17 @@ class MainController(QtGui.QMainWindow):
         fin2DFront.saveToSvg()
     
     def call_2d_Drawing(self):
+        loc = self.ui.comboConnLoc.currentText()
         uiObj = self.getuser_inputs()
         
         resultObj = cleatAngleConn(uiObj)
         dictbeamdata  = self.fetchBeamPara()
         dictcoldata = self.fetchColumnPara()
         dictangledata = self.fetchAnglePara()
-        cleat2Dfront = FinCommonData(uiObj,resultObj,dictbeamdata,dictcoldata,dictangledata)
+        if loc == "Column flange-Beam web" or "Column web-Beam web":
+            cleat2Dfront = FinCommonData(uiObj,resultObj,dictbeamdata,dictcoldata,dictangledata)
+        else:
+            cleat2Dfront = FinCommonData(uiObj,resultObj,dictbeamdata,dictcoldata,dictangledata)
         cleat2Dfront.saveToSvg('/home/aravind/cleattestFront.svg', 'Front')
         cleat2Dfront.saveToSvg('/home/aravind/cleattestSide.svg', 'Side')
         cleat2Dfront.saveToSvg('/home/aravind/cleattestTop.svg', 'Top')
