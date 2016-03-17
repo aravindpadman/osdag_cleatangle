@@ -218,11 +218,26 @@ def cleatAngleConn(uiObj):
     beam_w_t = float(dictbeamdata[QString("tw")])
     beam_f_t = float(dictbeamdata[QString("T")])
     beam_d = float(dictbeamdata[QString("D")])
+    beam_R1 =float(dictbeamdata[QString("R1")])
+    beam_B =float(dictbeamdata[QString("B")])
+    beam_D =float(dictbeamdata[QString("D")])
     
-    dictcolumndata = get_columndata(column_sec)
-    column_w_t = float(dictcolumndata[QString("tw")])
-    column_f_t = float(dictcolumndata[QString("T")])
-    
+        
+    if connectivity == "Column web-Beam web" or connectivity == "Column flange-Beam web": 
+        dictcolumndata = get_columndata(column_sec)
+        column_w_t = float(dictcolumndata[QString("tw")])
+        column_f_t = float(dictcolumndata[QString("T")])
+        column_R1 =float(dictcolumndata[QString("R1")])
+        column_D = float(dictcolumndata[QString("D")])
+        column_B = float(dictcolumndata[QString("B")])
+    else:
+        dictcolumndata = get_beamdata(column_sec)
+        column_w_t = float(dictcolumndata[QString("tw")])
+        column_f_t = float(dictcolumndata[QString("T")])
+        column_R1 =float(dictcolumndata[QString("R1")])
+        column_D = float(dictcolumndata[QString("D")])
+        column_B = float(dictcolumndata[QString("B")])
+        
    
     dictCleatData = get_angledata(cleat_sec)
     cleat_legsize= int(dictCleatData[QString("A")])
@@ -313,10 +328,38 @@ def cleatAngleConn(uiObj):
     # Maximum/minimum cleat height
     max_cleat_height = 0.75 * beam_d
     min_cleat_length = 0.0 
+#######################
+    D_notch = 50##NEED TO BE CHANGED   
+
+##COLUMN FLANGE-BEAM WEB CONNECTIVITY  
+    design_check = True   
+    if connectivity == 'Column flange-Beam web':
+        avbl_space = column_B 
+        required_space = 2 * cleat_legsize_1 + beam_w_t
+        maxLegsize = int((avbl_space - beam_w_t)/10) * 5
+        if avbl_space < required_space:
+            design_check = False
+            logger.error(':Column cannot accommodate the given cleat agle due to space restriction  ')
+            logger.warning(':The width of the column flange(B)  should be greater than %2.2f mm' %(int(required_space))) 
+            logger.info('Cleat legsize(B)of the cleat angle should be less than or equal to %2.2f mm' %(maxLegsize))
+        
+    elif connectivity == 'Column web-Beam web':
+        avbl_space = column_D - 2 * column_f_t
+        required_space = 2 * cleat_legsize_1 + beam_w_t
+        maxLegsize = int((avbl_space - beam_w_t)/10) * 5
+        if avbl_space < required_space:
+            design_check = False
+            logger.error(':Column cannot accommodate the given cleat agle due to space restriction  ')
+            logger.warning(':The depth of the column(D) should be greater than %2.2f mm' %(int(required_space))) 
+            logger.info('Cleat legsize(B)of the cleat angle should be less than or equal to %2.2f mm' %(maxLegsize))
+    else:
+        #Always feasible in this case.No checks required
+        pass   
+                    
     
       
     # Height input and check
-    design_check = True # if this variable becomes false at least one time ,then user has to redesign by increasing the dimensions of cleat , bolt diameter etc 
+    # if this variable becomes false at least one time ,then user has to redesign by increasing the dimensions of cleat , bolt diameter etc 
     length_input = False         
     if cleat_length != 0:
         length_input = True
@@ -341,6 +384,43 @@ def cleatAngleConn(uiObj):
         cleat_length = (2 * min_edge_dist + min_pitch * (bolts_required - 1))
         if cleat_length > max_cleat_height:
             cleat_length = max_cleat_height
+    
+    
+    ####################################################
+##COLUMN FLANGE-BEAM WEB CONNECTIVITY  
+     
+    if connectivity == 'Column flange-Beam web':
+        avbl_space = column_D - 2 * (column_f_t + column_R1)
+        required_space = 2 * cleat_legsize_1 + beam_w_t
+        if avbl_space < required_space:
+            design_check = False
+            logger.error(':Column cannot accommodate the given cleat agle due to space restriction  ')
+            logger.warning(':The depth of the column(D) should be greater than %2.2f mm' %(required_space)) 
+            logger.info('Decrease the legsize of the cleat angle')
+        if avbl_space < beam_B:
+            design_check = False
+            logger.error(':Depth of the column is less than flange width of the beam  ')
+            logger.warning(':The depth of the column(D) should be greater than %2.2f mm' %(beam_B)) 
+            logger.info('Decrease the legsize of the cleat angle')
+    elif connectivity == 'Column web-Beam web':
+        avbl_space = column_B
+        required_space = 2 * cleat_legsize_1 + beam_w_t
+        if avbl_space < required_space:
+            design_check = False
+            logger.error(':Column cannot accommodate the given cleat agle due to space restriction  ')
+            logger.warning(':The flange width of the column(B) should be greater than %2.2f mm' %(required_space)) 
+            logger.info('Decrease the legsize of the cleat angle')
+        if avbl_space < beam_B:
+            design_check = False
+            logger.error(':Depth of the column is less than flange width of the beam  ')
+            logger.warning(':The depth of the column(D) should be greater than %2.2f mm' %(beam_B)) 
+            logger.info('Decrease the legsize of the cleat angle')
+    else:
+        pass       
+    
+    
+    
+    
     
     # Ask about gauge restriction in Subramanya and dictionaries can be modified accordingly
     # Determine single or double line of bolts for cleat leg which is connected to beam flange
@@ -577,7 +657,46 @@ def cleatAngleConn(uiObj):
         design_check = False
         logger.error(":Plate moment capacity is less than the moment demand")
         logger.warning(":Re-design with increased plate dimensions")
-             
+    ######################
+#     if connectivity == 'Column flange-Beam web' or  'Column web-Beam web':
+#         avbl_space = 2 * cleat_legsize_1 + beam_w_t 
+#         required_space = 2 * cleat_legsize_1 + beam_w_t
+#         c_gauge = 2 * cleat_legsize_1 + beam_w_t - 2*(c_end_dist + (c_bolt_line -1) * c_gauge_type_2)
+#         end = cleat_legsize - end_dist - gauge *(bolt_line - 1)
+#         if c_gauge < 90 :
+#             design_check = False
+#             logger.error(':cross center distance between bolts should be greater than 90 mm and less than 140mm ')
+# #                 logger.warning(':The depth of the column(D) should be greater than %2.2f mm' %(required_space)) 
+#             logger.info('Increse the legsize of the cleat angle')
+#         if end < min_edge_dist:
+#             design_check = False
+#             logger.error(':The cleat cannot accommodate required bolts due to insufficient end distance ')
+#             logger.warning(':The end distance should be greater than %2.2f mm' %(min_edge_dist)) 
+# #                 logger.info('Decrease the legsize of the cleat angle')
+#     
+#             
+#             
+            
+            
+            
+            
+            
+            
+#         elif connectivity == 'Column web-Beam web':
+#         avbl_space = column_B
+#         required_space = 2 * cleat_legsize_1 + beam_w_t
+#         if avbl_space < required_space:
+#             design_check = False
+#             logger.error(':Column cannot accommodate the given cleat agle due to space restriction  ')
+#             logger.warning(':The flange width of the column(B) should be greater than %2.2f mm' %(required_space)) 
+#             logger.info('Decrease the legsize of the cleat angle')
+#         if avbl_space < beam_B:
+#             design_check = False
+#             logger.error(':Depth of the column is less than flange width of the beam  ')
+#             logger.warning(':The depth of the column(D) should be greater than %2.2f mm' %(beam_B)) 
+#             logger.info('Decrease the legsize of the cleat angle')
+#     else:
+#         pass                
     #####################################################################################
     
     
@@ -597,6 +716,7 @@ def cleatAngleConn(uiObj):
     outputObj['Bolt']['enddist'] = int(end_dist)
     outputObj['Bolt']['edge'] = int(edge_distance)
     outputObj['Bolt']['gauge'] = int(gauge)
+#     outputObj['Bolt']['grade'] = bolt_grade
       
      
     outputObj['cleat'] = {}
@@ -613,10 +733,10 @@ def cleatAngleConn(uiObj):
     outputObj['cleat']['edge'] = c_edge_distance
     outputObj['cleat']['end'] = c_end_dist
     outputObj['cleat']['legsize'] = cleat_legsize_1
-    print c_end_dist
-    print c_edge_distance
-    print c_gauge_type_2
-          
+#     print c_end_dist
+#     print c_edge_distance
+#     print c_gauge_type_2
+#           
          
         
           

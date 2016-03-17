@@ -127,7 +127,7 @@ def get_anglecombolist():
     This function returns the list of Indian Standard Angles Designation.
     '''      
     comboList = []
-    angleQuery = QSqlQuery("SELECT Designation FROM Angles")
+    angleQuery = QSqlQuery("SELECT Designation FROM Angles ORDER BY A,B")
     comboList.append("Select Cleat")
     while(angleQuery.next()):
         comboList.append(angleQuery.value(0).toString())
@@ -139,7 +139,7 @@ def get_angledata(sect):
     This Function returns the Indian Standard Angle section properties.
     '''
     section = sect
-    #section = Ui_MainWindow.comboColSec.currentText()
+#     section = Ui_MainWindow.comboColSec.currentText()
     queryStr = "Select * from Angles where Designation = '%s'" % section
      
     designQuery = QSqlQuery(queryStr)

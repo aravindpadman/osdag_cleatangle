@@ -64,6 +64,9 @@ class MainController(QtGui.QMainWindow):
         
         self.ui.comboConnLoc.currentIndexChanged[str].connect(self.setimage_connection)
 #         self.retrieve_prevstate()
+        #Adding GUI changes for beam to beam connection
+        self.ui.comboConnLoc.currentIndexChanged[str].connect(self.convertColComboToBeam)
+        ############################
         self.ui.btnInput.clicked.connect(lambda: self.dockbtn_clicked(self.ui.inputDock))
         self.ui.btnOutput.clicked.connect(lambda: self.dockbtn_clicked(self.ui.outputDock))
         
@@ -110,15 +113,25 @@ class MainController(QtGui.QMainWindow):
         self.ui.actionView_2D_on_XY.triggered.connect(self.call_Topview)
         self.ui.actionView_2D_on_YZ.triggered.connect(self.call_Sideview)
         self.ui.actionPan.triggered.connect(self.call_Pannig)
+        ###############################MARCH_14#############################
+        #populate cleat section and secondary beam according to user input
+#         self.ui.combo_Beam.addItems(get_beamcombolist())#march_14!!!!!!!!!
+#         self.ui.comboColSec.addItems(get_columncombolist())#march_14!!!!!!!!!
+#         if self.ui.comboColSec.currentIndex() > 0 and self.ui.combo_Beam.currentIndex() > 0:
+#             print "yes i am ok"
+#             self.fillCleatSectionCombo("combo_Beam")
+        self.ui.comboColSec.currentIndexChanged[int].connect(lambda:self.fillCleatSectionCombo())
+#         self.ui.combo_Beam.currentIndexChanged[int].connect(lambda:self.fillCleatSectionCombo())
+        self.ui.combo_Beam.currentIndexChanged[str].connect(self.checkBeam_B)
+        self.ui.comboColSec.currentIndexChanged[str].connect(self.checkBeam_B)
+#         self.ui.combo_Beam.currentIndexChanged[int].connect(lambda:self.fillCleatSectionCombo())
+
+#         self.ui.comboPlateThick_2.currentIndexChanged[int].connect(lambda:self.populateWeldThickCombo("comboPlateThick_2"))
         
-        self.ui.combo_Beam.addItems(get_beamcombolist())
-        self.ui.comboColSec.addItems(get_columncombolist())
-#         self.ui.combo_Beam.currentIndexChanged[str].connect(self.fillPlateThickCombo)
-#         self.ui.comboColSec.currentIndexChanged[str].connect(self.populateWeldThickCombo)
-#         self.ui.comboConnLoc.currentIndexChanged[str].connect(self.populateWeldThickCombo)
-#         self.ui.comboPlateThick_2.currentIndexChanged[str].connect(self.populateWeldThickCombo)
-#         
+#         self.ui.comboColSec.currentIndexChanged[int].connect(lambda:self.fillCleatSectionCombo("combo_Beam"))
+#         self.ui.combo_Beam.currentIndexChanged[int].connect(lambda:self.fillCleatSectionCombo("combo_Beam"))
         
+        ######################################################################################
         self.ui.menuView.addAction(self.ui.inputDock.toggleViewAction())
         self.ui.menuView.addAction(self.ui.outputDock.toggleViewAction())
         self.ui.btn_CreateDesign.clicked.connect(self.save_design)#Saves the create design report
@@ -145,6 +158,241 @@ class MainController(QtGui.QMainWindow):
         self.fuse_model = None
         self.disableViewButtons()
         
+    
+    
+    def fetchBeamPara(self):
+        beam_sec = self.ui.combo_Beam.currentText()
+        dictbeamdata  = get_beamdata(beam_sec)
+        return dictbeamdata
+    
+    def fetchColumnPara(self):
+        column_sec = self.ui.comboColSec.currentText()
+        loc = self.ui.comboConnLoc.currentText()
+        if loc == "Beam-Beam":
+            dictcoldata = get_beamdata(column_sec)
+        else:
+            dictcoldata = get_columndata(column_sec)
+        return dictcoldata
+    def fetchAnglePara(self):
+        angle_sec = self.ui.comboCleatSection.currentText()
+        dictangledata = get_angledata(angle_sec)
+        return dictangledata
+
+    def convertColComboToBeam(self):
+
+        loc = self.ui.comboConnLoc.currentText()
+        if loc == "Beam-Beam":
+            self.ui.beamSection_lbl.setText(" Secondary beam *")
+            self.ui.columnSection_lbl.setText("Primary beam *")
+            
+            self.ui.comboColSec.clear()
+            self.ui.comboColSec.addItems(get_beamcombolist())
+            
+        elif loc == "Column web-Beam web" or loc == "Column flange-Beam web":
+            
+            self.ui.columnSection_lbl.setText("Column Section *")
+            self.ui.beamSection_lbl.setText("Beam section *")
+            self.ui.comboColSec.clear()
+            self.ui.comboColSec.addItems(get_columncombolist())
+            print"changes the current index"
+            self.ui.combo_Beam.setCurrentIndex(0)
+            self.ui.comboColSec.setCurrentIndex(0)
+    
+    
+    def fillCleatSectionCombo(self):
+            
+        '''Populates the cleat section on the basis  beam section and column section
+        '''
+#         
+        if self.ui.combo_Beam.currentText() == "Select Designation" or self.ui.comboColSec.currentText() == "Select Column":
+            self.ui.comboCleatSection.setCurrentIndex(0)
+        loc = self.ui.comboConnLoc.currentText() 
+        if loc == "Column web-Beam web" or "Column flange-Beam web" : 
+            loc = self.ui.comboConnLoc.currentText()
+            dictbeamdata = self.fetchBeamPara()
+            dictcoldata = self.fetchColumnPara()
+            angleList = get_anglecombolist()
+            col_D = float(dictcoldata[QString("D")])
+            col_B = float(dictcoldata[QString("B")])
+            col_T = float(dictcoldata[QString("T")])
+            beam_tw = float(dictbeamdata[QString("tw")])
+            
+            if loc == "Column web-Beam web":
+                colWeb = col_D - 2 * col_T
+            elif loc == "Column flange-Beam web":
+                colWeb = col_B
+            newlist = ['Select Cleat']
+                   
+            for ele in angleList[1:]:
+                angle_sec =  QtCore.QString(str(ele))
+                dictAngleData = get_angledata(angle_sec)
+                cleatLegsize_B = float(dictAngleData[QtCore.QString('B')])
+                conLegsize  = 2 * cleatLegsize_B + beam_tw
+                space = colWeb - conLegsize
+                if space > 0 :
+                    newlist.append(str(ele))
+                else:
+                    break
+             
+            self.ui.comboCleatSection.blockSignals(True)
+                
+            self.ui.comboCleatSection.clear()
+            for i in newlist[:]:
+                self.ui.comboCleatSection.addItem(str(i))
+        
+            self.ui.comboCleatSection.setCurrentIndex(-1)    
+        
+            self.ui.comboCleatSection.blockSignals(False)    
+            self.ui.comboCleatSection.setCurrentIndex(0)
+        else:
+            pass   
+            
+     
+    
+#     def fillCleatSectionCombo(self,culprit):
+#           
+#         '''Populates the cleat section on the basis  beam section and column section
+#         '''
+# #         print "culprit is " + culprit
+# #         print "culprit.currentText(): "+ self.ui.combo_Beam.currentText()
+#         if self.ui.combo_Beam.currentText() == "Select Designation" or self.ui.comboColSec.currentText() == "Select Designation":
+#             self.ui.comboCleatSection.setCurrentIndex(0)
+#         
+#         else: 
+#             loc = self.ui.comboConnLoc.currentText()
+#             if loc == "Column web-Beam web":
+#                 print " checking for cleat legsize"
+#                 dictbeamdata = self.fetchBeamPara()
+#                 dictcoldata = self.fetchColumnPara()
+#                 dictAngle = self.fetchAnglePara()
+#                 angleList = get_anglecombolist()
+#                 print angleList
+#                 #getting parameters
+#                 col_D = float(dictcoldata[QString("D")])
+#                 col_T = float(dictcoldata[QString("T")])
+#     #             cleatLegsize_B = float(dictAngle[QString("B")])
+#                 beam_tw = float(dictbeamdata[QString("tw")])
+#                 #......................................................
+#     #             plateThickness = [6,8,10,12,14,16,18,20]
+#                 colWeb = col_D - 2 * col_T
+#                 cleatLegsize_B = (colWeb - beam_tw)/2
+#     #             conLegsize  = 2 * cleatLegsize_B + beam_tw
+#     #             space = colWeb - conLegsize
+#                 newlist = ['Select Cleat']
+#                  
+#                 for ele in angleList[1:]:
+#                     print "ele printed down"
+#                     print ele
+#                     angle_sec = QtCore.QString(str(ele))
+#                     print "Qstring printed down"
+#                     print angle_sec
+#                     dictAngleData = get_angledata(angle_sec)
+#                     print "angle data printed Down"
+#                     print dictAngleData
+# #                     QB =  "PyQt4.QtCore.QString(u'B')"
+# #                     cleatLegsize_B = float(dictAngle[QB])
+#                     cleatLegsize_B = float(dictAngle[QString('B')])
+#                     conLegsize  = 2 * cleatLegsize_B + beam_tw
+#                     space = colWeb - conLegsize
+#     #                 item = int(ele)
+#                     if space > 0 :
+#                         newlist.append(str(ele))
+#                     else:
+#                         break
+#                   
+#                 self.ui.comboCleatSection.blockSignals(True)
+#                   
+#                 self.ui.comboCleatSection.clear()
+#                 for i in newlist[:]:
+#                     self.ui.comboCleatSection.addItem(str(i))
+#           
+#                 self.ui.comboCleatSection.setCurrentIndex(-1)    
+#           
+#                 self.ui.comboCleatSection.blockSignals(False)    
+#                 self.ui.comboCleatSection.setCurrentIndex(0)
+#             elif loc == "Column flange-Beam web":
+#                 pass
+#             else:
+#                 pass
+
+
+
+#     def fillCleatSectionCombo(self,culprit):
+#         
+#         '''Populates the plate thickness on the basis of beam web thickness and plate thickness check
+#         '''
+#         print "culprit is " + culprit
+#         print "culprit.currentText(): "+ self.ui.combo_Beam.currentText()
+#         if self.ui.combo_Beam.currentText() == "Select section":
+#             self.ui.comboPlateThick_2.setCurrentIndex(0)
+#             self.ui.comboWldSize.setCurrentIndex(0)
+#             return
+#         else:
+#             dictbeamdata = self.fetchBeamPara()
+#             beam_tw = float(dictbeamdata[QString("tw")])
+#             plateThickness = [6,8,10,12,14,16,18,20]
+#             newlist = ['Select plate thickness']
+#             newlist =[]
+#             for ele in plateThickness[:]:
+#                 item = int(ele)
+#                 if item >= beam_tw:
+#                     newlist.append(str(item))
+#             
+#             self.ui.comboPlateThick_2.blockSignals(True)
+#             
+#             self.ui.comboPlateThick_2.clear()
+#             for i in newlist[:]:
+#                 self.ui.comboPlateThick_2.addItem(str(i))
+#     
+#             self.ui.comboPlateThick_2.setCurrentIndex(-1)    
+#     
+#             self.ui.comboPlateThick_2.blockSignals(False)    
+#             self.ui.comboPlateThick_2.setCurrentIndex(0) 
+#             
+               
+    def checkBeam_B(self):
+        loc = self.ui.comboConnLoc.currentText()
+        if loc  == "Column web-Beam web":
+#             if self.ui.comboColSec.currentIndex()== 0:
+#                 QtGui.QMessageBox.about(self,"Information", "Please select column section")
+#                 return
+            column = self.ui.comboColSec.currentText()
+          
+            dictBeamData = self.fetchBeamPara()
+            dictColData = self.fetchColumnPara()
+            column_D = float(dictColData[QString("D")])
+            column_T = float(dictColData[QString("T")])
+            column_R1 = float(dictColData[QString("R1")])
+            columnWebDepth = column_D - 2.0 *( column_T)
+            
+            beam_B = float(dictBeamData[QString('B')])
+            
+            if columnWebDepth <= beam_B:
+                self.ui.btn_Design.setDisabled(True)
+                QtGui.QMessageBox.about(self,'Information',"Beam flange is wider than clear depth of column web (No provision in Osdag till now)")
+            else:
+                self.ui.btn_Design.setDisabled(False)
+        elif loc == "Beam-Beam":
+#             if self.ui.comboColSec.currentIndex()== 0 or self.ui.combo_Beam.currentIndex()==0:
+#                 QtGui.QMessageBox.about(self,"Information", "Please select column section")
+#                 return
+            primaryBeam = self.ui.comboColSec.currentText()
+            dictSBeamData = self.fetchBeamPara()
+            dictPBeamData = self.fetchColumnPara()
+            PBeam_D = float(dictPBeamData[QString("D")])
+            PBeam_T = float(dictPBeamData[QString("T")])
+            PBeamWebDepth = PBeam_D - 2.0 *( PBeam_T)
+            
+            SBeam_D = float(dictSBeamData[QString("D")])
+            
+            if PBeamWebDepth <= SBeam_D:
+                self.ui.btn_Design.setDisabled(True)
+                QtGui.QMessageBox.about(self,'Information',"Secondary beam depth is higher than clear depth of primary beam web (No provision in Osdag till now)")
+            else:
+                self.ui.btn_Design.setDisabled(False)
+    
+            
+
     def showFontDialogue(self):
         
         font, ok = QtGui.QFontDialog.getFont()
@@ -202,21 +450,15 @@ class MainController(QtGui.QMainWindow):
         self.ui.chkBxCol.setEnabled(True)
         self.ui.chkBxFinplate.setEnabled(True)
         
-#     def fillPlateThickCombo(self):
-#         '''Populates the plate thickness on the basis of beam web thickness and plate thickness check
-#         '''
-#         dictbeamdata = self.fetchBeamPara()
-#         beam_tw = float(dictbeamdata[QString("tw")])
-#         plateThickness = [6,8,10,12,14,16,18,20]
-#         newlist = ['Select plate thickness']
-#         for ele in plateThickness[1:]:
-#             item = int(ele)
-#             if item >= beam_tw:
-#                 newlist.append(str(item))
-#         self.ui.comboPlateThick_2.clear()
-#         for i in newlist[:]:
-#             self.ui.comboPlateThick_2.addItem(str(i))
-#         self.ui.comboPlateThick_2.setCurrentIndex(1)
+    
+    
+    
+    
+    
+    
+    
+    
+    
            
 #     def populateWeldThickCombo(self):
 #         '''
@@ -478,7 +720,7 @@ class MainController(QtGui.QMainWindow):
         self.ui.txtbearCapacity.clear()
         self.ui.txtBoltCapacity.clear()
         self.ui.txtNoBolts.clear()
-        self.ui.txtboltgrpcapacity.clear()
+        self.ui.txtBoltGrpCapacity.clear()
         self.ui.txt_row.clear()
         self.ui.txt_col.clear()
         self.ui.txtPitch.clear()
@@ -740,20 +982,7 @@ class MainController(QtGui.QMainWindow):
                 osdagDisplayShape(self.display,nutbolt,color = Quantity_NOC_SADDLEBROWN,update = True)
             #self.display.DisplayShape(self.connectivity.nutBoltArray.getModels(), color = Quantity_NOC_SADDLEBROWN, update=True)
         
-    def fetchBeamPara(self):
-        beam_sec = self.ui.combo_Beam.currentText()
-        dictbeamdata  = get_beamdata(beam_sec)
-        return dictbeamdata
     
-    def fetchColumnPara(self):
-        column_sec = self.ui.comboColSec.currentText()
-        dictcoldata = get_columndata(column_sec)
-        return dictcoldata
-    def fetchAnglePara(self):
-        angle_sec = self.ui.comboCleatSection.currentText()
-        dictangledata = get_angledata(angle_sec)
-        return dictangledata
-
     
     def create3DColWebBeamWeb(self):
         '''
