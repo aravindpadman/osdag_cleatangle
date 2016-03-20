@@ -17,6 +17,10 @@ from OCC.StlAPI import StlAPI_Writer
 from OCC.TopoDS import topods, TopoDS_Shape
 from OCC.gp import gp_Pnt
 from PyQt4.QtCore import QString, pyqtSignal
+from PyQt4.QtWebKit import *
+from PyQt4.Qt import QPrinter
+
+
 import os.path
 import pickle
 import svgwrite
@@ -27,6 +31,8 @@ from angle import Angle
 from bolt import Bolt
 from colFlangeBeamWebConnectivity import ColFlangeBeamWeb
 from colWebBeamWebConnectivity import ColWebBeamWeb
+from beamWebBeamWebConnectivity import BeamWebBeamWeb
+from notch import Notch
 from drawing_2D import Fin2DCreatorFront
 from drawing2D import *
 from filletweld import FilletWeld
@@ -34,7 +40,7 @@ from cleatCalc import cleatAngleConn
 from model import *
 from nut import Nut 
 from nutBoltPlacement import NutBoltArray
-from ui_cleatAngleR02 import Ui_MainWindow
+from ui_cleatAngleR03 import Ui_MainWindow
 from utilities import osdagDisplayShape
 
 
@@ -63,7 +69,7 @@ class MainController(QtGui.QMainWindow):
         
         
         self.ui.comboConnLoc.currentIndexChanged[str].connect(self.setimage_connection)
-#         self.retrieve_prevstate()
+        self.retrieve_prevstate()
         #Adding GUI changes for beam to beam connection
         self.ui.comboConnLoc.currentIndexChanged[str].connect(self.convertColComboToBeam)
         ############################
@@ -77,7 +83,8 @@ class MainController(QtGui.QMainWindow):
         self.ui.btn3D.clicked.connect(lambda:self.call_3DModel(True))
         self.ui.chkBxBeam.clicked.connect(self.call_3DBeam)
         self.ui.chkBxCol.clicked.connect(self.call_3DColumn)
-        self.ui.chkBxFinplate.clicked.connect(self.call_3DFinplate)
+#         self.ui.chkBxFinplate.clicked.connect(self.call_3DFinplate)
+        self.ui.checkBoxCleat.clicked.connect(self.call_3DFinplate)
         
         validator = QtGui.QIntValidator()
         self.ui.txtFu.setValidator(validator)
@@ -98,38 +105,39 @@ class MainController(QtGui.QMainWindow):
         self.ui.txtFy.editingFinished.connect(lambda: self.check_range(self.ui.txtFy,self.ui.lbl_fy, minfyVal, maxfyVal))
        
          ##### MenuBar #####
-        self.ui.actionQuit_cleat_angle_design.setShortcut('Ctrl+Q')
-        self.ui.actionQuit_cleat_angle_design.setStatusTip('Exit application')
-        self.ui.actionQuit_cleat_angle_design.triggered.connect(QtGui.qApp.quit)
+#         self.ui.actionQuit_cleat_angle_design.setShortcut('Ctrl+Q')
+#         self.ui.actionQuit_cleat_angle_design.setStatusTip('Exit application')
+#         self.ui.actionQuit_cleat_angle_design.triggered.connect(QtGui.qApp.quit)
          
-#         self.ui.actionCreate_design_report.triggered.connect(self.save_design)
-#         self.ui.actionSave_log_messages.triggered.connect(self.save_log)
-#         self.ui.actionEnlarge_font_size.triggered.connect(self.showFontDialogue)
+        self.ui.actionCreate_design_report.triggered.connect(self.save_design)
+        self.ui.actionSave_log_message.triggered.connect(self.save_log)
+        self.ui.actionEnlarge_font_size.triggered.connect(self.showFontDialogue)
         self.ui.actionZoom_in.triggered.connect(self.callZoomin)
         self.ui.actionZoom_out.triggered.connect(self.callZoomout)
         self.ui.actionSave_3D_model_as.triggered.connect(self.save3DcadImages)
-        self.ui.actionSave_current_2D_image_as.triggered.connect(self.save2DcadImages)
-        self.ui.actionView_2D_on_ZX.triggered.connect(self.call_Frontview)
-        self.ui.actionView_2D_on_XY.triggered.connect(self.call_Topview)
-        self.ui.actionView_2D_on_YZ.triggered.connect(self.call_Sideview)
+        self.ui.actionSave_CAD_image.triggered.connect(self.save2DcadImages)
+        self.ui.actionSave_Front_View.triggered.connect(lambda:self.call_2d_Drawing("Front"))
+        self.ui.actionSave_Side_View.triggered.connect(lambda:self.call_2d_Drawing("Side"))
+        self.ui.actionSave_Top_View.triggered.connect(lambda:self.call_2d_Drawing("Top"))
         self.ui.actionPan.triggered.connect(self.call_Pannig)
+        
+        
+        self.ui.actionShow_beam.triggered.connect(self.call_3DBeam)
+        self.ui.actionShow_column.triggered.connect(self.call_3DColumn)
+        self.ui.actionShow_cleat_angle.triggered.connect(self.call_3DFinplate)
+        self.ui.actionChange_background.triggered.connect(self.showColorDialog)
         ###############################MARCH_14#############################
         #populate cleat section and secondary beam according to user input
-#         self.ui.combo_Beam.addItems(get_beamcombolist())#march_14!!!!!!!!!
-#         self.ui.comboColSec.addItems(get_columncombolist())#march_14!!!!!!!!!
-#         if self.ui.comboColSec.currentIndex() > 0 and self.ui.combo_Beam.currentIndex() > 0:
-#             print "yes i am ok"
-#             self.fillCleatSectionCombo("combo_Beam")
+
         self.ui.comboColSec.currentIndexChanged[int].connect(lambda:self.fillCleatSectionCombo())
-#         self.ui.combo_Beam.currentIndexChanged[int].connect(lambda:self.fillCleatSectionCombo())
         self.ui.combo_Beam.currentIndexChanged[str].connect(self.checkBeam_B)
         self.ui.comboColSec.currentIndexChanged[str].connect(self.checkBeam_B)
-#         self.ui.combo_Beam.currentIndexChanged[int].connect(lambda:self.fillCleatSectionCombo())
+#         self.ui.txtInputCleatHeight.currentText.connect(self.checkCleatHeight())
+#         cleatHeight = self.ui.txtInputCleatHeight.currentText()
+#         if cleatHeight != 0:
+#             self.
+        self.ui.txtInputCleatHeight.editingFinished.connect(lambda: self.checkCleatHeight(self.ui.txtInputCleatHeight))
 
-#         self.ui.comboPlateThick_2.currentIndexChanged[int].connect(lambda:self.populateWeldThickCombo("comboPlateThick_2"))
-        
-#         self.ui.comboColSec.currentIndexChanged[int].connect(lambda:self.fillCleatSectionCombo("combo_Beam"))
-#         self.ui.combo_Beam.currentIndexChanged[int].connect(lambda:self.fillCleatSectionCombo("combo_Beam"))
         
         ######################################################################################
         self.ui.menuView.addAction(self.ui.inputDock.toggleViewAction())
@@ -141,9 +149,9 @@ class MainController(QtGui.QMainWindow):
         # Saving and Restoring the finPlate window state.
         #self.retrieve_prevstate()
         
-        self.ui.btnZmIn.clicked.connect(self.callZoomin)
-        self.ui.btnZmOut.clicked.connect(self.callZoomout)
-        self.ui.btnRotatCw.clicked.connect(self.callRotation)
+#         self.ui.btnZmIn.clicked.connect(self.callZoomin)
+#         self.ui.btnZmOut.clicked.connect(self.callZoomout)
+#         self.ui.btnRotatCw.clicked.connect(self.callRotation)
         self.ui.btn_Reset.clicked.connect(self.resetbtn_clicked)
         
         self.ui.btn_Design.clicked.connect(self.design_btnclicked)
@@ -151,7 +159,7 @@ class MainController(QtGui.QMainWindow):
         # Initialising the qtviewer
         self.display,_ = self.init_display(backend_str="pyqt4")
         
-        self.ui.btnSvgSave.clicked.connect(self.save3DcadImages)
+#         self.ui.btnSvgSave.clicked.connect(self.save3DcadImages)
         #self.ui.btnSvgSave.clicked.connect(lambda:self.saveTopng(self.display))
         
         self.connectivity = None
@@ -198,12 +206,12 @@ class MainController(QtGui.QMainWindow):
             self.ui.combo_Beam.setCurrentIndex(0)
             self.ui.comboColSec.setCurrentIndex(0)
     
-    
+    cleatAngleConn
     def fillCleatSectionCombo(self):
             
         '''Populates the cleat section on the basis  beam section and column section
         '''
-#         
+         
         if self.ui.combo_Beam.currentText() == "Select Designation" or self.ui.comboColSec.currentText() == "Select Column":
             self.ui.comboCleatSection.setCurrentIndex(0)
         loc = self.ui.comboConnLoc.currentText() 
@@ -249,106 +257,7 @@ class MainController(QtGui.QMainWindow):
             
      
     
-#     def fillCleatSectionCombo(self,culprit):
-#           
-#         '''Populates the cleat section on the basis  beam section and column section
-#         '''
-# #         print "culprit is " + culprit
-# #         print "culprit.currentText(): "+ self.ui.combo_Beam.currentText()
-#         if self.ui.combo_Beam.currentText() == "Select Designation" or self.ui.comboColSec.currentText() == "Select Designation":
-#             self.ui.comboCleatSection.setCurrentIndex(0)
-#         
-#         else: 
-#             loc = self.ui.comboConnLoc.currentText()
-#             if loc == "Column web-Beam web":
-#                 print " checking for cleat legsize"
-#                 dictbeamdata = self.fetchBeamPara()
-#                 dictcoldata = self.fetchColumnPara()
-#                 dictAngle = self.fetchAnglePara()
-#                 angleList = get_anglecombolist()
-#                 print angleList
-#                 #getting parameters
-#                 col_D = float(dictcoldata[QString("D")])
-#                 col_T = float(dictcoldata[QString("T")])
-#     #             cleatLegsize_B = float(dictAngle[QString("B")])
-#                 beam_tw = float(dictbeamdata[QString("tw")])
-#                 #......................................................
-#     #             plateThickness = [6,8,10,12,14,16,18,20]
-#                 colWeb = col_D - 2 * col_T
-#                 cleatLegsize_B = (colWeb - beam_tw)/2
-#     #             conLegsize  = 2 * cleatLegsize_B + beam_tw
-#     #             space = colWeb - conLegsize
-#                 newlist = ['Select Cleat']
-#                  
-#                 for ele in angleList[1:]:
-#                     print "ele printed down"
-#                     print ele
-#                     angle_sec = QtCore.QString(str(ele))
-#                     print "Qstring printed down"
-#                     print angle_sec
-#                     dictAngleData = get_angledata(angle_sec)
-#                     print "angle data printed Down"
-#                     print dictAngleData
-# #                     QB =  "PyQt4.QtCore.QString(u'B')"
-# #                     cleatLegsize_B = float(dictAngle[QB])
-#                     cleatLegsize_B = float(dictAngle[QString('B')])
-#                     conLegsize  = 2 * cleatLegsize_B + beam_tw
-#                     space = colWeb - conLegsize
-#     #                 item = int(ele)
-#                     if space > 0 :
-#                         newlist.append(str(ele))
-#                     else:
-#                         break
-#                   
-#                 self.ui.comboCleatSection.blockSignals(True)
-#                   
-#                 self.ui.comboCleatSection.clear()
-#                 for i in newlist[:]:
-#                     self.ui.comboCleatSection.addItem(str(i))
-#           
-#                 self.ui.comboCleatSection.setCurrentIndex(-1)    
-#           
-#                 self.ui.comboCleatSection.blockSignals(False)    
-#                 self.ui.comboCleatSection.setCurrentIndex(0)
-#             elif loc == "Column flange-Beam web":
-#                 pass
-#             else:
-#                 pass
-
-
-
-#     def fillCleatSectionCombo(self,culprit):
-#         
-#         '''Populates the plate thickness on the basis of beam web thickness and plate thickness check
-#         '''
-#         print "culprit is " + culprit
-#         print "culprit.currentText(): "+ self.ui.combo_Beam.currentText()
-#         if self.ui.combo_Beam.currentText() == "Select section":
-#             self.ui.comboPlateThick_2.setCurrentIndex(0)
-#             self.ui.comboWldSize.setCurrentIndex(0)
-#             return
-#         else:
-#             dictbeamdata = self.fetchBeamPara()
-#             beam_tw = float(dictbeamdata[QString("tw")])
-#             plateThickness = [6,8,10,12,14,16,18,20]
-#             newlist = ['Select plate thickness']
-#             newlist =[]
-#             for ele in plateThickness[:]:
-#                 item = int(ele)
-#                 if item >= beam_tw:
-#                     newlist.append(str(item))
-#             
-#             self.ui.comboPlateThick_2.blockSignals(True)
-#             
-#             self.ui.comboPlateThick_2.clear()
-#             for i in newlist[:]:
-#                 self.ui.comboPlateThick_2.addItem(str(i))
-#     
-#             self.ui.comboPlateThick_2.setCurrentIndex(-1)    
-#     
-#             self.ui.comboPlateThick_2.blockSignals(False)    
-#             self.ui.comboPlateThick_2.setCurrentIndex(0) 
-#             
+             
                
     def checkBeam_B(self):
         loc = self.ui.comboConnLoc.currentText()
@@ -390,8 +299,31 @@ class MainController(QtGui.QMainWindow):
                 QtGui.QMessageBox.about(self,'Information',"Secondary beam depth is higher than clear depth of primary beam web (No provision in Osdag till now)")
             else:
                 self.ui.btn_Design.setDisabled(False)
-    
-            
+    def checkCleatHeight(self,widget):
+        loc = self.ui.combo_Beam.currentText()
+        cleatHeight = widget.text()
+        val = int(cleatHeight) 
+        if cleatHeight == 0:
+            pass
+        else:
+            column = self.ui.comboColSec.currentText()
+            dictBeamData = self.fetchBeamPara()
+            beam_D = float(dictBeamData[QString('D')])
+            beam_T = float(dictBeamData[QString('T')])
+            beam_R1 = float(dictBeamData[QString('R1')])
+            clearDepth = 0.0
+            if loc  == "Column web-Beam web" or loc == "Column flange-Beam web":
+                clearDepth = beam_D - 2 * (beam_T + beam_R1)
+            else:
+                clearDepth = beam_D - (50 + beam_R1 + beam_T) 
+                      
+            if clearDepth <= cleatHeight:
+                self.ui.btn_Design.setDisabled(True)
+                QtGui.QMessageBox.about(self,'Information',"Height of the Cleat Angle exceeding the clear Depth of the Beam)")
+            else:
+                self.ui.btn_Design.setDisabled(False)
+             
+                
 
     def showFontDialogue(self):
         
@@ -400,6 +332,15 @@ class MainController(QtGui.QMainWindow):
             self.ui.inputDock.setFont(font)
             self.ui.outputDock.setFont(font)
             self.ui.textEdit.setFont(font)
+            
+    def showColorDialog(self):
+      
+        col = QtGui.QColorDialog.getColor()
+        colorTup = col.getRgb()
+        r = colorTup[0]
+        g = colorTup[1]
+        b = colorTup[2]
+        self.display.set_bg_gradient_color(r,g,b,255,255,255)
         
     def callZoomin(self):
         self.display.ZoomFactor(2)
@@ -435,7 +376,7 @@ class MainController(QtGui.QMainWindow):
         self.ui.btn3D.setEnabled(False)
         self.ui.chkBxBeam.setEnabled(False)
         self.ui.chkBxCol.setEnabled(False)
-        self.ui.chkBxFinplate.setEnabled(False)
+        self.ui.checkBoxCleat.setEnabled(False)
     
     def enableViewButtons(self):
         '''
@@ -448,83 +389,42 @@ class MainController(QtGui.QMainWindow):
         self.ui.btn3D.setEnabled(True)
         self.ui.chkBxBeam.setEnabled(True)
         self.ui.chkBxCol.setEnabled(True)
-        self.ui.chkBxFinplate.setEnabled(True)
-        
+        self.ui.checkBoxCleat.setEnabled(True)
     
-    
-    
-    
-    
-    
-    
-    
-    
-           
-#     def populateWeldThickCombo(self):
-#         '''
-#         Returns the weld thickness on the basis column flange and plate thickness check
-#         '''
-#         newlist = ["Select weld thickness"]
-#         weldlist = [3,4,5,6,8,10,12,16]
-#         dictcoldata = self.fetchColumnPara()
-#         column_tf = float(dictcoldata[QString("T")])
-#         column_tw = float(dictcoldata[QString("tw")])
-#         plate_thick  =  float(self.ui.comboPlateThick_2.currentText())
-#         
-#         if self.ui.comboConnLoc.currentText() == "Column flange-Beam web":
-#             
-#             thickerPart = column_tf > plate_thick and column_tf or plate_thick
-#         
-#         else:
-#             thickerPart = column_tw > plate_thick and column_tw or plate_thick
-#             
-#         if thickerPart in range(0,11):
-#             weld_index = weldlist.index(3)
-#             newlist.extend(weldlist[weld_index:])
-#         elif thickerPart in range (11,21):
-#             weld_index = weldlist.index(5)
-#             newlist.extend(weldlist[weld_index:])
-#         elif thickerPart in range(21,33):
-#             weld_index = weldlist.index(6)
-#             newlist.extend(weldlist[weld_index: ])
-#         else:
-#             weld_index = weldlist.index(8)
-#             newlist.extend(weldlist[weld_index: ])
-#                 
-#         self.ui.comboWldSize.clear()
-#         for element in newlist[:]:
-#             self.ui.comboWldSize.addItem(str(element))
-
-    
-#     def retrieve_prevstate(self):
-#         uiObj = self.get_prevstate()
-#         if(uiObj != None):
-#             
-#             self.ui.combo_Beam.setCurrentIndex(self.ui.combo_Beam.findText(uiObj['Member']['BeamSection']))
-#             self.ui.comboColSec.setCurrentIndex(self.ui.comboColSec.findText(uiObj['Member']['ColumSection']))
-#             self.ui.comboCleatSection.setCurrentIndex(self.ui.comboCleatSection.findText(uiObj['cleat']['section']))
-#             
-#             self.ui.txtFu.setText(str(uiObj['Member']['fu (MPa)']))
-#             self.ui.txtFy.setText(str(uiObj['Member']['fy (MPa)']))
-#            
-#             self.ui.comboConnLoc.setCurrentIndex(self.ui.comboConnLoc.findText(str(uiObj['Member']['Connectivity'])))
-#             
-#             self.ui.txtShear.setText(str(uiObj['Load']['ShearForce (kN)']))
-#             
-#             self.ui.comboDiameter.setCurrentIndex(self.ui.comboDiameter.findText(str(uiObj['Bolt']['Diameter (mm)'])))
-#             comboBoltTypeIndex = self.ui.comboBoltType.findText(str(uiObj['Bolt']['Type']))
-#             self.ui.comboBoltType.setCurrentIndex(comboBoltTypeIndex)
-#             self.combotype_currentindexchanged(str(uiObj['Bolt']['Type']))
-#             
-#             prevValue = str(uiObj['Bolt']['Grade'])
-#         
-#             comboGradeIndex = self.ui.comboBoltGrade.findText(prevValue)
-#           
-#             self.ui.comboBoltGrade.setCurrentIndex(comboGradeIndex)        
-#             
-#             self.ui.txtInputCleatHeight.setText(str(uiObj['cleat']['Height (mm)']))
-#             
+    def retrieve_prevstate(self):
+        uiObj = self.get_prevstate()
+        if(uiObj != None):
             
+            self.ui.comboConnLoc.setCurrentIndex(self.ui.comboConnLoc.findText(str(uiObj['Member']['Connectivity'])))
+            
+            if uiObj['Member']['Connectivity'] == 'Beam-Beam':
+                self.ui.beamSection_lbl.setText('Secondary beam *')
+                self.ui.columnSection_lbl.setText('Primary beam *')
+                self.ui.comboColSec.addItems(get_beamcombolist())
+            
+            self.ui.combo_Beam.setCurrentIndex(self.ui.combo_Beam.findText(uiObj['Member']['BeamSection']))
+            self.ui.comboColSec.setCurrentIndex(self.ui.comboColSec.findText(uiObj['Member']['ColumSection']))
+            
+            
+            self.ui.txtFu.setText(str(uiObj['Member']['fu (MPa)']))
+            self.ui.txtFy.setText(str(uiObj['Member']['fy (MPa)']))
+           
+            
+            self.ui.txtShear.setText(str(uiObj['Load']['ShearForce (kN)']))
+            
+            self.ui.comboDiameter.setCurrentIndex(self.ui.comboDiameter.findText(str(uiObj['Bolt']['Diameter (mm)'])))
+            comboTypeIndex = self.ui.comboBoltType.findText(str(uiObj['Bolt']['Type']))
+            self.ui.comboBoltType.setCurrentIndex(comboTypeIndex)
+            self.combotype_currentindexchanged(str(uiObj['Bolt']['Type']))
+            
+            prevValue = str(uiObj['Bolt']['Grade'])
+        
+            comboGradeIndex = self.ui.comboBoltGrade.findText(prevValue)
+          
+            self.ui.comboBoltGrade.setCurrentIndex(comboGradeIndex)
+        
+            self.ui.txtInputCleatHeight.setText(str(uiObj['cleat']['Height (mm)']))     
+            self.ui.comboCleatSection.setCurrentIndex(self.ui.comboCleatSection.findText(str(uiObj['cleat']['section'])))
         
     def setimage_connection(self):
         '''
@@ -535,14 +435,14 @@ class MainController(QtGui.QMainWindow):
         if loc == "Column flange-Beam web":
             
             #pixmap = QtGui.QPixmap(":/newPrefix/images/beam2.jpg")
-            pixmap = QtGui.QPixmap(":/newPrefix/images/colF2.png")
+            pixmap = QtGui.QPixmap(":/ResourceFiles/images/colF2.png")
             pixmap.scaledToHeight(60)
             pixmap.scaledToWidth(50)
             self.ui.lbl_connectivity.setPixmap(pixmap)
             #self.ui.lbl_connectivity.show()
         elif(loc == "Column web-Beam web"):
             #picmap = QtGui.QPixmap(":/newPrefix/images/beam.jpg")
-            picmap = QtGui.QPixmap(":/newPrefix/images/colW3.png")
+            picmap = QtGui.QPixmap(":/ResourceFiles/images/colW3.png")
             picmap.scaledToHeight(60)
             picmap.scaledToWidth(50)
             self.ui.lbl_connectivity.setPixmap(picmap)
@@ -638,11 +538,19 @@ class MainController(QtGui.QMainWindow):
     
     
     def save_design(self):
-        self.outdict = self.outputdict()
-        self.inputdict = self.getuser_inputs()
-        self.save_yaml(self.outdict,self.inputdict)
+        fileName,pat =QtGui.QFileDialog.getSaveFileNameAndFilter(self,"Save File As","output/finplate/","All Files (*);;Html Files (*.html)")
+        self.call_2d_Drawing("All")
+        self.outdict = self.resultObj#self.outputdict()
+        self.inputdict = self.uiObj#self.getuser_inputs()
+        #self.save_yaml(self.outdict,self.inputdict)
+        dictBeamData  = self.fetchBeamPara()
+        dictColData  = self.fetchColumnPara()
+#         save_html(self.outdict, self.inputdict, dictBeamData, dictColData,fileName)
+#         self.htmlToPdf()
+        
+        QtGui.QMessageBox.about(self,'Information',"Report Saved")
     
-        #self.save(self.outdict,self.inputdict)
+        #self.save(self.outdict,self.inputdict)cleatAngleConn
         
     def save_log(self):
         
@@ -688,6 +596,20 @@ class MainController(QtGui.QMainWindow):
         
         #return self.save_file(fileName+".txt")
         #QtGui.QMessageBox.about(self,'Information',"File saved")
+        
+    def htmlToPdf(self):
+        
+        self.web.load(QtCore.QUrl("file:///home/deepa/EclipseWorkspace/OsdagLive/output/finplate/finPlateReport.html"))
+        printer = QtGui.QPrinter(QtGui.QPrinter.HighResolution)
+        printer.setPageSize(QPrinter.A4)
+        printer.setOutputFormat(QPrinter.PdfFormat)
+        printer.setColorMode(QPrinter.Color)
+        printer.setOutputFileName("output/finplate/designReport.pdf")
+        
+        def convertIt():
+            self.web.print_(printer)
+          
+        QtCore.QObject.connect(self.web, QtCore.SIGNAL("loadFinished(bool)"), convertIt)
 
         
     def resetbtn_clicked(self):
@@ -801,25 +723,25 @@ class MainController(QtGui.QMainWindow):
                     
         # resultObj['Bolt']
         shear_capacity = resultObj['Bolt']['shearcapacity']
-        self.ui.txtShrCapacity.setText(str(shear_capacity))
+#         self.ui.txtShrCapacity.setText(str(shear_capacity))
         
         bearing_capacity = resultObj['Bolt']['bearingcapacity']
-        self.ui.txtbearCapacity.setText(str(bearing_capacity))
+#         self.ui.txtbearCapacity.setText(str(bearing_capacity))
         
         bolt_capacity = resultObj['Bolt']['boltcapacity']
-        self.ui.txtBoltCapacity.setText(str(bolt_capacity))
+#         self.ui.txtBoltCapacity.setText(str(bolt_capacity))
         
         no_ofbolts = resultObj['Bolt']['numofbolts']
         self.ui.txtNoBolts.setText(str(no_ofbolts))
         #newly added field
         boltGrp_capacity = resultObj['Bolt']['boltgrpcapacity']
-        self.ui.txtBoltGrpCapacity.setText(str(boltGrp_capacity))
+#         self.ui.txtBoltGrpCapacity.setText(str(boltGrp_capacity))
         
         no_ofrows = resultObj['Bolt']['numofrow']
         self.ui.txt_row.setText(str(no_ofrows))
         
         no_ofcol = resultObj['Bolt']['numofcol']
-        self.ui.txt_col.setText(str(no_ofcol))
+        self.ui.txt_column.setText(str(no_ofcol))
         
         pitch_dist = resultObj['Bolt']['pitch']
         self.ui.txtBeamPitch.setText(str(pitch_dist))
@@ -833,25 +755,21 @@ class MainController(QtGui.QMainWindow):
         edge_dist = resultObj['Bolt']['edge']
         self.ui.txtEdgeDist.setText(str(edge_dist))
         
-#         resultant_shear = resultObj['Weld']['resultantshear']
-#         self.ui.txtResltShr.setText(str(resultant_shear))
-        
-#         weld_strength = resultObj['Weld']['weldstrength']
-#         self.ui.txtWeldStrng.setText(str(weld_strength))
+
          
         
         # Newly included fields
-        plate_ht = resultObj['cleat']['height'] 
-        self.ui.outputCleatHeight.setText(str(plate_ht))
+        cleat_ht = resultObj['cleat']['height'] 
+        self.ui.outputCleatHeight.setText(str(cleat_ht))
         
 #         plate_width = resultObj['Cleat']['width'] 
 #         self.ui.txtplate_width.setText(str(plate_width))
         
         moment_demand = resultObj['cleat']['externalmoment']
-        self.ui.txtExtMoment.setText(str(moment_demand))
+#         self.ui.txtExtMoment.setText(str(moment_demand))
         
         moment_capacity =  resultObj['cleat']['momentcapacity']
-        self.ui.txtMomntCapacity.setText(str(moment_capacity))
+#         self.ui.txtMomntCapacity.setText(str(moment_capacity))
     
    
     def displaylog_totextedit(self):
@@ -982,8 +900,93 @@ class MainController(QtGui.QMainWindow):
                 osdagDisplayShape(self.display,nutbolt,color = Quantity_NOC_SADDLEBROWN,update = True)
             #self.display.DisplayShape(self.connectivity.nutBoltArray.getModels(), color = Quantity_NOC_SADDLEBROWN, update=True)
         
+    def create3DBeamWebBeamWeb(self):
+        '''
+        creating 3d cad model with beam web beam web
+         
+        '''
+        uiObj = self.getuser_inputs()
+        resultObj = cleatAngleConn(uiObj)
+         
+        dictbeamdata  = self.fetchColumnPara()
+        ##### PRIMARY BEAM PARAMETERS #####
+        beam_D = int(dictbeamdata[QString("D")])
+        beam_B = int(dictbeamdata[QString("B")])
+        beam_tw = float(dictbeamdata[QString("tw")])
+        beam_T = float(dictbeamdata[QString("T")])
+        beam_alpha = float(dictbeamdata[QString("FlangeSlope")])
+        beam_R1 = float(dictbeamdata[QString("R1")])
+        beam_R2 = float(dictbeamdata[QString("R2")])
+        beam_length = 500.0 # This parameter as per view of 3D cad model
+         
+        #beam = ISection(B = 140, T = 16,D = 400,t = 8.9, R1 = 14, R2 = 7, alpha = 98,length = 500)
+        PBeam = ISection(B = beam_B, T = beam_T,D = beam_D,t = beam_tw,
+                        R1 = beam_R1, R2 = beam_R2, alpha = beam_alpha,
+                        length = beam_length, notchObj= None)
+         
+        ##### SECONDARY BEAM PARAMETERS ######
+        dictbeamdata2 = self.fetchBeamPara()
+         
+        beam2_D = int(dictbeamdata2[QString("D")])
+        beam2_B = int(dictbeamdata2[QString("B")])
+        beam2_tw = float(dictbeamdata2[QString("tw")])
+        beam2_T = float(dictbeamdata2[QString("T")])
+        beam2_alpha = float(dictbeamdata2[QString("FlangeSlope")])
+        beam2_R1 = float(dictbeamdata2[QString("R1")])
+        beam2_R2 = float(dictbeamdata2[QString("R2")])
+        
+        
+        notchObj = Notch(B= beam2_B ,t = beam2_tw ,R1 = beam2_R1 ,height=50,width= ((beam_B -(beam_tw + 40))/2.0 + 10),length = 100 )
+
+        #column = ISection(B = 83, T = 14.1, D = 250, t = 11, R1 = 12, R2 = 3.2, alpha = 98, length = 1000)
+        SBeam = ISection(B = beam2_B, T = beam2_T, D = beam2_D,
+                           t = beam2_tw, R1 = beam2_R1, R2 = beam2_R2, alpha = beam2_alpha, length = 800, notchObj = notchObj)
+                  
+         
+        #### WELD,PLATE,BOLT AND NUT PARAMETERS #####
+        
+        dictAngleData = self.fetchAnglePara()
+        cleat_length = resultObj['cleat']['height']
+        
+        cleat_thick = float(dictAngleData[QString("t")])
+        angle_A = int(dictAngleData[QString("A")])
+        angle_B = int(dictAngleData[QString("B")])
+#         cleat_thick = 10
+#         angle_A = 120
+#         angle_B = 90
+        
+        
+        bolt_dia = uiObj["Bolt"]["Diameter (mm)"]
+        bolt_r = bolt_dia/2
+        bolt_R = bolt_r + 7
+        nut_R = bolt_R
+        bolt_T = 10.0 # minimum bolt thickness As per Indian Standard
+        bolt_Ht = 50.0 # minimum bolt length as per Indian Standard IS 3750(1985)
+        nut_T = 12.0 # minimum nut thickness As per Indian Standard
+        nut_Ht = 12.2 #
+        
+        #plate = Plate(L= 300,W =100, T = 10)
+        angle = Angle(L= cleat_length,A= angle_A, B= angle_B, T = cleat_thick)
+        
+        
+
+        #bolt = Bolt(R = bolt_R,T = bolt_T, H = 38.0, r = 4.0 )
+        bolt = Bolt(R = bolt_R,T = bolt_T, H = bolt_Ht, r = bolt_r )
+         
+        #nut =Nut(R = bolt_R, T = 10.0,  H = 11, innerR1 = 4.0, outerR2 = 8.3)
+        nut = Nut(R = bolt_R, T = nut_T,  H = nut_Ht, innerR1 = bolt_r)
+        
+        gap = beam_tw + 2 * cleat_thick+ nut_T
+        cgap = beam2_tw +  cleat_thick+ nut_T
     
-    
+        
+        nutBoltArray = NutBoltArray(resultObj,nut,bolt,gap, cgap)
+         
+        beamwebconn = BeamWebBeamWeb(PBeam,SBeam,notchObj,angle,nutBoltArray)
+        beamwebconn.create_3dmodel()
+         
+        return  beamwebconn
+             
     def create3DColWebBeamWeb(self):
         '''
         creating 3d cad model with column web beam web
@@ -1145,11 +1148,11 @@ class MainController(QtGui.QMainWindow):
         
     
     def call_3DModel(self,flag): 
-        self.ui.btnSvgSave.setEnabled(True)
+#         self.ui.btnSvgSave.setEnabled(True)
         if self.ui.btn3D.isEnabled():
             self.ui.chkBxBeam.setChecked(QtCore.Qt.Unchecked)
             self.ui.chkBxCol.setChecked(QtCore.Qt.Unchecked)
-            self.ui.chkBxFinplate.setChecked(QtCore.Qt.Unchecked)
+            self.ui.checkBoxCleat.setChecked(QtCore.Qt.Unchecked)
             self.ui.mytabWidget.setCurrentIndex(0)
             
         if flag == True:
@@ -1157,9 +1160,14 @@ class MainController(QtGui.QMainWindow):
                 #self.create3DColWebBeamWeb()
                 self.connectivity =  self.create3DColWebBeamWeb()
                 self.fuse_model = None
-            else:
+            elif self.ui.comboConnLoc.currentText()== "Column flange-Beam web":
                 self.ui.mytabWidget.setCurrentIndex(0)
                 self.connectivity =  self.create3DColFlangeBeamWeb()
+                self.fuse_model = None
+                
+            else :
+                self.ui.mytabWidget.setCurrentIndex(0)
+                self.connectivity =  self.create3DBeamWebBeamWeb()
                 self.fuse_model = None
 
             self.display3Dmodel("Model")
@@ -1203,7 +1211,7 @@ class MainController(QtGui.QMainWindow):
     def call_3DFinplate(self):
         '''Displaying FinPlate in 3D
         '''
-        if self.ui.chkBxFinplate.isChecked():
+        if self.ui.checkBoxCleat.isChecked():
             self.ui.chkBxBeam.setChecked(QtCore.Qt.Unchecked)
             self.ui.chkBxCol.setChecked(QtCore.Qt.Unchecked)
             self.ui.mytabWidget.setCurrentIndex(0)
@@ -1233,9 +1241,6 @@ class MainController(QtGui.QMainWindow):
         # Displaying 3D Cad model
         status = resultObj['Bolt']['status']
         self.call_3DModel(status)
-        self.call_2d_Drawing()
-        print resultObj
-        print uiObj
         
         
     def create2Dcad(self,connectivity):
@@ -1359,7 +1364,7 @@ class MainController(QtGui.QMainWindow):
         
         '''Displays front view of 2Dmodel
         '''
-        self.ui.btnSvgSave.setEnabled(False)
+#         self.ui.btnSvgSave.setEnabled(False)
         self.ui.chkBxBeam.setChecked(QtCore.Qt.Unchecked)
         self.ui.chkBxCol.setChecked(QtCore.Qt.Unchecked)
         self.ui.chkBxFinplate.setChecked(QtCore.Qt.Unchecked)
@@ -1372,7 +1377,7 @@ class MainController(QtGui.QMainWindow):
                 self.fuse_model = self.create2Dcad(self.connectivity)
             self.display2DModel( self.fuse_model,"Front")
             
-            self.call2D_Drawing()
+            self.call_2d_Drawing()
         else:
             self.display.EraseAll()
             self.ui.mytabWidget.setCurrentIndex(0)
@@ -1381,38 +1386,67 @@ class MainController(QtGui.QMainWindow):
             if self.fuse_model == None:
                 self.fuse_model = self.create2Dcad(self.connectivity)
             self.display2DModel( self.fuse_model,"Left") 
-            self.call2D_Drawing()       
+            self.call_2d_Drawing()       
         
     
              
-    def call2D_Drawing(self):
-        uiObj = self.getuser_inputs()
+#     def call2D_Drawing(self):
+#         uiObj = self.getuser_inputs()
+#         
+#         resultObj = cleatAngleConn(uiObj)
+#         dictbeamdata  = self.fetchBeamPara()
+#         dictcoldata = self.fetchColumnPara()
+#         fin2DFront = Fin2DCreatorFront(uiObj,resultObj,dictbeamdata,dictcoldata)
+#         fin2DFront.saveToSvg()
         
-        resultObj = cleatAngleConn(uiObj)
-        dictbeamdata  = self.fetchBeamPara()
-        dictcoldata = self.fetchColumnPara()
-        fin2DFront = Fin2DCreatorFront(uiObj,resultObj,dictbeamdata,dictcoldata)
-        fin2DFront.saveToSvg()
-    
-    def call_2d_Drawing(self):
-        loc = self.ui.comboConnLoc.currentText()
-        uiObj = self.getuser_inputs()
         
+    def callDesired_View(self,fileName,view):
+        
+        uiObj = self.getuser_inputs()
         resultObj = cleatAngleConn(uiObj)
         dictbeamdata  = self.fetchBeamPara()
         dictcoldata = self.fetchColumnPara()
         dictangledata = self.fetchAnglePara()
-        if loc == "Column flange-Beam web" or "Column web-Beam web":
-            cleat2Dfront = FinCommonData(uiObj,resultObj,dictbeamdata,dictcoldata,dictangledata)
-        else:
-            cleat2Dfront = FinCommonData(uiObj,resultObj,dictbeamdata,dictcoldata,dictangledata)
-        cleat2Dfront.saveToSvg('/home/aravind/cleattestFront.svg', 'Front')
-        cleat2Dfront.saveToSvg('/home/aravind/cleattestSide.svg', 'Side')
-        cleat2Dfront.saveToSvg('/home/aravind/cleattestTop.svg', 'Top')
-
+        finCommonObj = FinCommonData(uiObj,resultObj,dictbeamdata,dictcoldata,dictangledata)
+        finCommonObj.saveToSvg(str(fileName),view)
+    
+    def call_2d_Drawing(self,view):
         
-        print resultObj
-        print uiObj
+        ''' This routine saves the 2D SVG image as per the connectivity selected
+        SVG image created through svgwrite pacage which takes design INPUT and OUTPUT parameters from Finplate GUI.
+        '''
+        if view == "All":
+            fileName = ''
+            self.callDesired_View(fileName, view)
+            
+            self.display.set_bg_gradient_color(255,255,255,255,255,255)
+            self.display.ExportToImage('/home/aravind/3D_Model.png')
+            
+        else:
+            
+            fileName = QtGui.QFileDialog.getSaveFileName(self,
+                    "Save SVG", '/home/aravind/untitle.svg',
+                    "SVG files (*.svg)")
+            f = open(fileName,'w')
+            
+            self.callDesired_View(fileName, view)
+           
+            f.close()
+#         loc = self.ui.comboConnLoc.currentText()
+#         uiObj = self.getuser_inputs()
+#         
+#         resultObj = cleatAngleConn(uiObj)
+#         dictbeamdata  = self.fetchBeamPara()
+#         dictcoldata = self.fetchColumnPara()
+#         dictangledata = self.fetchAnglePara()
+#         if loc == "Column flange-Beam web" or "Column web-Beam web":
+#             cleat2Dfront = FinCommonData(uiObj,resultObj,dictbeamdata,dictcoldata,dictangledata)
+#         else:
+#             cleat2Dfront = FinCommonData(uiObj,resultObj,dictbeamdata,dictcoldata,dictangledata)
+#         cleat2Dfront.saveToSvg('/home/aravind/cleattestFront.svg', 'Front')
+#         cleat2Dfront.saveToSvg('/home/aravind/cleattestSide.svg', 'Side')
+#         cleat2Dfront.saveToSvg('/home/aravind/cleattestTop.svg', 'Top')
+
         
         
             

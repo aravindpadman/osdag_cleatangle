@@ -5,9 +5,12 @@ Created on 29-Nov-2014
 '''
 import numpy
 from ModelUtils import *
-
+from OCC.BRepAlgoAPI import BRepAlgoAPI_Cut
+from notch import Notch
 
 class ISection(object):
+
+
     '''
                               ^ v
                               |                     
@@ -37,8 +40,9 @@ class ISection(object):
              c3               B                 c4       
              |<-------------------------------->| 
                                                     
-    '''  
-    def __init__(self, B, T, D, t, R1, R2, alpha, length):        
+    ''' 
+    
+    def __init__(self, B, T, D, t, R1, R2, alpha, length,notchObj):        
         self.B = B
         self.T = T 
         self.D = D
@@ -47,6 +51,8 @@ class ISection(object):
         self.R2 = R2
         self.alpha = alpha
         self.length = length
+        self.clearDist = 20
+        self.notchObj = notchObj
         self.secOrigin = numpy.array([0, 0, 0])
         self.uDir = numpy.array([1.0, 0, 0])
         self.wDir = numpy.array([0.0, 0, 1.0])
@@ -77,16 +83,30 @@ class ISection(object):
                        self.c2, self.b2, self.a2,
                        self.a3, self.b3, self.c3,
                        self.c4, self.b4, self.a4]
-        #self.points = [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]]  
-        
+        #self.points = [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]]
+          
+   
+    
     def createModel(self):
+        
         edges = makeEdgesFromPoints(self.points)
         wire = makeWireFromEdges(edges)
         aFace = makeFaceFromWire(wire)
         extrudeDir = self.length * self.wDir # extrudeDir is a numpy array
         prism =  makePrismFromFace(aFace, extrudeDir)
         
+        if self.notchObj != None:
+            uDir = numpy.array([-1.0, 0.0, 0])
+            wDir = numpy.array([0.0, 1.0, 0.0])
+            shiftOri = self.D/2.0 * self.vDir + self.notchObj.width/2.0* self.wDir + self.B/2.0 * -self.uDir #+ self.notchObj.width* self.wDir + self.T/2.0 * -self.uDir
+            origin2 = self.secOrigin +  shiftOri
+             
+            self.notchObj.place(origin2, uDir, wDir)
+            
+            notchModel = self.notchObj.createModel()
+            prism = BRepAlgoAPI_Cut(prism, notchModel).Shape() 
+        
         return prism
     
         
-        
+        +self.notchObj.height/2.0 * self.uDir

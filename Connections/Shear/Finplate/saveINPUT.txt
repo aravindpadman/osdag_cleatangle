@@ -4,14 +4,14 @@ p1
 (dp2
 S'ColumSection'
 p3
-S'ISHB 250'
+S'Select Column'
 p4
 sS'fu (MPa)'
 p5
 I410
 sS'BeamSection'
 p6
-S'ISMB 450'
+S'Select Designation'
 p7
 sS'fy (MPa)'
 p8
@@ -25,13 +25,13 @@ p11
 (dp12
 S'ShearForce (kN)'
 p13
-F150.0
+F0.0
 ssS'cleat'
 p14
 (dp15
 S'section'
 p16
-S'ISA 100X100X10'
+S'Select Cleat'
 p17
 sS'Height (mm)'
 p18
