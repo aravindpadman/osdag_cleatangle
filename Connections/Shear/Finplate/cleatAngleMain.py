@@ -35,7 +35,6 @@ from beamWebBeamWebConnectivity import BeamWebBeamWeb
 from notch import Notch
 from drawing_2D import Fin2DCreatorFront
 from drawing2D import *
-from filletweld import FilletWeld
 from cleatCalc import cleatAngleConn
 from model import *
 from nut import Nut 
@@ -76,9 +75,9 @@ class MainController(QtGui.QMainWindow):
         self.ui.btnInput.clicked.connect(lambda: self.dockbtn_clicked(self.ui.inputDock))
         self.ui.btnOutput.clicked.connect(lambda: self.dockbtn_clicked(self.ui.outputDock))
         
-        self.ui.btn_front.clicked.connect(self.call_Frontview)
-        self.ui.btn_top.clicked.connect(self.call_Topview)
-        self.ui.btn_side.clicked.connect(self.call_Sideview)
+        self.ui.btn_front.clicked.connect(lambda:self.call_2d_Drawing("Front"))
+        self.ui.btn_top.clicked.connect(lambda:self.call_2d_Drawing("Top"))
+        self.ui.btn_side.clicked.connect(lambda:self.call_2d_Drawing("Side"))
         
         self.ui.btn3D.clicked.connect(lambda:self.call_3DModel(True))
         self.ui.chkBxBeam.clicked.connect(self.call_3DBeam)
@@ -202,7 +201,7 @@ class MainController(QtGui.QMainWindow):
             self.ui.beamSection_lbl.setText("Beam section *")
             self.ui.comboColSec.clear()
             self.ui.comboColSec.addItems(get_columncombolist())
-            print"changes the current index"
+            
             self.ui.combo_Beam.setCurrentIndex(0)
             self.ui.comboColSec.setCurrentIndex(0)
     
@@ -478,6 +477,7 @@ class MainController(QtGui.QMainWindow):
         uiObj['Load']['ShearForce (kN)'] = float(self.ui.txtShear.text().toInt()[0])
         
         
+        
         return uiObj    
         
     def save_inputs(self,uiObj):
@@ -638,23 +638,32 @@ class MainController(QtGui.QMainWindow):
 #         self.ui.comboWldSize.setCurrentIndex((0))
         
         #----Output
-        self.ui.txtShrCapacity.clear()
-        self.ui.txtbearCapacity.clear()
-        self.ui.txtBoltCapacity.clear()
+#         self.ui.txtShrCapacity.clear()
+#         self.ui.txtbearCapacity.clear()
+#         self.ui.txtBoltCapacity.clear()
         self.ui.txtNoBolts.clear()
-        self.ui.txtBoltGrpCapacity.clear()
+#         self.ui.txtBoltGrpCapacity.clear()
         self.ui.txt_row.clear()
-        self.ui.txt_col.clear()
-        self.ui.txtPitch.clear()
-        self.ui.txtGuage.clear()
+        self.ui.txt_column.clear()
+        self.ui.txtBeamPitch.clear()
+        self.ui.txtBeamGuage.clear()
         self.ui.txtEndDist.clear()
         self.ui.txtEdgeDist.clear()
         
+        #column
+        self.ui.txtNoBolts_c.clear()
+        self.ui.txt_row_c.clear()
+        self.ui.txt_column_c.clear()
+        self.ui.txtBeamPitch_c.clear()
+        self.ui.txtBeamGuage_c.clear()
+        self.ui.txtEndDist_c.clear()
+        self.ui.txtEdgeDist_c.clear()
+        
         #self.ui.txtPlateThick.clear()
-        self.ui.txtplate_ht.clear()
-        self.ui.txtplate_width.clear()
-        self.ui.txtExtMomnt.clear()
-        self.ui.txtMomntCapacity.clear()
+        self.ui.outputCleatHeight.clear()
+#         self.ui.txtplate_width.clear()
+#         self.ui.txtExtMomnt.clear()
+#         self.ui.txtMomntCapacity.clear()
         
         #self.ui.txtWeldThick.clear()
 #         self.ui.txtResltShr.clear()
@@ -754,6 +763,28 @@ class MainController(QtGui.QMainWindow):
         
         edge_dist = resultObj['Bolt']['edge']
         self.ui.txtEdgeDist.setText(str(edge_dist))
+        #column 
+        c_noOfBolts = resultObj['cleat']['numofbolts']
+        self.ui.txtNoBolts_c.setText(str(c_noOfBolts))
+        cno_ofrows = resultObj['cleat']['numofrow']
+        self.ui.txt_row_c.setText(str(cno_ofrows))
+        
+        no_ofcol = resultObj['cleat']['numofcol']
+        self.ui.txt_column_c.setText(str(no_ofcol))
+        
+        pitch_dist = resultObj['cleat']['pitch']
+        self.ui.txtBeamPitch_c.setText(str(pitch_dist))
+        
+        gauge_dist = resultObj['cleat']['guage']
+        self.ui.txtBeamGuage_c.setText(str(gauge_dist))
+        
+        end_dist = resultObj['cleat']['end']
+        self.ui.txtEndDist_c.setText(str(end_dist))
+        
+        edge_dist = resultObj['cleat']['edge']
+        self.ui.txtEdgeDist_c.setText(str(edge_dist))
+        
+        
         
 
          
@@ -903,45 +934,45 @@ class MainController(QtGui.QMainWindow):
     def create3DBeamWebBeamWeb(self):
         '''
         creating 3d cad model with beam web beam web
-         
+       
         '''
         uiObj = self.getuser_inputs()
         resultObj = cleatAngleConn(uiObj)
-         
-        dictbeamdata  = self.fetchColumnPara()
+       
         ##### PRIMARY BEAM PARAMETERS #####
-        beam_D = int(dictbeamdata[QString("D")])
-        beam_B = int(dictbeamdata[QString("B")])
-        beam_tw = float(dictbeamdata[QString("tw")])
-        beam_T = float(dictbeamdata[QString("T")])
-        beam_alpha = float(dictbeamdata[QString("FlangeSlope")])
-        beam_R1 = float(dictbeamdata[QString("R1")])
-        beam_R2 = float(dictbeamdata[QString("R2")])
-        beam_length = 500.0 # This parameter as per view of 3D cad model
-         
-        #beam = ISection(B = 140, T = 16,D = 400,t = 8.9, R1 = 14, R2 = 7, alpha = 98,length = 500)
-        PBeam = ISection(B = beam_B, T = beam_T,D = beam_D,t = beam_tw,
-                        R1 = beam_R1, R2 = beam_R2, alpha = beam_alpha,
-                        length = beam_length, notchObj= None)
-         
+       
+        dictbeamdata  = self.fetchColumnPara()
+        pBeam_D = int(dictbeamdata[QString("D")])
+        pBeam_B = int(dictbeamdata[QString("B")])
+        pBeam_tw = float(dictbeamdata[QString("tw")])
+        pBeam_T = float(dictbeamdata[QString("T")])
+        pBeam_alpha = float(dictbeamdata[QString("FlangeSlope")])
+        pBeam_R1 = float(dictbeamdata[QString("R1")])
+        pBeam_R2 = float(dictbeamdata[QString("R2")])
+        pBeam_length = 800.0 # This parameter as per view of 3D cad model
+       
+        #beam = ISectionold(B = 140, T = 16,D = 400,t = 8.9, R1 = 14, R2 = 7, alpha = 98,length = 500)
+        column = ISection(B = pBeam_B, T = pBeam_T,D = pBeam_D,t = pBeam_tw,
+                        R1 = pBeam_R1, R2 = pBeam_R2, alpha = pBeam_alpha,
+                        length = pBeam_length,notchObj = None)
+       
         ##### SECONDARY BEAM PARAMETERS ######
         dictbeamdata2 = self.fetchBeamPara()
-         
-        beam2_D = int(dictbeamdata2[QString("D")])
-        beam2_B = int(dictbeamdata2[QString("B")])
-        beam2_tw = float(dictbeamdata2[QString("tw")])
-        beam2_T = float(dictbeamdata2[QString("T")])
-        beam2_alpha = float(dictbeamdata2[QString("FlangeSlope")])
-        beam2_R1 = float(dictbeamdata2[QString("R1")])
-        beam2_R2 = float(dictbeamdata2[QString("R2")])
-        
-        
-        notchObj = Notch(B= beam2_B ,t = beam2_tw ,R1 = beam2_R1 ,height=50,width= ((beam_B -(beam_tw + 40))/2.0 + 10),length = 100 )
-
-        #column = ISection(B = 83, T = 14.1, D = 250, t = 11, R1 = 12, R2 = 3.2, alpha = 98, length = 1000)
-        SBeam = ISection(B = beam2_B, T = beam2_T, D = beam2_D,
-                           t = beam2_tw, R1 = beam2_R1, R2 = beam2_R2, alpha = beam2_alpha, length = 800, notchObj = notchObj)
-                  
+       
+        sBeam_D = int(dictbeamdata2[QString("D")])
+        sBeam_B = int(dictbeamdata2[QString("B")])
+        sBeam_tw = float(dictbeamdata2[QString("tw")])
+        sBeam_T = float(dictbeamdata2[QString("T")])
+        sBeam_alpha = float(dictbeamdata2[QString("FlangeSlope")])
+        sBeam_R1 = float(dictbeamdata2[QString("R1")])
+        sBeam_R2 = float(dictbeamdata2[QString("R2")])
+       
+        #--Notch dimensions
+        notchObj = Notch(R1 = pBeam_R1, height = (pBeam_T + pBeam_R1), width= ((pBeam_B -(pBeam_tw + 40))/2.0 + 10),length = sBeam_B )
+        #column = ISectionold(B = 83, T = 14.1, D = 250, t = 11, R1 = 12, R2 = 3.2, alpha = 98, length = 1000)
+        beam = ISection(B = sBeam_B, T = sBeam_T, D = sBeam_D,
+                           t = sBeam_tw, R1 = sBeam_R1, R2 = sBeam_R2,
+                           alpha = sBeam_alpha, length = 500, notchObj = notchObj)
          
         #### WELD,PLATE,BOLT AND NUT PARAMETERS #####
         
@@ -976,13 +1007,13 @@ class MainController(QtGui.QMainWindow):
         #nut =Nut(R = bolt_R, T = 10.0,  H = 11, innerR1 = 4.0, outerR2 = 8.3)
         nut = Nut(R = bolt_R, T = nut_T,  H = nut_Ht, innerR1 = bolt_r)
         
-        gap = beam_tw + 2 * cleat_thick+ nut_T
-        cgap = beam2_tw +  cleat_thick+ nut_T
+        gap =  sBeam_tw + 2 * cleat_thick+ nut_T
+        cgap = pBeam_tw +  cleat_thick+ nut_T
     
         
         nutBoltArray = NutBoltArray(resultObj,nut,bolt,gap, cgap)
          
-        beamwebconn = BeamWebBeamWeb(PBeam,SBeam,notchObj,angle,nutBoltArray)
+        beamwebconn = BeamWebBeamWeb(column,beam,notchObj,angle,nutBoltArray)
         beamwebconn.create_3dmodel()
          
         return  beamwebconn
@@ -1194,7 +1225,7 @@ class MainController(QtGui.QMainWindow):
         '''
         if self.ui.chkBxBeam.isChecked():
             self.ui.chkBxCol.setChecked(QtCore.Qt.Unchecked)
-            self.ui.chkBxFinplate.setChecked(QtCore.Qt.Unchecked)
+            self.ui.checkBoxCleat.setChecked(QtCore.Qt.Unchecked)
             self.ui.mytabWidget.setCurrentIndex(0)
         
         self.display3Dmodel("Beam")
@@ -1204,7 +1235,7 @@ class MainController(QtGui.QMainWindow):
         '''
         if self.ui.chkBxCol.isChecked():
             self.ui.chkBxBeam.setChecked(QtCore.Qt.Unchecked)
-            self.ui.chkBxFinplate.setChecked(QtCore.Qt.Unchecked)
+            self.ui.checkBoxCleat.setChecked(QtCore.Qt.Unchecked)
             self.ui.mytabWidget.setCurrentIndex(0)
         self.display3Dmodel( "Column")
         
@@ -1241,6 +1272,8 @@ class MainController(QtGui.QMainWindow):
         # Displaying 3D Cad model
         status = resultObj['Bolt']['status']
         self.call_3DModel(status)
+        
+        print "inputs:  " , uiObj
         
         
     def create2Dcad(self,connectivity):
@@ -1367,7 +1400,7 @@ class MainController(QtGui.QMainWindow):
 #         self.ui.btnSvgSave.setEnabled(False)
         self.ui.chkBxBeam.setChecked(QtCore.Qt.Unchecked)
         self.ui.chkBxCol.setChecked(QtCore.Qt.Unchecked)
-        self.ui.chkBxFinplate.setChecked(QtCore.Qt.Unchecked)
+        self.ui.checkBoxCleat.setChecked(QtCore.Qt.Unchecked)
         if self.ui.comboConnLoc.currentText()== "Column web-Beam web":
             self.display.EraseAll()
             self.ui.mytabWidget.setCurrentIndex(1)
@@ -1432,6 +1465,11 @@ class MainController(QtGui.QMainWindow):
             self.callDesired_View(fileName, view)
            
             f.close()
+            
+            
+            
+            
+            
 #         loc = self.ui.comboConnLoc.currentText()
 #         uiObj = self.getuser_inputs()
 #         
@@ -1457,7 +1495,7 @@ class MainController(QtGui.QMainWindow):
         self.ui.btnSvgSave.setEnabled(False)
         self.ui.chkBxBeam.setChecked(QtCore.Qt.Unchecked)
         self.ui.chkBxCol.setChecked(QtCore.Qt.Unchecked)
-        self.ui.chkBxFinplate.setChecked(QtCore.Qt.Unchecked)
+        self.ui.checkBoxCleat.setChecked(QtCore.Qt.Unchecked)
         
         if self.ui.comboConnLoc.currentText()== "Column web-Beam web":    
             self.display.EraseAll()
@@ -1483,10 +1521,10 @@ class MainController(QtGui.QMainWindow):
         
         '''Displays Side view of the 2Dmodel'
         '''
-        self.ui.btnSvgSave.setEnabled(False)
+#         self.ui.btnSvgSave.setEnabled(False)
         self.ui.chkBxBeam.setChecked(QtCore.Qt.Unchecked)
         self.ui.chkBxCol.setChecked(QtCore.Qt.Unchecked)
-        self.ui.chkBxFinplate.setChecked(QtCore.Qt.Unchecked)
+        self.ui.checkBoxCleat.setChecked(QtCore.Qt.Unchecked)
         
         if self.ui.comboConnLoc.currentText()== "Column web-Beam web": 
             self.ui.mytabWidget.setCurrentIndex(1)

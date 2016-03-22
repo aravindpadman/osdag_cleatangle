@@ -1,40 +1,27 @@
 <link rel="stylesheet" type="text/css" href="log.css"/>
 
     <div  class="LOG INFO">
-        <span class="DATE">Sun, 20 Mar 2016 00:39:06</span>
+        <span class="DATE">Tue, 22 Mar 2016 15:31:04</span>
         <span class="LEVEL">INFO</span>
         <span class="MSG">: Overall finplate connection design is safe 
 </span>
     </div>
 
     <div  class="LOG INFO">
-        <span class="DATE">Sun, 20 Mar 2016 00:39:06</span>
+        <span class="DATE">Tue, 22 Mar 2016 15:31:04</span>
         <span class="LEVEL">INFO</span>
         <span class="MSG"> :=========End Of design===========</span>
     </div>
 
     <div  class="LOG INFO">
-        <span class="DATE">Sun, 20 Mar 2016 00:39:06</span>
+        <span class="DATE">Tue, 22 Mar 2016 15:31:04</span>
         <span class="LEVEL">INFO</span>
         <span class="MSG">: Overall finplate connection design is safe 
 </span>
     </div>
 
     <div  class="LOG INFO">
-        <span class="DATE">Sun, 20 Mar 2016 00:39:06</span>
-        <span class="LEVEL">INFO</span>
-        <span class="MSG"> :=========End Of design===========</span>
-    </div>
-
-    <div  class="LOG INFO">
-        <span class="DATE">Sun, 20 Mar 2016 00:39:39</span>
-        <span class="LEVEL">INFO</span>
-        <span class="MSG">: Overall finplate connection design is safe 
-</span>
-    </div>
-
-    <div  class="LOG INFO">
-        <span class="DATE">Sun, 20 Mar 2016 00:39:39</span>
+        <span class="DATE">Tue, 22 Mar 2016 15:31:04</span>
         <span class="LEVEL">INFO</span>
         <span class="MSG"> :=========End Of design===========</span>
     </div>

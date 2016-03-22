@@ -51,35 +51,49 @@ class BeamWebBeamWeb(object):
         self.angleLeftModel = self.angleLeft.createModel()
         self.nutboltArrayModels = self.nutBoltArray.createModel()
 #         self.notchModel = self.notch.createModel()
+#         return self.beamModel
+    
+#     def creatColumGeometry(self):
+#         columnOrigin = numpy.array([0, 0, 0])
+#         column_uDir = numpy.array([1.0, 0, 0])
+#         wDir1 = numpy.array([0.0, 1.0, 0.0])
+#         self.column.place(columnOrigin, column_uDir, wDir1)
+#         
+#     def createBeamGeometry(self):
+#         uDir = numpy.array([0, 1.0, 0])
+#         wDir = numpy.array([1.0, 0, 0.0])
+#         shiftOrigin = (self.column.D/2 - self.beam.D/2)
+#         origin2 = self.column.secOrigin + (-shiftOrigin) * self.column.vDir + (self.column.t/2 * self.column.uDir) + (self.column.length/2 * self.column.wDir) + (self.clearDist * self.column.uDir) 
+#         self.beam.place(origin2, uDir, wDir)
         
     def creatColumGeometry(self):
-        
+         
         columnOrigin = numpy.array([0, 0, 0])
         column_uDir = numpy.array([1.0, 0, 0])
         wDir1 = numpy.array([0.0, -1.0, 0.0])
         self.column.place(columnOrigin, column_uDir, wDir1)
-        
+         
     def createBeamGeometry(self):
         beamOrigin =((self.column.secOrigin + self.column.D/2-self.beam.D/2) * (self.column.vDir)) + ((self.column.t/2 + 20) * self.column.uDir) + (self.column.length/2 * (self.column.wDir))
-        uDir = numpy.array([0.0, -1.0, 0])
+        uDir = numpy.array([0.0, 1.0, 0])
         wDir = numpy.array([1.0, 0.0, 0.0])
         self.beam.place(beamOrigin, uDir, wDir)
         
 #     def createNotchGeometry(self):
 #         notchOrigin = (self.beam.secOrigin)*(self.beam.wDir)
-#         uDir = numpy.array([1.0, 0.0, 0])
-#         wDir = numpy.array([0.0, -1.0, 0.0])
+#         uDir = numpy.array([-1.0, 0.0, 0])
+#         wDir = numpy.array([0.0, 1.0, 0.0])
 #         self.notch.place(notchOrigin,uDir,wDir) 
         
     
     def createAngleGeometry(self):
         angle0Origin = (self.beam.secOrigin + 
-                   (self.beam.D/2.0 - self.notch.height - self.angle.L) * (-self.beam.vDir) + (self.beam.t/2 * self.beam.uDir) + self.clearDist * (-self.beam.wDir))
+                   (self.beam.D/2.0 - self.notch.height - self.angle.L) * (self.beam.vDir) + (self.beam.t/2 * self.beam.uDir) + self.clearDist * (-self.beam.wDir))
         uDir0 = numpy.array([1.0, 0.0, 0])
         wDir0 = numpy.array([0.0, -1.0, 0])
         self.angleLeft.place(angle0Origin, uDir0, wDir0)
         
-        angle1Origin = (self.beam.secOrigin + (self.beam.D/2.0 - self.notch.height) * (-self.beam.vDir) - (self.beam.t/2 * self.beam.uDir) + self.clearDist * (-self.beam.wDir))
+        angle1Origin = (self.beam.secOrigin + (self.beam.D/2.0 - self.notch.height) * (self.beam.vDir) - (self.beam.t/2 * self.beam.uDir) + self.clearDist * (-self.beam.wDir))
         uDir1 = numpy.array([1.0, 0.0, 0])
         wDir1 = numpy.array([0.0, 1.0, 0])
         self.angle.place(angle1Origin, uDir1, wDir1) 

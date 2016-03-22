@@ -720,9 +720,8 @@ def cleatAngleConn(uiObj):
       
      
     outputObj['cleat'] = {}
-    #     outputObj['Plate']['minHeight'] = web_plate_l_req
+    outputObj['cleat']['numofbolts'] = c_bolts_required
     outputObj['cleat']['height'] = int(cleat_length)
-#     outputObj['cleat']['width'] = cleat_legsize
     outputObj['cleat']['externalmoment'] = round(moment_demand ,3)
     outputObj['cleat']['momentcapacity'] = round(moment_capacity,3)
     outputObj['cleat']['numofrow'] = c_bolts_one_line
@@ -733,10 +732,7 @@ def cleatAngleConn(uiObj):
     outputObj['cleat']['edge'] = c_edge_distance
     outputObj['cleat']['end'] = c_end_dist
     outputObj['cleat']['legsize'] = cleat_legsize_1
-#     print c_end_dist
-#     print c_edge_distance
-#     print c_gauge_type_2
-#           
+
          
         
           

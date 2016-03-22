@@ -1444,24 +1444,25 @@ class Fin2DCreatorTop(object):
         self.FQ6 = self.FQ3 - (self.dataObj.cleat_legsize - self.dataObj.cleat_thk)* np.array([1,0])
         self.FQ5 = self.FQ6 - (self.dataObj.cleat_legsize_1 - self.dataObj.cleat_thk)*np.array([0,1])
         self.FQ4 = self.FQ5 - (self.dataObj.cleat_thk)* np.array([1,0])
-        # Weld Triangle
-        
-        self.ptFP = self.FP + 2.5 * np.array([1,0]) + 2.5 * np.array([0,-1])
-        self.FQ = self.FP + self.dataObj.cleat_thk * np.array([1,0])
-        self.ptFQ = self.FQ  + 2.5 * np.array([1,0]) + 2.5 * np.array([0,-1])
-        self.FR = self.FP + self.dataObj.cleat_thk * np.array([0,-1])
-        self.ptFR = self.FR + 2.5 * np.array([1,0]) + 2.5 * np.array([0,-1]) 
-        
-        self.FX = self.FP + (self.dataObj.cleat_thk)* np.array([0,1])
-        self.ptFX = self.FX + 2.5 * np.array([1,0]) + 2.5 * np.array([0,1]) 
-        self.FY = self.FX + (self.dataObj.cleat_thk) * np.array([0,1])
-        self.ptFY = self.FY + 2.5 * np.array([1,0]) + 2.5 * np.array([0,1]) 
-        self.FZ = self.FX + (self.dataObj.cleat_thk) * np.array([1,0])
-        self.ptFZ = self.FZ + 2.5 * np.array([1,0]) + 2.5 * np.array([0,1]) 
+#         # Weld Triangle
+#         
+#         self.ptFP = self.FP + 2.5 * np.array([1,0]) + 2.5 * np.array([0,-1])
+#         self.FQ = self.FP + self.dataObj.cleat_thk * np.array([1,0])
+#         self.ptFQ = self.FQ  + 2.5 * np.array([1,0]) + 2.5 * np.array([0,-1])
+#         self.FR = self.FP + self.dataObj.cleat_thk * np.array([0,-1])
+#         self.ptFR = self.FR + 2.5 * np.array([1,0]) + 2.5 * np.array([0,-1]) 
+#         
+#         self.FX = self.FP + (self.dataObj.cleat_thk)* np.array([0,1])
+#         self.ptFX = self.FX + 2.5 * np.array([1,0]) + 2.5 * np.array([0,1]) 
+#         self.FY = self.FX + (self.dataObj.cleat_thk) * np.array([0,1])
+#         self.ptFY = self.FY + 2.5 * np.array([1,0]) + 2.5 * np.array([0,1]) 
+#         self.FZ = self.FX + (self.dataObj.cleat_thk) * np.array([1,0])
+#         self.ptFZ = self.FZ + 2.5 * np.array([1,0]) + 2.5 * np.array([0,1]) 
         
         # Points for Beam - Beam connection
         self.beam_beam_length = self.dataObj.beam_B + 200
         # for primary beam
+        self.notch_length  = (self.dataObj.col_B - self.dataObj.col_tw)/2 -10
         
         self.BA = (0,0)
         self.BB = self.BA + (self.dataObj.col_B) * np.array([1,0])
@@ -1474,21 +1475,28 @@ class Fin2DCreatorTop(object):
         
         # for secondary beam
         
-        self.BA1 = self.BB + 10 * np.array([1,0]) + (self.beam_beam_length - self.dataObj.beam_B)/2 * np.array([0,1]) 
-        self.BB1 = self.BA1 + self.dataObj.beam_L * np.array([1,0])
-        self.BC1 = self.BB1 + self.dataObj.beam_B * np.array([0,1])
-        self.BD1 = self.BA1 + self.dataObj.beam_B * np.array([0,1])
-        self.BE1 = self.BA1 + (self.dataObj.beam_B + self.dataObj.beam_tw)/2 * np.array([0,1])
-        self.BF1 = self.BE1 + self.dataObj.beam_L * np.array([1,0])
-        self.BG1 = self.BE1 - self.dataObj.beam_tw * np.array([0,1])
-        self.BH1 = self.BF1 - self.dataObj.beam_tw * np.array([0,1])
-        self.BI1 = self.BG + self.dataObj.gap * np.array([1,0]) + (self.beam_beam_length - self.dataObj.beam_B)/2 * np.array([0,1])
-        self.BJ1 = self.BB + (self.beam_beam_length - self.dataObj.beam_B)/2 * np.array([0,1])
-        self.BK1 = self.BD1 - 10 * np.array([0,1])
-        self.BL1 = self.BI1 + self.dataObj.beam_B * np.array([0,1]) # BEAM_B
-        # for cleat angle
+        self.BA3 = self.BB + 10 * np.array([1,0]) + (self.beam_beam_length - self.dataObj.beam_B)/2 * np.array([0,1]) 
+        self.BA2 = self.BA3 - 10*np.array([1,0])
+        self.BA1 = self.BA3 - self.notch_length * np.array([1,0])
+        self.BA4 = self.BA3 + (self.dataObj.beam_L-self.notch_length) * np.array([1,0])
+        self.BA5 = self.BA4 + self.dataObj.beam_B * np.array([0,1])
+        self.BA6 = self.BA3 + self.dataObj.beam_B * np.array([0,1])
+        self.BA7 = self.BA2 + self.dataObj.beam_B * np.array([0,1])
+        self.BA8 = self.BA1 + self.dataObj.beam_B * np.array([0,1])
+        self.BA9 = self.BA1 + (self.dataObj.beam_B - self.dataObj.beam_tw)/2 * np.array([0,1])
+        self.BA10 = self.BA2 + (self.dataObj.beam_B - self.dataObj.beam_tw)/2 * np.array([0,1])
+        self.BA11 = self.BA3 + (self.dataObj.beam_B - self.dataObj.beam_tw)/2 * np.array([0,1])
+        self.BA12 = self.BA4 + (self.dataObj.beam_B - self.dataObj.beam_tw)/2 * np.array([0,1])
+        self.BA13 = self.BA4 + (self.dataObj.beam_B + self.dataObj.beam_tw)/2 * np.array([0,1])
+        self.BA14 = self.BA3 + (self.dataObj.beam_B + self.dataObj.beam_tw)/2 * np.array([0,1])
+        self.BA15 = self.BA2 + (self.dataObj.beam_B + self.dataObj.beam_tw)/2 * np.array([0,1])
+        self.BA16 = self.BA1 + (self.dataObj.beam_B + self.dataObj.beam_tw)/2 * np.array([0,1])
         
-        self.BP1 = self.BG + (self.beam_beam_length/2 - self.dataObj.beam_tw/2 - self.dataObj.cleat_legsize_1) * np.array([1,0]) # BEAM_TW
+        
+        
+
+#          for cleat angle 
+        self.BP1 = self.BG + (self.beam_beam_length/2 - self.dataObj.beam_tw/2 - self.dataObj.cleat_legsize_1) * np.array([0,1]) # BEAM_TW
         self.BP2 = self.BP1 + self.dataObj.cleat_thk * np.array([1,0])
         self.BP3 = self.BP2 + (self.dataObj.cleat_legsize_1 - self.dataObj.cleat_thk) * np.array([0,1])
         self.BP4 = self.BB + (self.beam_beam_length/2 - self.dataObj.beam_tw/2 - self.dataObj.cleat_thk) * np.array([0,1]) # BEAM_TW
@@ -1497,9 +1505,9 @@ class Fin2DCreatorTop(object):
         self.BP7 = self.BP6 + self.dataObj.cleat_thk * np.array([0,1])
         self.BP9 = self.BP4 + self.dataObj.cleat_thk * np.array([0,1])
         self.BP10 = self.BP1 + self.dataObj.cleat_legsize_1 * np.array([0,1])
-        
-        
-        self.BQ1 = self.BH + (self.beam_beam_length/2 - self.dataObj.beam_tw/2 - self.dataObj.cleat_legsize_1) * np.array([-1,0]) # BEAM_TW
+         
+         
+        self.BQ1 = self.BH + (self.beam_beam_length/2 - self.dataObj.beam_tw/2 - self.dataObj.cleat_legsize_1) * np.array([0,-1]) # BEAM_TW
         self.BQ2 = self.BQ1 + self.dataObj.cleat_thk * np.array([1,0])
         self.BQ3 = self.BQ2 + (self.dataObj.cleat_legsize_1 - self.dataObj.cleat_thk) * np.array([0,-1])
         self.BQ4 = self.BC + (self.beam_beam_length/2 - self.dataObj.beam_tw/2 - self.dataObj.cleat_thk) * np.array([0,-1]) # BEAM_TW
@@ -1515,20 +1523,89 @@ class Fin2DCreatorTop(object):
         dwg.add(dwg.polyline(points=[(self.BA),(self.BB),(self.BC),(self.BD),(self.BA)], stroke='blue', fill='none', stroke_width=2.5))
         dwg.add(dwg.line((self.BE),(self.BF)).stroke('red',width = 2.5,linecap = 'square').dasharray(dasharray = ([5,5])))
         dwg.add(dwg.line((self.BG),(self.BH)).stroke('red',width = 2.5,linecap = 'square').dasharray(dasharray = ([5,5])))
-        dwg.add(dwg.polyline(points=[(self.BJ1),(self.BA1),(self.BB1),(self.BC1),(self.BK1)], stroke='blue', fill='none', stroke_width=2.5))
-        dwg.add(dwg.line((self.BA1),(self.BB1)).stroke('blue',width = 2.5,linecap = 'square'))
-        dwg.add(dwg.line((self.BH1),(self.BG1)).stroke('red',width = 2.5,linecap = 'square').dasharray(dasharray = ([5,5])))
-        dwg.add(dwg.line((self.BE1),(self.BF1)).stroke('red',width = 2.5,linecap = 'square').dasharray(dasharray = ([5,5])))
-        dwg.add(dwg.polyline(points=[(self.BJ1),(self.BI1),(self.BL1),(self.BK1),(self.BA)], stroke='red', fill='none', stroke_width=2.5).dasharray(dasharray = ([5,5])))
-        dwg.add(dwg.line((self.BP4),(self.BP5)).stroke('blue',width = 2.5,linecap = 'square'))
-        dwg.add(dwg.line((self.BP9),(self.BG1)).stroke('blue',width = 2.5,linecap = 'square'))
-        dwg.add(dwg.line((self.BQ9),(self.BE1)).stroke('blue',width = 2.5,linecap = 'square'))
-        dwg.add(dwg.line((self.BQ4),(self.BQ5)).stroke('blue',width = 2.5,linecap = 'square'))
-        dwg.add(dwg.polyline(points=[(self.BP9),(self.BP10),(self.BP1),(self.BP2),(self.BP3),(self.BP4)], stroke='red', fill='none', stroke_width=2.5).dasharray(dasharray = ([5,5])))
-        dwg.add(dwg.polyline(points=[(self.BQ9),(self.BQ10),(self.BQ1),(self.BQ2),(self.BQ3),(self.BQ4)], stroke='red', fill='none', stroke_width=2.5).dasharray(dasharray = ([5,5])))
-        dwg.add(dwg.line((self.BP10 + self.dataObj.gap * np.array([1,0])),(self.BQ10 + self.dataObj.gap * np.array([1,0]))).stroke('red',width = 2.5,linecap = 'square').dasharray(dasharray = ([5,5])))
-
+#         dwg.add(dwg.line((self.BA2),(self.BA1),(self.BA8),(self.BA7)).stroke('red',width = 2.5,linecap = 'square').dasharray(dasharray = ([5,5])))
         
+#         dwg.add(dwg.line((self.BA2),(self.BA1),(self.BA8),(self.BA7)).stroke('red',width = 2.5,linecap = 'square').dasharray(dasharray = ([5,5])))
+        
+        
+        dwg.add(dwg.polyline(points=[(self.BA2),(self.BA1),(self.BA8),(self.BA7)], stroke='red', fill='none', stroke_width=2.5).dasharray(dasharray = ([5,5])))
+
+        dwg.add(dwg.polyline(points=[(self.BA2),(self.BA3),(self.BA4),(self.BA5),(self.BA6),(self.BA7)], stroke='blue', fill='none', stroke_width=2.5))
+        dwg.add(dwg.line((self.BA3),(self.BA6)).stroke('blue',width = 2.5,linecap = 'square'))
+        
+        
+        dwg.add(dwg.line((self.BA9),(self.BA10)).stroke('red',width = 2.5,linecap = 'square').dasharray(dasharray = ([5,5])))
+        dwg.add(dwg.line((self.BA16),(self.BA15)).stroke('red',width = 2.5,linecap = 'square').dasharray(dasharray = ([5,5])))
+
+
+        dwg.add(dwg.line((self.BA10),(self.BA11)).stroke('blue',width = 2.5,linecap = 'square'))
+        dwg.add(dwg.line((self.BA15),(self.BA14)).stroke('blue',width = 2.5,linecap = 'square'))
+        
+        dwg.add(dwg.line((self.BA11),(self.BA12)).stroke('red',width = 2.5,linecap = 'square').dasharray(dasharray = ([5,5])))
+        dwg.add(dwg.line((self.BA14),(self.BA13)).stroke('red',width = 2.5,linecap = 'square').dasharray(dasharray = ([5,5])))
+        #cleat Angle 
+        dwg.add(dwg.polyline(points=[(self.BP1),(self.BP2),(self.BP3),(self.BP6),(self.BP7),(self.BP10),(self.BP1)], stroke='red', fill='none', stroke_width=2.5).dasharray(dasharray = ([5,5])))
+        dwg.add(dwg.polyline(points=[(self.BQ1),(self.BQ2),(self.BQ3),(self.BQ6),(self.BQ7),(self.BQ10),(self.BQ1)], stroke='red', fill='none', stroke_width=2.5).dasharray(dasharray = ([5,5])))
+
+
+#         dwg.add(dwg.line((self.BH1),(self.BG1)).stroke('red',width = 2.5,linecap = 'square').dasharray(dasharray = ([5,5])))
+#         dwg.add(dwg.line((self.BE1),(self.BF1)).stroke('red',width = 2.5,linecap = 'square').dasharray(dasharray = ([5,5])))
+#         dwg.add(dwg.polyline(points=[(self.BJ1),(self.BI1),(self.BL1),(self.BK1),(self.BA)], stroke='red', fill='none', stroke_width=2.5).dasharray(dasharray = ([5,5])))
+#         dwg.add(dwg.line((self.BP4),(self.BP5)).stroke('blue',width = 2.5,linecap = 'square'))
+#         dwg.add(dwg.line((self.BP9),(self.BG1)).stroke('blue',width = 2.5,linecap = 'square'))
+#         dwg.add(dwg.line((self.BQ9),(self.BE1)).stroke('blue',width = 2.5,linecap = 'square'))
+#         dwg.add(dwg.line((self.BQ4),(self.BQ5)).stroke('blue',width = 2.5,linecap = 'square'))
+#         dwg.add(dwg.polyline(points=[(self.BP9),(self.BP10),(self.BP1),(self.BP2),(self.BP3),(self.BP4)], stroke='red', fill='none', stroke_width=2.5).dasharray(dasharray = ([5,5])))
+#         dwg.add(dwg.polyline(points=[(self.BQ9),(self.BQ10),(self.BQ1),(self.BQ2),(self.BQ3),(self.BQ4)], stroke='red', fill='none', stroke_width=2.5).dasharray(dasharray = ([5,5])))
+#         dwg.add(dwg.line((self.BP10 + self.dataObj.gap * np.array([1,0])),(self.BQ10 + self.dataObj.gap * np.array([1,0]))).stroke('red',width = 2.5,linecap = 'square').dasharray(dasharray = ([5,5])))
+
+        nc = self.dataObj.no_of_col
+        nc_c = self.dataObj.no_of_ccol
+        bolt_r = self.dataObj.bolt_dia/2
+        ptList = []
+        ptList_c = []
+        ptList_c_1 = []
+        if nc >= 1:
+            for col in range (nc):
+                pt = self.BP6  - self.dataObj.end_dist * np.array([1,0]) - (col) * self.dataObj.gauge * np.array([1,0])
+                pt1 = pt - bolt_r *  np.array([1,0])
+                rect_width = self.dataObj.bolt_dia
+                rect_ht = self.dataObj.beam_tw + 2*(self.dataObj.cleat_thk)
+                dwg.add(dwg.rect(insert=(pt1), size=(rect_width, rect_ht),fill = 'black', stroke='black', stroke_width=2.5))
+                B1 = pt + 10 * np.array([0,-1])
+                B2 = pt + (rect_ht + 10) * np.array([0,1])
+                dwg.add(dwg.line((B1),(B2)).stroke('black',width = 2.5,linecap = 'square'))
+                ptList.append(pt)
+                if len(ptList) > 1:
+                    dimOffset = self.dataObj.beam_B/2 + self.dataObj.col_T + self.dataObj.col_R1 + 100
+                    pt1  = np.array(ptList[1])
+                    pt2 = pt1 - (self.dataObj.beam_B/2 + self.dataObj.col_T + self.dataObj.col_R1 + 100) * np.array([0,1])
+#                     self.dataObj.drawFaintLine(pt1,pt2,dwg)
+                    params = {"offset": dimOffset, "textoffset": 20, "lineori": "right", "endlinedim":10}
+                    self.dataObj.draw_dimension_outerArrow(dwg,np.array(ptList[0]),np.array(ptList[1]),  str(int(self.dataObj.gauge)) + "mm", params)  
+                    self.dataObj.drawFaintLine(pt1,pt2,dwg)
+        if nc_c >= 1:
+            for col in range (nc_c): 
+                pt_c = self.BP1  + self.dataObj.cend_dist * np.array([0,1]) - self.dataObj.col_tw *np.array([1,0]) + (col) * self.dataObj.cgauge * np.array([0,1])
+                pt1_c = pt_c - bolt_r *  np.array([0,1])
+                rect_width = self.dataObj.bolt_dia
+                rect_length = self.dataObj.col_tw + self.dataObj.cleat_thk
+                dwg.add(dwg.rect(insert=(pt1_c), size=(rect_length, rect_width),fill = 'black', stroke='black', stroke_width=2.5))
+                B1 = pt_c + 10 * np.array([-1,0])
+                B2 = pt_c + (rect_length + 10) * np.array([1,0])
+                dwg.add(dwg.line((B1),(B2)).stroke('black',width = 2.5,linecap = 'square'))
+                ptList_c.append(pt_c)
+                
+                
+                pt_c1 = self.BQ1  + self.dataObj.cend_dist * np.array([0,-1]) - self.dataObj.col_tw *np.array([1,0]) - (col) * self.dataObj.cgauge * np.array([0,1])
+                pt1_c1 = pt_c1 - bolt_r *  np.array([0,1])
+                rect_width1 = self.dataObj.bolt_dia
+                rect_length1 = self.dataObj.col_tw + self.dataObj.cleat_thk
+                dwg.add(dwg.rect(insert=(pt1_c1), size=(rect_length1, rect_width1),fill = 'black', stroke='black', stroke_width=2.5))
+                B1_1 = pt_c1 + 10 * np.array([-1,0])
+                B2_1 = pt_c1 + (rect_ht + 10) * np.array([1,0])
+                dwg.add(dwg.line((B1_1),(B2_1)).stroke('black',width = 2.5,linecap = 'square'))
+                ptList_c_1.append(pt_c1)        
         
         
         

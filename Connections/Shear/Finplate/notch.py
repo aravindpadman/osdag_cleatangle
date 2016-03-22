@@ -17,10 +17,8 @@ class Notch(object):
                                                     
     ''' 
     
-    def __init__(self, B, t, R1,height, width, length):  
-      
-        self.B = B
-        self.t = t
+    def __init__(self, R1,height, width, length):  
+        
         self.R1 = R1
         self.height = height
         self.width = width

@@ -109,4 +109,3 @@ class ISection(object):
         return prism
     
         
-        +self.notchObj.height/2.0 * self.uDir
