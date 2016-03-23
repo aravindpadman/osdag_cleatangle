@@ -16,42 +16,72 @@ from OCC.STEPControl import STEPControl_Writer, STEPControl_AsIs
 from OCC.StlAPI import StlAPI_Writer
 from OCC.TopoDS import topods, TopoDS_Shape
 from OCC.gp import gp_Pnt
+from PyQt4.Qt import QPrinter, QDialog
 from PyQt4.QtCore import QString, pyqtSignal
+from PyQt4.QtGui import QWidget
 from PyQt4.QtWebKit import *
-from PyQt4.Qt import QPrinter
-
-
 import os.path
 import pickle
 import svgwrite
 import yaml
 
+
 from ISection import ISection
 from angle import Angle
+from beamWebBeamWebConnectivity import BeamWebBeamWeb
 from bolt import Bolt
+from cleatCalc import cleatAngleConn
 from colFlangeBeamWebConnectivity import ColFlangeBeamWeb
 from colWebBeamWebConnectivity import ColWebBeamWeb
-from beamWebBeamWebConnectivity import BeamWebBeamWeb
-from notch import Notch
-from drawing_2D import Fin2DCreatorFront
+# from ui_popUpDialog import Ui_Dialog
+from ui_popUpWindowR01 import Ui_Capacitydetals
 from drawing2D import *
-from cleatCalc import cleatAngleConn
+from drawing_2D import Fin2DCreatorFront
 from model import *
+from notch import Notch
 from nut import Nut 
 from nutBoltPlacement import NutBoltArray
-from ui_cleatAngleR03 import Ui_MainWindow
+from ui_cleatAngleR04 import Ui_MainWindow
 from utilities import osdagDisplayShape
 
 
-
 # Developed by aravind
+class myDialog(QDialog, Ui_Capacitydetals):     
+      
+    def __init__(self, parent = None): 
+        QDialog.__init__(self, parent)
+        self.ui = Ui_Capacitydetals()
+        self.ui.setupUi(self)
+        
+        m = MainController()
+        x = m.outputdict()
+        self.ui.shear_b.setText(str(x['Bolt']['shearcapacity']))
+        self.ui.bearing_b.setText(str(x['Bolt']['bearingcapacity']))
+        self.ui.capacity_b.setText(str(x['Bolt']['boltcapacity']))
+        self.ui.boltGrp_b.setText(str(x['Bolt']['boltgrpcapacity']))
+        #Column
+        self.ui.shear.setText(str(x['Bolt']['shearcapacity']))
+        self.ui.bearing.setText(str(x['Bolt']['bearingcapacity']))
+        self.ui.capacity.setText(str(x['Bolt']['boltcapacity']))
+        self.ui.boltGrp.setText(str(x['Bolt']['boltgrpcapacity']))
+        #Cleat
+        self.ui.mDemand.setText(str(x['cleat']['externalmoment']))
+        self.ui.mCapacity.setText(str(x['cleat']['momentcapacity']))
+        
+        
+
+
 class MainController(QtGui.QMainWindow):
     
     closed = pyqtSignal()
-    def __init__(self):
+    def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self)
+#         QtGui.QDialog.__init__(self, parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        
+#         self.uiPopUp = Ui_Dialog()
+#         self.uiPopUp.setupUi(self)
         
         self.ui.combo_Beam.addItems(get_beamcombolist())
         self.ui.comboColSec.addItems(get_columncombolist())
@@ -73,8 +103,9 @@ class MainController(QtGui.QMainWindow):
         self.ui.comboConnLoc.currentIndexChanged[str].connect(self.convertColComboToBeam)
         ############################
         self.ui.btnInput.clicked.connect(lambda: self.dockbtn_clicked(self.ui.inputDock))
-        self.ui.btnOutput.clicked.connect(lambda: self.dockbtn_clicked(self.ui.outputDock))
-        
+#         self.ui.btnOutput.clicked.connect(lambda: self.dockbtn_clicked(self.ui.outputDock)) #USE WHEN ui_cleatAngle.py is used(btnOutput = toolButton)
+       
+        self.ui.toolButton.clicked.connect(lambda: self.dockbtn_clicked(self.ui.outputDock))
         self.ui.btn_front.clicked.connect(lambda:self.call_2d_Drawing("Front"))
         self.ui.btn_top.clicked.connect(lambda:self.call_2d_Drawing("Top"))
         self.ui.btn_side.clicked.connect(lambda:self.call_2d_Drawing("Side"))
@@ -143,6 +174,10 @@ class MainController(QtGui.QMainWindow):
         self.ui.menuView.addAction(self.ui.outputDock.toggleViewAction())
         self.ui.btn_CreateDesign.clicked.connect(self.save_design)#Saves the create design report
         self.ui.btn_SaveMessages.clicked.connect(self.save_log)
+        #################################################################
+        self.ui.btn_capacity.clicked.connect(self.showButton_clicked)
+        
+        #################################################################
         
         
         # Saving and Restoring the finPlate window state.
@@ -164,9 +199,18 @@ class MainController(QtGui.QMainWindow):
         self.connectivity = None
         self.fuse_model = None
         self.disableViewButtons()
+    
+    
+  
+    
+    def showButton_clicked(self):
+        self.dialog = myDialog(self)
+        self.dialog.show()
         
-    
-    
+#         self.dialog = myDialog(self)
+#         self.dialog.show()
+        
+
     def fetchBeamPara(self):
         beam_sec = self.ui.combo_Beam.currentText()
         dictbeamdata  = get_beamdata(beam_sec)
@@ -192,6 +236,21 @@ class MainController(QtGui.QMainWindow):
             self.ui.beamSection_lbl.setText(" Secondary beam *")
             self.ui.columnSection_lbl.setText("Primary beam *")
             
+            font = QtGui.QFont()
+            font.setPointSize(11)
+            font.setBold(True)
+            font.setWeight(75)
+            self.ui.outputBoltLbl_3.setFont(font)
+            self.ui.outputBoltLbl_3.setText("Primary beam")
+            self.ui.outputBoltLbl.setText("Secondary beam")
+            font = QtGui.QFont()
+            font.setPointSize(11)
+            font.setBold(True)
+            font.setWeight(75)
+            self.ui.outputBoltLbl.setFont(font)
+             
+
+            
             self.ui.comboColSec.clear()
             self.ui.comboColSec.addItems(get_beamcombolist())
             
@@ -199,6 +258,10 @@ class MainController(QtGui.QMainWindow):
             
             self.ui.columnSection_lbl.setText("Column Section *")
             self.ui.beamSection_lbl.setText("Beam section *")
+            self.ui.outputBoltLbl_3.setText("Column")
+            self.ui.outputBoltLbl.setText("Beam")
+
+
             self.ui.comboColSec.clear()
             self.ui.comboColSec.addItems(get_columncombolist())
             
@@ -510,31 +573,36 @@ class MainController(QtGui.QMainWindow):
         
         ''' Returns the output of design in dictionary object.
         '''
-        outObj = {}
-        outObj['cleat'] ={}
-        outObj['cleat']["height"] = float(self.ui.outputCleatHeight.text())
-#         outObj['cleat']["External Moment (kN-m)"] = float(self.ui.txtExtMomnt.text())
-        outObj['cleat']["External Moment (kN-m)"] = self.ui.txtExtMomnt.text()
-        outObj['cleat']["Moment Capacity (kN-m)"] = float(self.ui.txtMomntCapacity.text())
         
-#         outObj['Weld'] ={}
-#         #outObj['Weld']["Weld Thickness(mm)"] = float(self.ui.txtWeldThick.text())
-#         outObj['Weld']["Resultant Shear (kN/mm)"] = float(self.ui.txtResltShr.text())
-#         outObj['Weld']["Weld Strength (kN/mm)"] = float(self.ui.txtWeldStrng.text())
+        uiObj = self.getuser_inputs()
+        outputobj = cleatAngleConn(uiObj)
         
-        outObj['Bolt'] = {}
-        outObj['Bolt']["Shear Capacity (kN)"] = float(self.ui.txtShrCapacity.text())
-        outObj['Bolt']["Bearing Capacity (kN)"] = float(self.ui.txtbearCapacity.text())
-        outObj['Bolt']["Capacity Of Bolt (kN)"] = float(self.ui.txtBoltCapacity.text())
-        outObj['Bolt']["No Of Bolts"] = float(self.ui.txtNoBolts.text())
-        outObj['Bolt']["No.Of Row"] = int(self.ui.txt_row.text())
-        outObj['Bolt']["No.Of Column"] = int(self.ui.txt_col.text())
-        outObj['Bolt']["Pitch Distance (mm)"] = float(self.ui.txtBeamPitch.text())
-        outObj['Bolt']["Guage Distance (mm)"] = float(self.ui.txtBeamGuage.text())
-        outObj['Bolt']["End Distance (mm)"]= float(self.ui.txtEndDist.text())
-        outObj['Bolt']["Edge Distance (mm)"]= float(self.ui.txtEdgeDist.text())
-        
-        return outObj
+        return outputobj
+#         outObj = {}
+#         outObj['cleat'] ={}
+#         outObj['cleat']["height"] = float(self.ui.outputCleatHeight.text())
+# #         outObj['cleat']["External Moment (kN-m)"] = float(self.ui.txtExtMomnt.text())
+#         outObj['cleat']["External Moment (kN-m)"] = self.ui.txtExtMomnt.text()
+#         outObj['cleat']["Moment Capacity (kN-m)"] = float(self.ui.txtMomntCapacity.text())
+#         
+# #         outObj['Weld'] ={}
+# #         #outObj['Weld']["Weld Thickness(mm)"] = float(self.ui.txtWeldThick.text())
+# #         outObj['Weld']["Resultant Shear (kN/mm)"] = float(self.ui.txtResltShr.text())
+# #         outObj['Weld']["Weld Strength (kN/mm)"] = float(self.ui.txtWeldStrng.text())
+#         
+#         outObj['Bolt'] = {}
+#         outObj['Bolt']["Shear Capacity (kN)"] = float(self.ui.txtShrCapacity.text())
+#         outObj['Bolt']["Bearing Capacity (kN)"] = float(self.ui.txtbearCapacity.text())
+#         outObj['Bolt']["Capacity Of Bolt (kN)"] = float(self.ui.txtBoltCapacity.text())
+#         outObj['Bolt']["No Of Bolts"] = float(self.ui.txtNoBolts.text())
+#         outObj['Bolt']["No.Of Row"] = int(self.ui.txt_row.text())
+#         outObj['Bolt']["No.Of Column"] = int(self.ui.txt_col.text())
+#         outObj['Bolt']["Pitch Distance (mm)"] = float(self.ui.txtBeamPitch.text())
+#         outObj['Bolt']["Guage Distance (mm)"] = float(self.ui.txtBeamGuage.text())
+#         outObj['Bolt']["End Distance (mm)"]= float(self.ui.txtEndDist.text())
+#         outObj['Bolt']["Edge Distance (mm)"]= float(self.ui.txtEdgeDist.text())
+#         
+#         return outObj
     
     
     def save_design(self):
@@ -732,7 +800,7 @@ class MainController(QtGui.QMainWindow):
                     
         # resultObj['Bolt']
         shear_capacity = resultObj['Bolt']['shearcapacity']
-#         self.ui.txtShrCapacity.setText(str(shear_capacity))
+#         self.uiPopUp.lineEdit_companyName.setText(str(shear_capacity))
         
         bearing_capacity = resultObj['Bolt']['bearingcapacity']
 #         self.ui.txtbearCapacity.setText(str(bearing_capacity))

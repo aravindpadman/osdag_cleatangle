@@ -88,12 +88,12 @@ class BeamWebBeamWeb(object):
     
     def createAngleGeometry(self):
         angle0Origin = (self.beam.secOrigin + 
-                   (self.beam.D/2.0 - self.notch.height - self.angle.L) * (self.beam.vDir) + (self.beam.t/2 * self.beam.uDir) + self.clearDist * (-self.beam.wDir))
+                   (self.beam.D/2.0 - self.notch.height - self.angle.L) * (self.beam.vDir) - (self.beam.t/2 * self.beam.uDir) + self.clearDist * (-self.beam.wDir))
         uDir0 = numpy.array([1.0, 0.0, 0])
         wDir0 = numpy.array([0.0, -1.0, 0])
         self.angleLeft.place(angle0Origin, uDir0, wDir0)
         
-        angle1Origin = (self.beam.secOrigin + (self.beam.D/2.0 - self.notch.height) * (self.beam.vDir) - (self.beam.t/2 * self.beam.uDir) + self.clearDist * (-self.beam.wDir))
+        angle1Origin = (self.beam.secOrigin + (self.beam.D/2.0 - self.notch.height) * (self.beam.vDir) + (self.beam.t/2 * self.beam.uDir) + self.clearDist * (-self.beam.wDir))
         uDir1 = numpy.array([1.0, 0.0, 0])
         wDir1 = numpy.array([0.0, 1.0, 0])
         self.angle.place(angle1Origin, uDir1, wDir1) 

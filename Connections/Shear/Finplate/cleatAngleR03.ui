@@ -3419,7 +3419,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>50</x>
-       <y>554</y>
+       <y>600</y>
        <width>200</width>
        <height>30</height>
       </rect>
@@ -3432,7 +3432,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>50</x>
-       <y>594</y>
+       <y>630</y>
        <width>200</width>
        <height>30</height>
       </rect>
@@ -3768,6 +3768,19 @@ QMenu::item:selected {
      </property>
      <property name="readOnly">
       <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btn_capacity">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>570</y>
+       <width>200</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Capacity details</string>
      </property>
     </widget>
    </widget>

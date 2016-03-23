@@ -71,7 +71,7 @@ class FinCommonData(object):
         self.col_L = 800
         self.beam_L = 350
         self.gap = 20 # Clear distance between Column and Beam as per subramanyam's book ,range 15-20 mm
-        self.notch_L = (self.beam_B/2 - self.beam_tw/2) + 10
+        self.notch_L = (self.col_B/2 - self.col_tw/2) + 10
         self.notch_offset = max((self.beam_T+self.beam_R1+5),50)
     
         
