@@ -68,6 +68,7 @@ class NutBoltArray():
         self.end = boltPlaceObj['Bolt']['enddist']
         self.row = boltPlaceObj['Bolt']['numofrow']
         self.col = boltPlaceObj['Bolt']['numofcol']
+
         #########changes have been made after 3d is integreted with main files####
         
         self.cPitch = boltPlaceObj['cleat']['pitch']

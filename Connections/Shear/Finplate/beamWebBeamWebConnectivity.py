@@ -87,8 +87,7 @@ class BeamWebBeamWeb(object):
         
     
     def createAngleGeometry(self):
-        angle0Origin = (self.beam.secOrigin + 
-                   (self.beam.D/2.0 - self.notch.height - self.angle.L) * (self.beam.vDir) - (self.beam.t/2 * self.beam.uDir) + self.clearDist * (-self.beam.wDir))
+        angle0Origin = (self.beam.secOrigin + (self.beam.D/2.0 - self.notch.height - self.angle.L) * (self.beam.vDir) - (self.beam.t/2 * self.beam.uDir) + self.clearDist * (-self.beam.wDir))
         uDir0 = numpy.array([1.0, 0.0, 0])
         wDir0 = numpy.array([0.0, -1.0, 0])
         self.angleLeft.place(angle0Origin, uDir0, wDir0)
@@ -100,13 +99,13 @@ class BeamWebBeamWeb(object):
         
 
     def createNutBoltArray(self):
-        nutboltArrayOrigin = self.angle.secOrigin 
-        nutboltArrayOrigin = nutboltArrayOrigin +self.angle.T * self.angle.wDir  
-        nutboltArrayOrigin = nutboltArrayOrigin + self.angle.A * self.angle.uDir
+        nutboltArrayOrigin = self.angleLeft.secOrigin 
+        nutboltArrayOrigin = nutboltArrayOrigin +self.angleLeft.T * self.angleLeft.wDir  
+        nutboltArrayOrigin = nutboltArrayOrigin + self.angleLeft.A * self.angleLeft.uDir
         
-        gaugeDir = self.angle.uDir
-        pitchDir = self.angle.vDir
-        boltDir = -self.angle.wDir
+        gaugeDir = self.angleLeft.uDir
+        pitchDir = self.angleLeft.vDir
+        boltDir = -self.angleLeft.wDir
         
         cNutboltArrayOrigin = self.angle.secOrigin
         cNutboltArrayOrigin = cNutboltArrayOrigin + self.angle.T * self.angle.uDir

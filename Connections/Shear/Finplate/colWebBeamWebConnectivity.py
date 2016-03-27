@@ -54,31 +54,25 @@ class ColWebBeamWeb(object):
         origin2 = self.column.secOrigin + (self.column.t/2 * self.column.uDir) + (self.column.length/2 * self.column.wDir) + (self.clearDist * self.column.uDir) 
         self.beam.place(origin2, uDir, wDir)
     def createAngleGeometry(self):
-        angle0Origin = (self.column.secOrigin + 
-                   self.column.t/2.0 * self.column.uDir + 
-                   (self.column.length/2.0 + self.angle.L/2.0) * self.column.wDir +
-                   self.beam.t/2.0 * (self.beam.uDir))
+        angle0Origin = (self.beam.secOrigin + (self.beam.D/2.0 - self.beam.T - self.beam.R1 - 5) * (self.beam.vDir) + (self.beam.t/2 * self.beam.uDir) + self.clearDist * (-self.beam.wDir))
         uDir0 = numpy.array([1.0, 0, 0])
         wDir0 = numpy.array([0, 1, 0])
         self.angle.place(angle0Origin, uDir0, wDir0)
         
-        angle1Origin = (self.column.secOrigin + 
-                   self.column.t/2.0 * self.column.uDir + 
-                   (self.column.length/2.0 - self.angle.L/2.0) * self.column.wDir +
-                   -self.beam.t/2.0 * (self.beam.uDir))
+        angle1Origin = (self.beam.secOrigin + (self.beam.D/2.0 - self.beam.T - self.beam.R1 - 5 - self.angle.L) * (self.beam.vDir) - (self.beam.t/2 * self.beam.uDir) + self.clearDist * (-self.beam.wDir))
         uDir1 = numpy.array([1.0, 0.0, 0])
         wDir1 = numpy.array([0, -1.0, 0])
         self.angleLeft.place(angle1Origin, uDir1, wDir1) 
          
         
     def createNutBoltArray(self):
-        nutboltArrayOrigin = self.angle.secOrigin 
-        nutboltArrayOrigin = nutboltArrayOrigin +self.angle.T * self.angle.wDir  
-        nutboltArrayOrigin = nutboltArrayOrigin + self.angle.A * self.angle.uDir
+        nutboltArrayOrigin = self.angleLeft.secOrigin 
+        nutboltArrayOrigin = nutboltArrayOrigin +self.angleLeft.T * self.angleLeft.wDir  
+        nutboltArrayOrigin = nutboltArrayOrigin + self.angleLeft.A * self.angleLeft.uDir
         
-        gaugeDir = self.angle.uDir
-        pitchDir = self.angle.vDir
-        boltDir = -self.angle.wDir
+        gaugeDir = self.angleLeft.uDir
+        pitchDir = self.angleLeft.vDir
+        boltDir = -self.angleLeft.wDir
         #####################################################################################
         cNutboltArrayOrigin = self.angle.secOrigin
         cNutboltArrayOrigin = cNutboltArrayOrigin + self.angle.T * self.angle.uDir

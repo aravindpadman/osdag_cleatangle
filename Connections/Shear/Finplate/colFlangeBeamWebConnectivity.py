@@ -49,41 +49,37 @@ class ColFlangeBeamWeb(object):
     def creatColumGeometry(self):
         
         columnOrigin = numpy.array([0, 0, 0])
-        column_uDir = numpy.array([1.0, 0, 0])
+        column_uDir = numpy.array([0, 1.0, 0])
         wDir1 = numpy.array([0.0, 0, 1.0])
         self.column.place(columnOrigin, column_uDir, wDir1)
         
     def createBeamGeometry(self):
         beamOrigin =((self.column.secOrigin + self.column.D/2) * (-self.column.vDir)) + (self.column.length/2 * self.column.wDir) + (self.clearDist * (-self.column.vDir))
-        uDir = numpy.array([1.0, 0.0, 0])
-        wDir = numpy.array([0.0, -1.0, 0.0])
+        uDir = numpy.array([0, 1.0, 0])
+        wDir = numpy.array([1.0, 0, 0.0])
         self.beam.place(beamOrigin, uDir, wDir)
         
     
     def createAngleGeometry(self):
-        angle0Origin = (self.column.secOrigin + 
-                   (self.column.length/2.0 + self.angle.L/2.0) * self.column.wDir - (self.column.D/2 * self.column.vDir) +
-                   +self.beam.t/2.0 * (self.column.uDir))
-        uDir0 = numpy.array([0, -1.0, 0])
-        wDir0 = numpy.array([1.0, 0, 0])
+        angle0Origin = (self.beam.secOrigin + (self.beam.D/2.0 - self.beam.T - self.beam.R1 - 5) * (self.beam.vDir) + (self.beam.t/2 * self.beam.uDir) + self.clearDist * (-self.beam.wDir))
+        uDir0 = numpy.array([1.0, 0, 0])
+        wDir0 = numpy.array([0, 1.0, 0])
         self.angle.place(angle0Origin, uDir0, wDir0)
         
-        angle1Origin = (self.column.secOrigin + 
-                   (self.column.length/2.0 - self.angle.L/2.0) * self.column.wDir - (self.column.D/2 * self.column.vDir) 
-                   -self.beam.t/2.0 * (self.column.uDir))
-        uDir1 = numpy.array([0, -1.0, 0])
-        wDir1 = numpy.array([-1.0, 0, 0])
+        angle1Origin = (self.beam.secOrigin + (self.beam.D/2.0 - self.beam.T - self.beam.R1 - 5 - self.angle.L) * (self.beam.vDir) - (self.beam.t/2 * self.beam.uDir) + self.clearDist * (-self.beam.wDir))
+        uDir1 = numpy.array([1.0, 0.0, 0])
+        wDir1 = numpy.array([0, -1.0, 0])
         self.angleLeft.place(angle1Origin, uDir1, wDir1) 
         
 
     def createNutBoltArray(self):
-        nutboltArrayOrigin = self.angle.secOrigin 
-        nutboltArrayOrigin = nutboltArrayOrigin +self.angle.T * self.angle.wDir  
-        nutboltArrayOrigin = nutboltArrayOrigin + self.angle.A * self.angle.uDir
+        nutboltArrayOrigin = self.angleLeft.secOrigin 
+        nutboltArrayOrigin = nutboltArrayOrigin +self.angleLeft.T * self.angleLeft.wDir  
+        nutboltArrayOrigin = nutboltArrayOrigin + self.angleLeft.A * self.angleLeft.uDir
         
-        gaugeDir = self.angle.uDir
-        pitchDir = self.angle.vDir
-        boltDir = -self.angle.wDir
+        gaugeDir = self.angleLeft.uDir
+        pitchDir = self.angleLeft.vDir
+        boltDir = -self.angleLeft.wDir
         
         cNutboltArrayOrigin = self.angle.secOrigin
         cNutboltArrayOrigin = cNutboltArrayOrigin + self.angle.T * self.angle.uDir

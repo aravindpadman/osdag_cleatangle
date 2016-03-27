@@ -10,7 +10,7 @@ from PyQt4.QtCore import QString
 import numpy as np
 from numpy import math
 from model import *
-from cleatCalc import cleatAngleConn
+
 
 
 class FinCommonData(object):

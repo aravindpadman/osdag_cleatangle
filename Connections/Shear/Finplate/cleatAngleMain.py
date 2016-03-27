@@ -30,7 +30,8 @@ from ISection import ISection
 from angle import Angle
 from beamWebBeamWebConnectivity import BeamWebBeamWeb
 from bolt import Bolt
-from cleatCalc import cleatAngleConn
+# from cleatCalcR01 import cleatAngleConn
+from cleatCalcR01 import cleatAngleConn
 from colFlangeBeamWebConnectivity import ColFlangeBeamWeb
 from colWebBeamWebConnectivity import ColWebBeamWeb
 # from ui_popUpDialog import Ui_Dialog
@@ -52,18 +53,22 @@ class myDialog(QDialog, Ui_Capacitydetals):
         QDialog.__init__(self, parent)
         self.ui = Ui_Capacitydetals()
         self.ui.setupUi(self)
+        uiObj = MainController().getuser_inputs()
+        print " uiobj inside Dailog" , uiObj
+        x = cleatAngleConn(uiObj)
+#         x = MainController().outputdict()
+#         x = m.outputdict()
+        print "print capacity Details",x
         
-        m = MainController()
-        x = m.outputdict()
         self.ui.shear_b.setText(str(x['Bolt']['shearcapacity']))
         self.ui.bearing_b.setText(str(x['Bolt']['bearingcapacity']))
         self.ui.capacity_b.setText(str(x['Bolt']['boltcapacity']))
         self.ui.boltGrp_b.setText(str(x['Bolt']['boltgrpcapacity']))
         #Column
-        self.ui.shear.setText(str(x['Bolt']['shearcapacity']))
-        self.ui.bearing.setText(str(x['Bolt']['bearingcapacity']))
-        self.ui.capacity.setText(str(x['Bolt']['boltcapacity']))
-        self.ui.boltGrp.setText(str(x['Bolt']['boltgrpcapacity']))
+        self.ui.shear.setText(str(x['cleat']['shearcapacity']))
+        self.ui.bearing.setText(str(x['cleat']['bearingcapacity']))
+        self.ui.capacity.setText(str(x['cleat']['boltcapacity']))
+        self.ui.boltGrp.setText(str(x['cleat']['boltgrpcapacity']))
         #Cleat
         self.ui.mDemand.setText(str(x['cleat']['externalmoment']))
         self.ui.mCapacity.setText(str(x['cleat']['momentcapacity']))
@@ -207,9 +212,6 @@ class MainController(QtGui.QMainWindow):
         self.dialog = myDialog(self)
         self.dialog.show()
         
-#         self.dialog = myDialog(self)
-#         self.dialog.show()
-        
 
     def fetchBeamPara(self):
         beam_sec = self.ui.combo_Beam.currentText()
@@ -258,7 +260,19 @@ class MainController(QtGui.QMainWindow):
             
             self.ui.columnSection_lbl.setText("Column Section *")
             self.ui.beamSection_lbl.setText("Beam section *")
+            
+            font = QtGui.QFont()
+            font.setPointSize(11)
+            font.setBold(True)
+            font.setWeight(75)
+            self.ui.outputBoltLbl_3.setFont(font)
             self.ui.outputBoltLbl_3.setText("Column")
+            
+            font = QtGui.QFont()
+            font.setPointSize(11)
+            font.setBold(True)
+            font.setWeight(75)
+            self.ui.outputBoltLbl.setFont(font)
             self.ui.outputBoltLbl.setText("Beam")
 
 
@@ -268,7 +282,7 @@ class MainController(QtGui.QMainWindow):
             self.ui.combo_Beam.setCurrentIndex(0)
             self.ui.comboColSec.setCurrentIndex(0)
     
-    cleatAngleConn
+    
     def fillCleatSectionCombo(self):
             
         '''Populates the cleat section on the basis  beam section and column section
@@ -374,17 +388,23 @@ class MainController(QtGui.QMainWindow):
             beam_T = float(dictBeamData[QString('T')])
             beam_R1 = float(dictBeamData[QString('R1')])
             clearDepth = 0.0
+            minCleatHeight = 0.6 * beam_D
             if loc  == "Column web-Beam web" or loc == "Column flange-Beam web":
                 clearDepth = beam_D - 2 * (beam_T + beam_R1)
             else:
-                clearDepth = beam_D - (50 + beam_R1 + beam_T) 
+                clearDepth = beam_D - 2 *( beam_R1 + beam_T) 
                       
             if clearDepth <= cleatHeight:
                 self.ui.btn_Design.setDisabled(True)
                 QtGui.QMessageBox.about(self,'Information',"Height of the Cleat Angle exceeding the clear Depth of the Beam)")
             else:
                 self.ui.btn_Design.setDisabled(False)
-             
+            if cleatHeight < minCleatHeight:
+                self.ui.btn_Design.setDisabled(True)
+                QtGui.QMessageBox.about(self,'Information',"Minimum height of the cleat angle should be %2.2f mm " %(minCleatHeight) )
+                
+            else:
+                self.ui.btn_Design.setDisabled(False)
                 
 
     def showFontDialogue(self):
@@ -537,7 +557,8 @@ class MainController(QtGui.QMainWindow):
         uiObj['cleat']['Height (mm)'] = float(self.ui.txtInputCleatHeight.text().toInt()[0]) # changes the label length to height 
 
         uiObj['Load'] = {}
-        uiObj['Load']['ShearForce (kN)'] = float(self.ui.txtShear.text().toInt()[0])
+#         uiObj['Load']['ShearForce (kN)'] = float(self.ui.txtShear.text().toInt()[0])
+        uiObj['Load']['ShearForce (kN)'] = float(self.ui.txtShear.text())
         
         
         
@@ -548,7 +569,7 @@ class MainController(QtGui.QMainWindow):
         '''(Dictionary)--> None
          
         '''
-        inputFile = QtCore.QFile('saveINPUT.txt')
+        inputFile = QtCore.QFile('saveINPUTS.txt')
         if not inputFile.open(QtCore.QFile.WriteOnly | QtCore.QFile.Text):
             QtGui.QMessageBox.warning(self, "Application",
                     "Cannot write file %s:\n%s." % (inputFile, file.errorString()))
@@ -559,7 +580,7 @@ class MainController(QtGui.QMainWindow):
     def get_prevstate(self):
         '''
         '''
-        fileName = 'saveINPUT.txt'
+        fileName = 'saveINPUTS.txt'
          
         if os.path.isfile(fileName):
             fileObject = open(fileName,'r')
@@ -576,7 +597,8 @@ class MainController(QtGui.QMainWindow):
         
         uiObj = self.getuser_inputs()
         outputobj = cleatAngleConn(uiObj)
-        
+        print " input : " ,uiObj
+        print "OutPut" , outputobj
         return outputobj
 #         outObj = {}
 #         outObj['cleat'] ={}
@@ -799,7 +821,9 @@ class MainController(QtGui.QMainWindow):
                     resultObj = outputObj
                     
         # resultObj['Bolt']
+        print "result obj :" ,resultObj
         shear_capacity = resultObj['Bolt']['shearcapacity']
+        
 #         self.uiPopUp.lineEdit_companyName.setText(str(shear_capacity))
         
         bearing_capacity = resultObj['Bolt']['bearingcapacity']
@@ -1107,7 +1131,7 @@ class MainController(QtGui.QMainWindow):
         #beam = ISection(B = 140, T = 16,D = 400,t = 8.9, R1 = 14, R2 = 7, alpha = 98,length = 500)
         beam = ISection(B = beam_B, T = beam_T,D = beam_D,t = beam_tw,
                         R1 = beam_R1, R2 = beam_R2, alpha = beam_alpha,
-                        length = beam_length)
+                        length = beam_length,notchObj=None)
         
         ##### COLUMN PARAMETERS ######
         dictcoldata = self.fetchColumnPara()
@@ -1122,7 +1146,7 @@ class MainController(QtGui.QMainWindow):
         
         #column = ISection(B = 83, T = 14.1, D = 250, t = 11, R1 = 12, R2 = 3.2, alpha = 98, length = 1000)
         column = ISection(B = column_B, T = column_T, D = column_D,
-                           t = column_tw, R1 = column_R1, R2 = column_R2, alpha = column_alpha, length = 1000)
+                           t = column_tw, R1 = column_R1, R2 = column_R2, alpha = column_alpha, length = 1000,notchObj=None)
         #### WELD,PLATE,BOLT AND NUT PARAMETERS #####
         dictAngleData = self.fetchAnglePara()
         cleat_length = resultObj['cleat']['height']
@@ -1188,7 +1212,7 @@ class MainController(QtGui.QMainWindow):
         #beam = ISection(B = 140, T = 16,D = 400,t = 8.9, R1 = 14, R2 = 7, alpha = 98,length = 500)
         beam = ISection(B = beam_B, T = beam_T,D = beam_D,t = beam_tw,
                         R1 = beam_R1, R2 = beam_R2, alpha = beam_alpha,
-                        length = beam_length)
+                        length = beam_length,notchObj=None)
         
         ##### COLUMN PARAMETERS ######
         dictcoldata = self.fetchColumnPara()
@@ -1203,7 +1227,7 @@ class MainController(QtGui.QMainWindow):
         
         #column = ISection(B = 83, T = 14.1, D = 250, t = 11, R1 = 12, R2 = 3.2, alpha = 98, length = 1000)
         column = ISection(B = column_B, T = column_T, D = column_D,
-                           t = column_tw, R1 = column_R1, R2 = column_R2, alpha = column_alpha, length = 1000)
+                           t = column_tw, R1 = column_R1, R2 = column_R2, alpha = column_alpha, length = 1000,notchObj=None)
         
         #### Cleat,BOLT AND NUT PARAMETERS #####
         dictAngleData = self.fetchAnglePara()
@@ -1331,6 +1355,8 @@ class MainController(QtGui.QMainWindow):
         # FinPlate Design Calculations. 
         resultObj = cleatAngleConn(uiObj)
         
+        self.outputdict()
+        
         # Displaying Design Calculations To Output Window
         self.display_output(resultObj)
         
@@ -1342,6 +1368,8 @@ class MainController(QtGui.QMainWindow):
         self.call_3DModel(status)
         
         print "inputs:  " , uiObj
+        
+        
         
         
     def create2Dcad(self,connectivity):

@@ -4,34 +4,34 @@ p1
 (dp2
 S'ColumSection'
 p3
-S'ISMB 400'
+S'ISSC 220'
 p4
 sS'fu (MPa)'
 p5
 I410
 sS'BeamSection'
 p6
-S'ISMB 350'
+S'ISMB 400'
 p7
 sS'fy (MPa)'
 p8
 I250
 sS'Connectivity'
 p9
-S'Beam-Beam'
+S'Column flange-Beam web'
 p10
 ssS'Load'
 p11
 (dp12
 S'ShearForce (kN)'
 p13
-F0.0
+F150.0
 ssS'cleat'
 p14
 (dp15
 S'section'
 p16
-S'ISA 90X60X12'
+S'ISA 100X100X10'
 p17
 sS'Height (mm)'
 p18
