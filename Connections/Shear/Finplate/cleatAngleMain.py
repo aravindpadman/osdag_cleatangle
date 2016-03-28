@@ -54,11 +54,9 @@ class myDialog(QDialog, Ui_Capacitydetals):
         self.ui = Ui_Capacitydetals()
         self.ui.setupUi(self)
         uiObj = MainController().getuser_inputs()
-        print " uiobj inside Dailog" , uiObj
         x = cleatAngleConn(uiObj)
 #         x = MainController().outputdict()
 #         x = m.outputdict()
-        print "print capacity Details",x
         
         self.ui.shear_b.setText(str(x['Bolt']['shearcapacity']))
         self.ui.bearing_b.setText(str(x['Bolt']['bearingcapacity']))
@@ -378,11 +376,11 @@ class MainController(QtGui.QMainWindow):
     def checkCleatHeight(self,widget):
         loc = self.ui.combo_Beam.currentText()
         cleatHeight = widget.text()
-        val = int(cleatHeight) 
+        cleatHeight = float(cleatHeight) 
         if cleatHeight == 0:
             pass
         else:
-            column = self.ui.comboColSec.currentText()
+            
             dictBeamData = self.fetchBeamPara()
             beam_D = float(dictBeamData[QString('D')])
             beam_T = float(dictBeamData[QString('T')])
@@ -392,8 +390,7 @@ class MainController(QtGui.QMainWindow):
             if loc  == "Column web-Beam web" or loc == "Column flange-Beam web":
                 clearDepth = beam_D - 2 * (beam_T + beam_R1)
             else:
-                clearDepth = beam_D - 2 *( beam_R1 + beam_T) 
-                      
+                clearDepth = beam_D - 2 *( beam_R1 + beam_T)
             if clearDepth <= cleatHeight:
                 self.ui.btn_Design.setDisabled(True)
                 QtGui.QMessageBox.about(self,'Information',"Height of the Cleat Angle exceeding the clear Depth of the Beam)")
@@ -597,8 +594,6 @@ class MainController(QtGui.QMainWindow):
         
         uiObj = self.getuser_inputs()
         outputobj = cleatAngleConn(uiObj)
-        print " input : " ,uiObj
-        print "OutPut" , outputobj
         return outputobj
 #         outObj = {}
 #         outObj['cleat'] ={}
@@ -821,7 +816,6 @@ class MainController(QtGui.QMainWindow):
                     resultObj = outputObj
                     
         # resultObj['Bolt']
-        print "result obj :" ,resultObj
         shear_capacity = resultObj['Bolt']['shearcapacity']
         
 #         self.uiPopUp.lineEdit_companyName.setText(str(shear_capacity))
@@ -1351,12 +1345,13 @@ class MainController(QtGui.QMainWindow):
         #self.set_designlogger()
         # Getting User Inputs.
         uiObj = self.getuser_inputs()
+        self.save_inputs(uiObj)
         
         # FinPlate Design Calculations. 
         resultObj = cleatAngleConn(uiObj)
-        
-        self.outputdict()
-        
+#         self.outputdict()
+        print " print resultObj:",resultObj
+        print " inputObj :" ,uiObj
         # Displaying Design Calculations To Output Window
         self.display_output(resultObj)
         
@@ -1367,7 +1362,9 @@ class MainController(QtGui.QMainWindow):
         status = resultObj['Bolt']['status']
         self.call_3DModel(status)
         
-        print "inputs:  " , uiObj
+        
+        
+        
         
         
         
@@ -1553,14 +1550,14 @@ class MainController(QtGui.QMainWindow):
             
         else:
             
-            fileName = QtGui.QFileDialog.getSaveFileName(self,
-                    "Save SVG", '/home/aravind/untitle.svg',
-                    "SVG files (*.svg)")
-            f = open(fileName,'w')
+#             fileName = QtGui.QFileDialog.getSaveFileName(self,
+#                     "Save SVG", '/home/aravind/untitle.svg',
+#                     "SVG files (*.svg)")
+#             f = open(fileName,'w')
             
-            self.callDesired_View(fileName, view)
+            self.callDesired_View("/home/aravind/front.svg", view)
            
-            f.close()
+#             f.close()
             
             
             
@@ -1643,8 +1640,8 @@ class MainController(QtGui.QMainWindow):
         '''
         Closing finPlate window.
         '''
-        uiInput = self.getuser_inputs()
-        self.save_inputs(uiInput)
+#         uiInput = self.getuser_inputs()
+#         self.save_inputs(uiInput)
         reply = QtGui.QMessageBox.question(self, 'Message',
             "Are you sure to quit?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
 

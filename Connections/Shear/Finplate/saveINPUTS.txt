@@ -4,21 +4,21 @@ p1
 (dp2
 S'ColumSection'
 p3
-S'ISSC 220'
+S'ISMB 450'
 p4
 sS'fu (MPa)'
 p5
 I410
 sS'BeamSection'
 p6
-S'ISMB 400'
+S'ISMB 350'
 p7
 sS'fy (MPa)'
 p8
 I250
 sS'Connectivity'
 p9
-S'Column flange-Beam web'
+S'Beam-Beam'
 p10
 ssS'Load'
 p11
