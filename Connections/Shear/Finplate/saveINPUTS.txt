@@ -11,7 +11,7 @@ p5
 I410
 sS'BeamSection'
 p6
-S'ISMB 350'
+S'ISMB 300'
 p7
 sS'fy (MPa)'
 p8

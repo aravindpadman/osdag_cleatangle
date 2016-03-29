@@ -310,7 +310,9 @@ def cleatAngleConn(uiObj):
                         pitch = avbl_length/(no_row - 1)
                         crit_shear = critical_bolt_shear(shear_load, eccentricity, pitch, gauge, no_row)
                     if pitch < min_pitch:
-                        print ":Increase the diameter of the bolts"
+                        design_check = False
+                        logger.error(':Critical shear force on the bolts due to loading is exceeding the bolt capacity')    
+                        logger.info(':Re-design with increased bolt diameter or bolt grade')                        
                     elif bolt_capacity > crit_shear and pitch>min_pitch:
                         pass 
     ######################################Storing beam results to different variables########################################
@@ -378,7 +380,9 @@ def cleatAngleConn(uiObj):
                         pitch = avbl_length/(no_row - 1)
                         crit_shear = column_critical_shear(shear_load, eccentricity, pitch, gauge, no_row,min_edge_dist)
                     if pitch < min_pitch:
-                        print ":Increase the diameter of the bolts:::Column"
+                        design_check = False
+                        logger.error(':Critical shear force on the bolts due to loading is exceeding the bolt capacity')    
+                        logger.info(':Re-design with increased bolt diameter or bolt grade')        
                     elif bolt_capacity > crit_shear and pitch>min_pitch:
                         pass 
     ##########################################################################
@@ -451,12 +455,14 @@ def cleatAngleConn(uiObj):
                 crit_shear = critical_bolt_shear(shear_load, eccentricity, pitch, gauge, no_row) 
                 if crit_shear > bolt_capacity :
                      
-                    while crit_shear > bolt_capacity and pitch > min_pitch:
+                    while crit_shear > bolt_capacity and cleat_length <  max_cleat_length:
                         no_row = no_row + 1
                         cleat_length = cleat_length + pitch
                         crit_shear = critical_bolt_shear(shear_load, eccentricity, pitch, gauge, no_row)
                     if cleat_length > max_cleat_length:
-                        print ":Increase the diameter of the bolts"
+                        design_check = False
+                        logger.error(':Critical shear force on the bolts due to loading is exceeding the bolt capacity')    
+                        logger.info(':Re-design with increased bolt diameter or bolt grade')        
                     elif bolt_capacity > crit_shear and cleat_length <= max_cleat_length:
                         pass       
         #             if end_dist > min_edge_dist and cleat_length > 0.6 * beam_D :
@@ -532,12 +538,15 @@ def cleatAngleConn(uiObj):
                 crit_shear = column_critical_shear(shear_load, eccentricity, pitch, gauge, no_row,edge_dist) 
                 if crit_shear > bolt_capacity :
                      
-                    while crit_shear > bolt_capacity and pitch > min_pitch:
+                    while crit_shear > bolt_capacity and cleat_length <  max_cleat_length:
                         no_row = no_row + 1
                         cleat_length = cleat_length + pitch
                         crit_shear = column_critical_shear(shear_load, eccentricity, pitch, gauge, no_row,edge_dist)
                     if cleat_length > max_cleat_length:
-                        print ":Increase the diameter of the bolts"
+                        design_check = False
+                        logger.error(':Shear force on the crtitical bolt due to external load is exceeding the bolt capacity') 
+                        logger.warning(':Bolt capacity of the critical bolt should be greater than ')   
+                        logger.info(':Re-design with increased bolt diameter or bolt grade')        
                     elif bolt_capacity > crit_shear and cleat_length <= max_cleat_length:
                         pass       
         #             if end_dist > min_edge_dist and cleat_length > 0.6 * beam_D :
@@ -567,18 +576,26 @@ def cleatAngleConn(uiObj):
     b_end_distance = cleat_legsize-(20 + min_edge_dist + gauge_b) 
     if b_end_distance < min_edge_dist:#is it neccessary to treat single and double line seperately?
         design_check = False
-        
-        logger.error(':Edge distance in the beam web is less than the minimum edge distance as per IS 800:2007')    
-#         logger.warning(':Minimum leg size of the cleat required is ' %(str(2*min_edge_dist + 20 + gauge)))
+        logger.error(':Edge distance in the beam web is less than the minimum edge distance as per IS 800:2007[cl.10.2.4.2]')    
+        logger.warning(':Minimum leg size of the cleat Angle required is %2.2f mm' %(str(2*min_edge_dist + 20 + gauge)))
         logger.info(':Increase the cleat leg size')#change reference
     b_gauge  = (2 * cleat_legsize_1 + beam_w_t) - 2*end_dist_c
-    if b_gauge < 90 or b_gauge > 140:
+    connection = "column"
+    if connectivity == "Beam-Beam":
+        connection = "primary beam"
+
+    if b_gauge < 90:
         print b_gauge
         design_check = False
-        logger.error(':beam guage is out of the bound') 
-        print "design chec" , design_check   
-#         logger.warning(':Minimum leg size of the cleat required is ' %(2*min_edge_dist + 20 + gauge))
-#         logger.info(':Increase the cleat leg size')
+        logger.error(':Cross center distance between bolt lines in %s on either side of the supported beam is less than the specified gauge [reference-JSC:ch.4 check-1]' %(str(connection)))
+        logger.warning(':Minimum specified cross center gauge is 90 mm')
+        logger.info(':Increase the cleat leg size')
+    if b_gauge > 140:
+        design_check = False
+        logger.error(':Cross center distance between bolt lines in %s on either side of supported the beam is greater than the specified gauge[reference-JSC:ch.4 check-1]' %(str(connection)))
+        logger.warning(':Maximum specified cross center gauge is 140 mm')
+        logger.info(':Decrease the cleat leg size')
+        
     #block shear
     Tdb_B = blockshear(no_row_b, no_col_b, dia_hole, beam_fy, beam_fu, end_dist_b, edge_dist_b, pitch_b, gauge_b, cleat_thk)
     Tdb_C = blockshear(no_row_c, no_col_c, dia_hole, beam_fy, beam_fu, end_dist_c, edge_dist_c, pitch_c, gauge_c, cleat_thk)  
@@ -592,7 +609,7 @@ def cleatAngleConn(uiObj):
     moment_capacity = 1.2 * cleat_fy * cleat_thk * cleat_length * cleat_length / 1000000
     if moment_capacity < moment_demand:
         design_check = False
-        logger.error(":Plate moment capacity is less than the moment demand")
+        logger.error(":Moment capacity of the cleat angle leg  is less than the moment demand")
         logger.warning(":Re-design with increased plate dimensions")
     #########################feeding output to array ###############
     outputObj = {}
@@ -604,11 +621,11 @@ def cleatAngleConn(uiObj):
     outputObj['Bolt']['numofbolts'] = no_row_b * no_col_b
     outputObj['Bolt']['boltgrpcapacity'] = round(2 * bolt_capacity * no_row_b * no_col_b,3)
     outputObj['Bolt']['numofrow'] = no_row_b
-    outputObj['Bolt']['numofcol'] = no_col_b
+    outputObj['Bolt']['numofcol'] = 2 #no_col_b 
     outputObj['Bolt']['pitch'] = pitch_b
     outputObj['Bolt']['enddist'] = int(end_dist_b)
     outputObj['Bolt']['edge'] = int(edge_dist_b)
-    outputObj['Bolt']['gauge'] = int(gauge_b)
+    outputObj['Bolt']['gauge'] =30 #int(gauge_b)
 #     outputObj['Bolt']['grade'] = bolt_grade
       
      
@@ -618,10 +635,10 @@ def cleatAngleConn(uiObj):
     outputObj['cleat']['externalmoment'] = round(moment_demand ,3)
     outputObj['cleat']['momentcapacity'] = round(moment_capacity,3)
     outputObj['cleat']['numofrow'] = no_row_c
-    outputObj['cleat']['numofcol'] = no_col_c
+    outputObj['cleat']['numofcol'] = 2 #no_col_c
     
     outputObj['cleat']['pitch'] = pitch_c
-    outputObj['cleat']['guage'] = gauge_c
+    outputObj['cleat']['guage'] = 30 #gauge_c
     outputObj['cleat']['edge'] = edge_dist_c
     outputObj['cleat']['end'] = end_dist_c
     outputObj['cleat']['legsize'] = cleat_legsize_1

@@ -373,33 +373,31 @@ class MainController(QtGui.QMainWindow):
                 QtGui.QMessageBox.about(self,'Information',"Secondary beam depth is higher than clear depth of primary beam web (No provision in Osdag till now)")
             else:
                 self.ui.btn_Design.setDisabled(False)
+                
     def checkCleatHeight(self,widget):
-        loc = self.ui.combo_Beam.currentText()
+        loc = self.ui.comboConnLoc.currentText()
         cleatHeight = widget.text()
         cleatHeight = float(cleatHeight) 
         if cleatHeight == 0:
-            pass
+            self.ui.btn_Design.setDisabled(False)
         else:
             
             dictBeamData = self.fetchBeamPara()
+            dictColumnData = self.fetchColumnPara()
+            col_T = float(dictColumnData[QString('T')])
+            col_R1 = float(dictColumnData[QString('R1')])
             beam_D = float(dictBeamData[QString('D')])
             beam_T = float(dictBeamData[QString('T')])
             beam_R1 = float(dictBeamData[QString('R1')])
             clearDepth = 0.0
             minCleatHeight = 0.6 * beam_D
             if loc  == "Column web-Beam web" or loc == "Column flange-Beam web":
-                clearDepth = beam_D - 2 * (beam_T + beam_R1)
+                clearDepth = beam_D - 2 * (beam_T + beam_R1 + 5)
             else:
-                clearDepth = beam_D - 2 *( beam_R1 + beam_T)
-            if clearDepth <= cleatHeight:
+                clearDepth = beam_D - ( beam_R1 + beam_T + col_R1 + col_T)
+            if clearDepth < cleatHeight or cleatHeight < minCleatHeight:
                 self.ui.btn_Design.setDisabled(True)
-                QtGui.QMessageBox.about(self,'Information',"Height of the Cleat Angle exceeding the clear Depth of the Beam)")
-            else:
-                self.ui.btn_Design.setDisabled(False)
-            if cleatHeight < minCleatHeight:
-                self.ui.btn_Design.setDisabled(True)
-                QtGui.QMessageBox.about(self,'Information',"Minimum height of the cleat angle should be %2.2f mm " %(minCleatHeight) )
-                
+                QtGui.QMessageBox.about(self,'Information',"Height of the Cleat Angle should be in between %s -%s mm" %(int(minCleatHeight),int(clearDepth)))
             else:
                 self.ui.btn_Design.setDisabled(False)
                 
