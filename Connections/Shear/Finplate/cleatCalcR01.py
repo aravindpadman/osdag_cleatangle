@@ -254,7 +254,8 @@ def cleatAngleConn(uiObj):
     cleat_length_c = 0.0
     c_eccentricity = 0.0
     
-#############################Length of the cleat angle given ######################    
+#############################Length of the cleat angle given ###################### 
+##################Beam Connection #################################################   
     if cleat_length != 0:
         no_row = bolts_required
         no_col = 1
@@ -330,6 +331,7 @@ def cleatAngleConn(uiObj):
         no_col = 1
         avbl_length = (cleat_length - 2 * min_edge_dist)
         pitch = avbl_length/(no_row - 1)
+        end_dist = min_edge_dist
         test = True
         if pitch<min_pitch:
             test = False
@@ -341,12 +343,22 @@ def cleatAngleConn(uiObj):
             if no_row <= 2:
                 no_row = 2
             gauge = min_gauge
-            eccentricity = (cleat_legsize_1 + beam_w_t/2) - (min_edge_dist + gauge/2)
+            if (cleat_legsize_1 + beam_w_t/2 - end_dist -gauge) > 70:
+                eccentricity = 70.0 + gauge/2
+                end_dist = (cleat_legsize_1 + beam_w_t/2) - (70.0 + gauge)
+            else:    
+                eccentricity = (cleat_legsize_1 + beam_w_t/2) - (min_edge_dist + gauge/2)
+                end_dist = min_edge_dist
             pitch = avbl_length / (no_row - 1)
         else:
             no_col = 1
             gauge = 0
-            eccentricity = (cleat_legsize_1 + beam_w_t/2) - min_edge_dist
+            if (cleat_legsize_1 + beam_w_t/2 - end_dist - gauge) > 70:
+                eccentricity = 70.0 + gauge/2
+                end_dist = (cleat_legsize_1 + beam_w_t/2) - (70.0 + gauge)
+            else:    
+                eccentricity = (cleat_legsize_1 + beam_w_t/2) - (min_edge_dist + gauge/2)
+                end_dist = min_edge_dist
             
         crit_shear = column_critical_shear(shear_load, eccentricity, pitch, gauge, no_row,min_edge_dist)
         if crit_shear > bolt_capacity :
@@ -371,7 +383,13 @@ def cleatAngleConn(uiObj):
                     no_row = 2
                 pitch = avbl_length/(no_row -1)
                 gauge = min_gauge
-                eccentricity = (cleat_legsize_1 + beam_w_t/2) - (min_edge_dist + gauge/2)
+                if (cleat_legsize_1 + beam_w_t/2 - end_dist - gauge) > 70:
+                    eccentricity = 70.0 + gauge/2
+                    end_dist = (cleat_legsize_1 + beam_w_t/2) - (70.0 + gauge)
+                else:    
+                    eccentricity = (cleat_legsize_1 + beam_w_t/2) - (min_edge_dist + gauge/2)
+                    end_dist = min_edge_dist
+        
                 crit_shear = column_critical_shear(shear_load, eccentricity, pitch, gauge, no_row,min_edge_dist)
                 if crit_shear > bolt_capacity :
                     
@@ -391,7 +409,7 @@ def cleatAngleConn(uiObj):
         pitch_c = pitch
         gauge_c = gauge
         edge_dist_c = min_edge_dist 
-        end_dist_c = min_edge_dist
+        end_dist_c = end_dist
         cleat_length_c = cleat_length
         c_eccentricity = eccentricity     
    
@@ -441,15 +459,15 @@ def cleatAngleConn(uiObj):
                         no_row = no_row/2
                     else:
                         no_row = (no_row+1)/2
-                if no_row == 1:
+                if no_row <= 2:
                     no_row = 2
                     
                 cleat_length = (no_row - 1) * min_pitch + 2 * min_edge_dist
-                if cleat_length < 0.6 * beam_D:
-                    cleat_length = 0.6 * beam_D
-                    edge_dist = (cleat_length - (no_row -1) * pitch)/2
-                else:
-                    edge_dist = min_edge_dist
+#                 if cleat_length < 0.6 * beam_D:
+#                     cleat_length = 0.6 * beam_D
+#                     edge_dist = (cleat_length - (no_row -1) * pitch)/2
+#                 else:
+#                     edge_dist = min_edge_dist
                 gauge = min_gauge
                 eccentricity = cleat_legsize - (gauge/2 + min_edge_dist)
                 crit_shear = critical_bolt_shear(shear_load, eccentricity, pitch, gauge, no_row) 
@@ -476,7 +494,7 @@ def cleatAngleConn(uiObj):
         no_col_b = no_col
         pitch_b = pitch
         gauge_b = gauge
-        edge_dist_b = min_edge_dist 
+        edge_dist_b = edge_dist
         end_dist_b = min_edge_dist
         cleat_length_b = cleat_length
     ################################## Column Calculation ###############################################
@@ -499,11 +517,23 @@ def cleatAngleConn(uiObj):
                 no_row = 2
                 
             gauge = min_gauge
-            eccentricity = (cleat_legsize_1 + beam_w_t/2) - (end_dist+gauge/2)
+            if (cleat_legsize_1 + beam_w_t/2 - end_dist - gauge) > 70:
+                eccentricity = 70.0 + gauge/2
+                end_dist = (cleat_legsize_1 + beam_w_t/2) - (70.0 + gauge)
+            else:    
+                eccentricity = (cleat_legsize_1 + beam_w_t/2) - (min_edge_dist + gauge/2)
+                end_dist = min_edge_dist
+            
         else:
             no_col = 1
             gauge = 0
-            eccentricity = (cleat_legsize_1 + beam_w_t/2) - end_dist
+            if (cleat_legsize_1 + beam_w_t/2 - end_dist -gauge) > 70:
+                eccentricity = 70.0 + gauge/2
+                end_dist = (cleat_legsize_1 + beam_w_t/2) - (70.0 + gauge)
+            else:    
+                eccentricity = (cleat_legsize_1 + beam_w_t/2) - (min_edge_dist + gauge/2)
+                end_dist = min_edge_dist
+           
              
         crit_shear = column_critical_shear(shear_load, eccentricity, pitch, gauge, no_row,edge_dist)
         if crit_shear > bolt_capacity :
@@ -534,7 +564,13 @@ def cleatAngleConn(uiObj):
 #                 else:
 #                 edge_dist = min_edge_dist
                 gauge = min_gauge
-                eccentricity =(cleat_legsize_1 + beam_w_t/2) - (end_dist+gauge/2)
+                if (cleat_legsize_1 + beam_w_t/2 - end_dist -gauge) > 70:
+                    eccentricity = 70.0 + gauge/2
+                    end_dist = (cleat_legsize_1 + beam_w_t/2) - (70.0 + gauge)
+                else:    
+                    eccentricity = (cleat_legsize_1 + beam_w_t/2) - (min_edge_dist + gauge/2)
+                    end_dist = min_edge_dist
+                    
                 crit_shear = column_critical_shear(shear_load, eccentricity, pitch, gauge, no_row,edge_dist) 
                 if crit_shear > bolt_capacity :
                      
@@ -561,7 +597,7 @@ def cleatAngleConn(uiObj):
         pitch_c = pitch
         gauge_c = gauge
         edge_dist_c = edge_dist
-        end_dist_c = min_edge_dist
+        end_dist_c = end_dist
         cleat_length_c = cleat_length
         c_eccentricity = eccentricity 
     #################################################Deciding final Design outcomes based on column and beam connectivity design #######
@@ -577,7 +613,7 @@ def cleatAngleConn(uiObj):
     if b_end_distance < min_edge_dist:#is it neccessary to treat single and double line seperately?
         design_check = False
         logger.error(':Edge distance in the beam web is less than the minimum edge distance as per IS 800:2007[cl.10.2.4.2]')    
-        logger.warning(':Minimum leg size of the cleat Angle required is %2.2f mm' %(str(2*min_edge_dist + 20 + gauge)))
+        logger.warning(':Minimum leg size of the cleat Angle required is %s mm' %(str(2*min_edge_dist + 20 + gauge)))
         logger.info(':Increase the cleat leg size')#change reference
     b_gauge  = (2 * cleat_legsize_1 + beam_w_t) - 2*end_dist_c
     connection = "column"
@@ -621,11 +657,11 @@ def cleatAngleConn(uiObj):
     outputObj['Bolt']['numofbolts'] = no_row_b * no_col_b
     outputObj['Bolt']['boltgrpcapacity'] = round(2 * bolt_capacity * no_row_b * no_col_b,3)
     outputObj['Bolt']['numofrow'] = no_row_b
-    outputObj['Bolt']['numofcol'] = 2 #no_col_b 
+    outputObj['Bolt']['numofcol'] = no_col_b 
     outputObj['Bolt']['pitch'] = pitch_b
     outputObj['Bolt']['enddist'] = int(end_dist_b)
     outputObj['Bolt']['edge'] = int(edge_dist_b)
-    outputObj['Bolt']['gauge'] =30 #int(gauge_b)
+    outputObj['Bolt']['gauge'] =int(gauge_b)
 #     outputObj['Bolt']['grade'] = bolt_grade
       
      
@@ -635,10 +671,10 @@ def cleatAngleConn(uiObj):
     outputObj['cleat']['externalmoment'] = round(moment_demand ,3)
     outputObj['cleat']['momentcapacity'] = round(moment_capacity,3)
     outputObj['cleat']['numofrow'] = no_row_c
-    outputObj['cleat']['numofcol'] = 2 #no_col_c
+    outputObj['cleat']['numofcol'] = no_col_c
     
     outputObj['cleat']['pitch'] = pitch_c
-    outputObj['cleat']['guage'] = 30 #gauge_c
+    outputObj['cleat']['guage'] = gauge_c
     outputObj['cleat']['edge'] = edge_dist_c
     outputObj['cleat']['end'] = end_dist_c
     outputObj['cleat']['legsize'] = cleat_legsize_1

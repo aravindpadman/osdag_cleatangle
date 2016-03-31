@@ -42,7 +42,7 @@ from model import *
 from notch import Notch
 from nut import Nut 
 from nutBoltPlacement import NutBoltArray
-from ui_cleatAngleR04 import Ui_MainWindow
+from ui_cleatAngleR05 import Ui_MainWindow
 from utilities import osdagDisplayShape
 
 
@@ -524,7 +524,10 @@ class MainController(QtGui.QMainWindow):
             picmap.scaledToWidth(50)
             self.ui.lbl_connectivity.setPixmap(picmap)
         else:
-            self.ui.lbl_connectivity.hide()
+            picmap = QtGui.QPixmap(":/ResourceFiles/images/b-b.png")
+            picmap.scaledToHeight(60)
+            picmap.scaledToWidth(50)
+            self.ui.lbl_connectivity.setPixmap(picmap)
             
     def getuser_inputs(self):
         '''(nothing) -> Dictionary
@@ -842,10 +845,10 @@ class MainController(QtGui.QMainWindow):
         gauge_dist = resultObj['Bolt']['gauge']
         self.ui.txtBeamGuage.setText(str(gauge_dist))
         
-        end_dist = resultObj['Bolt']['enddist']
+        end_dist = resultObj['Bolt']['edge']
         self.ui.txtEndDist.setText(str(end_dist))
         
-        edge_dist = resultObj['Bolt']['edge']
+        edge_dist = resultObj['Bolt']['enddist']
         self.ui.txtEdgeDist.setText(str(edge_dist))
         #column 
         c_noOfBolts = resultObj['cleat']['numofbolts']
@@ -862,10 +865,10 @@ class MainController(QtGui.QMainWindow):
         gauge_dist = resultObj['cleat']['guage']
         self.ui.txtBeamGuage_c.setText(str(gauge_dist))
         
-        end_dist = resultObj['cleat']['end']
+        end_dist = resultObj['cleat']['edge']
         self.ui.txtEndDist_c.setText(str(end_dist))
         
-        edge_dist = resultObj['cleat']['edge']
+        edge_dist = resultObj['cleat']['end']
         self.ui.txtEdgeDist_c.setText(str(edge_dist))
         
         
@@ -985,7 +988,7 @@ class MainController(QtGui.QMainWindow):
         self.display.SetModeShaded()
         display.DisableAntiAliasing()
         self.display.set_bg_gradient_color(23,1,32,23,1,32)
-        self.display.set_bg_gradient_color(28,9,99,252,243,235)
+#         self.display.set_bg_gradient_color(28,9,99,252,243,235)
         self.display.View_Front()
         self.display.View_Iso()
         self.display.FitAll()

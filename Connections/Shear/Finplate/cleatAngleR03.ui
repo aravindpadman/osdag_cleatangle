@@ -14,7 +14,7 @@
    <string>Cleat Angle</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="ResourceFiles/cleat.qrc">
     <normaloff>:/newPrefix/images/download1.png</normaloff>:/newPrefix/images/download1.png</iconset>
   </property>
   <property name="iconSize">
@@ -64,7 +64,7 @@
         <string>input</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="ResourceFiles/cleat.qrc">
          <normaloff>:/newPrefix/images/input.png</normaloff>:/newPrefix/images/input.png</iconset>
        </property>
        <property name="iconSize">
@@ -90,7 +90,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="ResourceFiles/cleat.qrc">
          <normaloff>:/newPrefix/images/output.png</normaloff>:/newPrefix/images/output.png</iconset>
        </property>
        <property name="iconSize">
@@ -234,7 +234,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="ResourceFiles/cleat.qrc">
          <normaloff>:/newPrefix/images/Z-X.png</normaloff>:/newPrefix/images/Z-X.png</iconset>
        </property>
        <property name="iconSize">
@@ -273,7 +273,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="ResourceFiles/cleat.qrc">
          <normaloff>:/newPrefix/images/X-Y.png</normaloff>:/newPrefix/images/X-Y.png</iconset>
        </property>
        <property name="iconSize">
@@ -312,7 +312,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="ResourceFiles/cleat.qrc">
          <normaloff>:/newPrefix/images/Z-Y.png</normaloff>:/newPrefix/images/Z-Y.png</iconset>
        </property>
        <property name="iconSize">
@@ -3927,6 +3927,8 @@ QMenu::item:selected {
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="ResourceFiles/cleat.qrc"/>
+ </resources>
  <connections/>
 </ui>
