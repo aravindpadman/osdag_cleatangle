@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dialogBox_march23.ui'
 #
-# Created: Wed Mar 23 05:08:46 2016
+# Created: Fri Apr  1 05:21:38 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -44,10 +44,10 @@ class Ui_Capacitydetals(object):
         self.lbl_boltGrp.setGeometry(QtCore.QRect(10, 120, 171, 17))
         self.lbl_boltGrp.setObjectName(_fromUtf8("lbl_boltGrp"))
         self.lbl_col = QtGui.QLabel(Capacitydetals)
-        self.lbl_col.setGeometry(QtCore.QRect(10, 10, 68, 17))
+        self.lbl_col.setGeometry(QtCore.QRect(10, 10, 171, 17))
         self.lbl_col.setObjectName(_fromUtf8("lbl_col"))
         self.lbl_beam = QtGui.QLabel(Capacitydetals)
-        self.lbl_beam.setGeometry(QtCore.QRect(11, 150, 68, 17))
+        self.lbl_beam.setGeometry(QtCore.QRect(11, 150, 171, 17))
         self.lbl_beam.setObjectName(_fromUtf8("lbl_beam"))
         self.lbl_cleat = QtGui.QLabel(Capacitydetals)
         self.lbl_cleat.setGeometry(QtCore.QRect(10, 290, 91, 17))
@@ -105,13 +105,13 @@ class Ui_Capacitydetals(object):
         QtCore.QMetaObject.connectSlotsByName(Capacitydetals)
 
     def retranslateUi(self, Capacitydetals):
-        Capacitydetals.setWindowTitle(_translate("Capacitydetals", "Capacity Details", None))
+        Capacitydetals.setWindowTitle(_translate("Capacitydetals", "Dialog", None))
         self.lbl_shear.setText(_translate("Capacitydetals", "Shear capacity (kN)", None))
         self.lbl_bearing.setText(_translate("Capacitydetals", "Bearing capacity (kN)", None))
         self.lbl_capacity.setText(_translate("Capacitydetals", "Capacity of bolt (kN)", None))
         self.lbl_boltGrp.setText(_translate("Capacitydetals", "Bolt group capacity (kN)", None))
-        self.lbl_col.setText(_translate("Capacitydetals", "<html><head/><body><p><span style=\" font-weight:600;\">Column</span></p></body></html>", None))
-        self.lbl_beam.setText(_translate("Capacitydetals", "<html><head/><body><p><span style=\" font-weight:600;\">Beam</span></p></body></html>", None))
+        self.lbl_col.setText(_translate("Capacitydetals", "<html><head/><body><p><span style=\" font-weight:600;\">Supporting member</span></p></body></html>", None))
+        self.lbl_beam.setText(_translate("Capacitydetals", "<html><head/><body><p><span style=\" font-weight:600;\">Suppoted member</span></p></body></html>", None))
         self.lbl_cleat.setText(_translate("Capacitydetals", "<html><head/><body><p><span style=\" font-weight:600;\">Cleat Angle</span></p></body></html>", None))
         self.lbl_shear_b.setText(_translate("Capacitydetals", "Shear capacity (kN)", None))
         self.lbl_bearing_b.setText(_translate("Capacitydetals", "Bearing capacity (kN)", None))

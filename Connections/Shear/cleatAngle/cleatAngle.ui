@@ -14,7 +14,7 @@
    <string>Cleat Angle</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="ResourceFiles/cleat.qrc">
+   <iconset resource="../../eclipseWorkspace/osdag1/Connections/Shear/Finplate/ResourceFiles/icons.qrc">
     <normaloff>:/newPrefix/images/download1.png</normaloff>:/newPrefix/images/download1.png</iconset>
   </property>
   <property name="iconSize">
@@ -64,7 +64,7 @@
         <string>input</string>
        </property>
        <property name="icon">
-        <iconset resource="ResourceFiles/cleat.qrc">
+        <iconset resource="../../eclipseWorkspace/osdag1/Connections/Shear/Finplate/ResourceFiles/icons.qrc">
          <normaloff>:/newPrefix/images/input.png</normaloff>:/newPrefix/images/input.png</iconset>
        </property>
        <property name="iconSize">
@@ -90,7 +90,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="ResourceFiles/cleat.qrc">
+        <iconset resource="../../eclipseWorkspace/osdag1/Connections/Shear/Finplate/ResourceFiles/icons.qrc">
          <normaloff>:/newPrefix/images/output.png</normaloff>:/newPrefix/images/output.png</iconset>
        </property>
        <property name="iconSize">
@@ -234,7 +234,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="ResourceFiles/cleat.qrc">
+        <iconset resource="../../eclipseWorkspace/osdag1/Connections/Shear/Finplate/ResourceFiles/icons.qrc">
          <normaloff>:/newPrefix/images/Z-X.png</normaloff>:/newPrefix/images/Z-X.png</iconset>
        </property>
        <property name="iconSize">
@@ -273,7 +273,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="ResourceFiles/cleat.qrc">
+        <iconset resource="../../eclipseWorkspace/osdag1/Connections/Shear/Finplate/ResourceFiles/icons.qrc">
          <normaloff>:/newPrefix/images/X-Y.png</normaloff>:/newPrefix/images/X-Y.png</iconset>
        </property>
        <property name="iconSize">
@@ -312,7 +312,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="ResourceFiles/cleat.qrc">
+        <iconset resource="../../eclipseWorkspace/osdag1/Connections/Shear/Finplate/ResourceFiles/icons.qrc">
          <normaloff>:/newPrefix/images/Z-Y.png</normaloff>:/newPrefix/images/Z-Y.png</iconset>
        </property>
        <property name="iconSize">
@@ -3108,7 +3108,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>22</y>
+       <y>270</y>
        <width>100</width>
        <height>25</height>
       </rect>
@@ -3127,7 +3127,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>22</y>
+       <y>270</y>
        <width>191</width>
        <height>25</height>
       </rect>
@@ -3147,7 +3147,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>113</y>
+       <y>361</y>
        <width>100</width>
        <height>25</height>
       </rect>
@@ -3166,7 +3166,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>143</y>
+       <y>391</y>
        <width>100</width>
        <height>25</height>
       </rect>
@@ -3185,7 +3185,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>83</y>
+       <y>331</y>
        <width>100</width>
        <height>25</height>
       </rect>
@@ -3204,7 +3204,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>53</y>
+       <y>300</y>
        <width>100</width>
        <height>25</height>
       </rect>
@@ -3223,7 +3223,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>143</y>
+       <y>391</y>
        <width>130</width>
        <height>25</height>
       </rect>
@@ -3243,7 +3243,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>173</y>
+       <y>421</y>
        <width>179</width>
        <height>25</height>
       </rect>
@@ -3263,7 +3263,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>83</y>
+       <y>331</y>
        <width>130</width>
        <height>25</height>
       </rect>
@@ -3283,7 +3283,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>113</y>
+       <y>361</y>
        <width>130</width>
        <height>25</height>
       </rect>
@@ -3303,7 +3303,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>203</y>
+       <y>451</y>
        <width>100</width>
        <height>25</height>
       </rect>
@@ -3322,7 +3322,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>53</y>
+       <y>300</y>
        <width>130</width>
        <height>25</height>
       </rect>
@@ -3342,7 +3342,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>203</y>
+       <y>451</y>
        <width>179</width>
        <height>25</height>
       </rect>
@@ -3362,7 +3362,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>173</y>
+       <y>421</y>
        <width>100</width>
        <height>25</height>
       </rect>
@@ -3380,8 +3380,8 @@ QMenu::item:selected {
     <widget class="QLabel" name="outputBoltLbl">
      <property name="geometry">
       <rect>
-       <x>-1</x>
-       <y>0</y>
+       <x>0</x>
+       <y>248</y>
        <width>131</width>
        <height>20</height>
       </rect>
@@ -3394,14 +3394,14 @@ QMenu::item:selected {
       </font>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;Bolt Connectivity&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Beam&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
     <widget class="QLabel" name="outputCleatLbl">
      <property name="geometry">
       <rect>
        <x>-1</x>
-       <y>485</y>
+       <y>480</y>
        <width>130</width>
        <height>25</height>
       </rect>
@@ -3419,7 +3419,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>50</x>
-       <y>600</y>
+       <y>584</y>
        <width>200</width>
        <height>30</height>
       </rect>
@@ -3432,7 +3432,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>50</x>
-       <y>630</y>
+       <y>614</y>
        <width>200</width>
        <height>30</height>
       </rect>
@@ -3445,7 +3445,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>515</y>
+       <y>509</y>
        <width>100</width>
        <height>22</height>
       </rect>
@@ -3465,7 +3465,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>204</x>
-       <y>515</y>
+       <y>504</y>
        <width>100</width>
        <height>25</height>
       </rect>
@@ -3480,8 +3480,8 @@ QMenu::item:selected {
     <widget class="QLabel" name="outputBoltLbl_3">
      <property name="geometry">
       <rect>
-       <x>2</x>
-       <y>238</y>
+       <x>0</x>
+       <y>10</y>
        <width>151</width>
        <height>20</height>
       </rect>
@@ -3494,14 +3494,14 @@ QMenu::item:selected {
       </font>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;Column Connectivity&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;Column &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="txtNoBolts_c">
      <property name="geometry">
       <rect>
        <x>203</x>
-       <y>270</y>
+       <y>30</y>
        <width>100</width>
        <height>25</height>
       </rect>
@@ -3520,7 +3520,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>3</x>
-       <y>270</y>
+       <y>30</y>
        <width>191</width>
        <height>25</height>
       </rect>
@@ -3540,7 +3540,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>204</x>
-       <y>301</y>
+       <y>61</y>
        <width>100</width>
        <height>25</height>
       </rect>
@@ -3559,7 +3559,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>4</x>
-       <y>301</y>
+       <y>61</y>
        <width>130</width>
        <height>25</height>
       </rect>
@@ -3579,7 +3579,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>4</x>
-       <y>332</y>
+       <y>92</y>
        <width>130</width>
        <height>25</height>
       </rect>
@@ -3599,7 +3599,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>204</x>
-       <y>332</y>
+       <y>92</y>
        <width>100</width>
        <height>25</height>
       </rect>
@@ -3618,7 +3618,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>5</x>
-       <y>362</y>
+       <y>122</y>
        <width>130</width>
        <height>25</height>
       </rect>
@@ -3638,7 +3638,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>205</x>
-       <y>362</y>
+       <y>122</y>
        <width>100</width>
        <height>25</height>
       </rect>
@@ -3657,7 +3657,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>6</x>
-       <y>394</y>
+       <y>154</y>
        <width>130</width>
        <height>25</height>
       </rect>
@@ -3677,7 +3677,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>206</x>
-       <y>394</y>
+       <y>154</y>
        <width>100</width>
        <height>25</height>
       </rect>
@@ -3696,7 +3696,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>6</x>
-       <y>425</y>
+       <y>185</y>
        <width>179</width>
        <height>25</height>
       </rect>
@@ -3716,7 +3716,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>206</x>
-       <y>425</y>
+       <y>185</y>
        <width>100</width>
        <height>25</height>
       </rect>
@@ -3735,7 +3735,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>7</x>
-       <y>454</y>
+       <y>214</y>
        <width>179</width>
        <height>25</height>
       </rect>
@@ -3755,7 +3755,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>207</x>
-       <y>454</y>
+       <y>214</y>
        <width>100</width>
        <height>25</height>
       </rect>
@@ -3774,7 +3774,7 @@ QMenu::item:selected {
      <property name="geometry">
       <rect>
        <x>50</x>
-       <y>570</y>
+       <y>554</y>
        <width>200</width>
        <height>30</height>
       </rect>
@@ -3928,7 +3928,7 @@ QMenu::item:selected {
   </action>
  </widget>
  <resources>
-  <include location="ResourceFiles/cleat.qrc"/>
+  <include location="../../eclipseWorkspace/osdag1/Connections/Shear/Finplate/ResourceFiles/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

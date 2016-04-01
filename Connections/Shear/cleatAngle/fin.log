@@ -1,0 +1,53 @@
+<link rel="stylesheet" type="text/css" href="log.css"/>
+
+    <div  class="LOG INFO">
+        <span class="DATE">Fri, 01 Apr 2016 06:20:01</span>
+        <span class="LEVEL">INFO</span>
+        <span class="MSG">: Overall cleat Angle connection design is safe 
+</span>
+    </div>
+
+    <div  class="LOG INFO">
+        <span class="DATE">Fri, 01 Apr 2016 06:20:01</span>
+        <span class="LEVEL">INFO</span>
+        <span class="MSG"> :=========End Of design===========</span>
+    </div>
+
+    <div  class="LOG INFO">
+        <span class="DATE">Fri, 01 Apr 2016 06:20:01</span>
+        <span class="LEVEL">INFO</span>
+        <span class="MSG">: Overall cleat Angle connection design is safe 
+</span>
+    </div>
+
+    <div  class="LOG INFO">
+        <span class="DATE">Fri, 01 Apr 2016 06:20:01</span>
+        <span class="LEVEL">INFO</span>
+        <span class="MSG"> :=========End Of design===========</span>
+    </div>
+
+    <div  class="LOG INFO">
+        <span class="DATE">Fri, 01 Apr 2016 06:20:36</span>
+        <span class="LEVEL">INFO</span>
+        <span class="MSG">: Overall cleat Angle connection design is safe 
+</span>
+    </div>
+
+    <div  class="LOG INFO">
+        <span class="DATE">Fri, 01 Apr 2016 06:20:36</span>
+        <span class="LEVEL">INFO</span>
+        <span class="MSG"> :=========End Of design===========</span>
+    </div>
+
+    <div  class="LOG INFO">
+        <span class="DATE">Fri, 01 Apr 2016 06:20:36</span>
+        <span class="LEVEL">INFO</span>
+        <span class="MSG">: Overall cleat Angle connection design is safe 
+</span>
+    </div>
+
+    <div  class="LOG INFO">
+        <span class="DATE">Fri, 01 Apr 2016 06:20:36</span>
+        <span class="LEVEL">INFO</span>
+        <span class="MSG"> :=========End Of design===========</span>
+    </div>

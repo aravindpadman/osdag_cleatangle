@@ -13,7 +13,7 @@ from model import *
 
 
 
-class FinCommonData(object):
+class cleatCommonData(object):
     
     def __init__(self, inputObj,outputObj,dictBeamdata,dictColumndata,dictAngleData):
         '''
@@ -369,9 +369,9 @@ class FinCommonData(object):
         BWBW = Beam Web Beam Web
         
         '''
-        fin2DFront = Fin2DCreatorFront(self)
-        fin2DTop = Fin2DCreatorTop(self)
-        fin2DSide = Fin2DCreatorSide(self)
+        fin2DFront = cleat2DCreatorFront(self)
+        fin2DTop = cleat2DCreatorTop(self)
+        fin2DSide = cleat2DCreatorSide(self)
         
         if self.connectivity == 'Column flange-Beam web':
             if view == "Front":
@@ -419,7 +419,7 @@ class FinCommonData(object):
                 fileName = 'output/finplate/finTop.svg'
                 fin2DTop.callBWBWTop(fileName)
 
-class Fin2DCreatorFront(object):
+class cleat2DCreatorFront(object):
     
     def __init__(self,finCommonObj):
         
@@ -651,9 +651,10 @@ class Fin2DCreatorFront(object):
         self.BR1 = self.BP1 + self.dataObj.cleat_legsize * np.array([1,0])      
         
     def callBWBWfront(self,fileName):
+        v_height = self.dataObj.D_col + 850
         pt1 = self.BA5 - self.dataObj.col_R1 * np.array([0,1])
 #         dwg = svgwrite.Drawing(fileName, size=('1200mm', '1225mm'), viewBox=('-500 -250 1500 1225'))
-        dwg = svgwrite.Drawing(fileName, size=('100%', '100%'), viewBox=('-500 -350 1500 1250'))
+        dwg = svgwrite.Drawing(fileName, size=('100%', '100%'), viewBox=('-500 -350 1500 ' +str(v_height)))
         
         ################# Cross section A-A ##################
         ptSecA = self.BA + (320 * np.array([0,-1]))
@@ -851,10 +852,9 @@ class Fin2DCreatorFront(object):
         textDown = ""
         self.dataObj.drawOrientedArrow(dwg, self.BA, theta, "NW", offset, textUp,textDown)
             
-        #  SUPORTED BEAM Bolt GROUP  Information
-        no_of_bolts = self.dataObj.no_of_rows
-        if self.dataObj.no_of_col > 1:
-            no_of_bolts = 2 * self.dataObj.no_of_rows    
+        #  Secondary BEAM Bolt GROUP  Information
+        no_of_bolts = self.dataObj.no_of_rows * self.dataObj.no_of_col
+          
         bltPtx = np.array(ptList[0][0])
         theta = 45
         offset = (self.dataObj.D_beam * 3)/8 + 75 ##NEED TO CHANGED AFTER IMPORTING SUPPORTED BEAM INFORMATION
@@ -862,19 +862,15 @@ class Fin2DCreatorFront(object):
         textDown = "for M" + str(self.dataObj.bolt_dia) + 'bolts' + '(grade ' + str(self.dataObj.bolt_grade) + ')' ##NEED TO CHANGED AFTER IMPORTING SUPPORTED BEAM INFORMATION
         self.dataObj.drawOrientedArrow(dwg, bltPtx, theta, "NE", offset, textUp,textDown)
        
-        # SUPORTING BEAM Bolt GROUP  Information
-        no_of_bolts = self.dataObj.no_of_crows * 2 #Double Angle cleat
-        if self.dataObj.no_of_ccol > 1:
-            no_of_bolts = 2 * self.dataObj.no_of_crows    
+        # Primary BEAM Bolt GROUP  Information
+        no_of_bolts = self.dataObj.no_of_crows * 2* self.dataObj.no_of_ccol   
         bltPt = np.array(ptList_c[-1])
         theta = 60
         offset = (self.dataObj.beam_B/2 + 10) ##NEED TO CHANGED AFTER IMPORTING SUPPORTED BEAM INFORMATION
         textUp = str(no_of_bolts) + " nos " + str(int(self.dataObj.bolt_dia)) + u'\u00d8' + " holes"
         textDown = "for M" + str(self.dataObj.bolt_dia) + 'bolts' + '(grade ' + str(self.dataObj.bolt_grade) + ')' ##NEED TO CHANGED AFTER IMPORTING SUPPORTED BEAM INFORMATION
         self.dataObj.drawOrientedArrow(dwg, bltPt, theta, "SW", offset, textUp,textDown)        
-        
-        
-        
+    
         # cleat angle information
         cleatPt = self.BR1 
         theta = 75
@@ -884,20 +880,20 @@ class Fin2DCreatorFront(object):
         self.dataObj.drawOrientedArrow(dwg, cleatPt, theta, "SE", offset, textUp, textDown)
         
         # 2D view name
-        ptx =  self.BA + 150 * np.array([1,0]) + 880 * np.array([0,1])
+        ptx =  self.BA + 50 * np.array([1,0]) + (v_height - 360) * np.array([0,1])
         dwg.add(dwg.text('Front view (Sec C-C)', insert=(ptx), fill='black',font_family = "sans-serif",font_size = 30))
         ## All dimensions in "mm"
-        ptx =  self.BA + 500 * np.array([1,0]) + 880 * np.array([0,1])
+        ptx =  self.BA + 400 * np.array([1,0]) + (v_height - 360) * np.array([0,1])
         dwg.add(dwg.text('(All distances are in "mm")', insert=(ptx), fill='black',font_family = "sans-serif",font_size = 30))
         
 
 
 #         dwg.add(dwg.path(d =" M0,3 C10,10 20,10 30,20", fill='black'))        
         dwg.save()
-        print"########### Beam Web Beam Web Saved ############"
         
     def callCFBWfront(self,fileName):
-        dwg = svgwrite.Drawing(fileName, size=('1200mm', '1225mm'), viewBox=('-400 -180 1600 1400'))
+        v_width = self.dataObj.D_col + 1300
+        dwg = svgwrite.Drawing(fileName, size=('1200mm', '1225mm'), viewBox=('-500 -350 ' +str(v_width) + ' 1450'))
         dwg.add(dwg.polyline(points = [(self.FA),(self.FB),(self.FC),(self.FD),(self.FA)],stroke = 'blue',fill = 'none',stroke_width = 2.5))
         dwg.add(dwg.line((self.FE),(self.FH)).stroke('blue',width = 2.5,linecap = 'square'))
         dwg.add(dwg.line((self.FF),(self.FG)).stroke('blue',width = 2.5,linecap = 'square'))
@@ -965,7 +961,7 @@ class Fin2DCreatorFront(object):
         txtpt = ptSecB +(10 * np.array([-1,0])) +(80 * np.array([0,1]))
         txt = "A"
         self.dataObj.draw_cross_section(dwg, ptSecA, ptSecB,txtpt,txt)
-        ptSecC = self.FA2 + (470 * np.array([0,-1]))
+        ptSecC = ptSecA + (self.dataObj.D_col + self.dataObj.beam_L) * np.array([1,0])
         ptSecD = ptSecC + (50 * np.array([0,1]))
         txtpt = ptSecD +(10 * np.array([-1,0])) +(80 * np.array([0,1]))
         self.dataObj.draw_cross_section(dwg, ptSecC, ptSecD,txtpt,txt)
@@ -1037,23 +1033,30 @@ class Fin2DCreatorFront(object):
         pt1A = self.FP + self.dataObj.cleat_legsize * np.array([1,0])
         pt1B = pt1A - self.dataObj.end_dist*np.array([1,0])
         offset = self.dataObj.edge_dist + self.dataObj.beam_T + self.dataObj.beam_R1 +3
-        params = {"offset": self.dataObj.D_col + self.dataObj.edge_dist , "textoffset": 10, "lineori": "right", "endlinedim":10}
+        params = {"offset": self.dataObj.D_beam/2 + self.dataObj.edge_dist - 50, "textoffset": 10, "lineori": "right", "endlinedim":10}
         self.dataObj.draw_dimension_outerArrow(dwg, pt1A, pt1B, str(int(self.dataObj.end_dist)) , params)   
         
+        ###Faint Lines ######
+        A = self.FP + (self.dataObj.cleat_legsize ) * np.array([1,0])
+        A_up = A - (self.dataObj.D_beam/2 + self.dataObj.edge_dist - 50) * np.array([0,1])
+        self.dataObj.drawFaintLine(A,A_up, dwg) 
+        A_left = A - self.dataObj.end_dist * np.array([1,0])
+        A_left_up = A_left  - (self.dataObj.D_beam/2 + self.dataObj.edge_dist - 50) * np.array([0,1])
+        self.dataObj.drawFaintLine(A_left, A_left_up, dwg) 
         
         # Gauge Distance when two lines of bolts present
         if self.dataObj.no_of_col > 1:
            
             A = self.FP + (self.dataObj.cleat_legsize - self.dataObj.end_dist) * np.array([1,0])
             B = A - self.dataObj.gauge * np.array([1,0])
-            offset = (self.dataObj.beam_T + self.dataObj.beam_R1 + 3) + 130
+            offset = (self.dataObj.beam_T + self.dataObj.beam_R1 + 3 + self.dataObj.edge_dist) + 50
             params = {"offset": offset, "textoffset": 20, "lineori": "right", "endlinedim":10}
             self.dataObj.draw_dimension_outerArrow(dwg, A, B, str(int(self.dataObj.gauge))  , params)  
             FA = self.FP + (self.dataObj.cleat_legsize - self.dataObj.end_dist) * np.array([1,0])
             FB = FA + ((self.dataObj.beam_T + self.dataObj.beam_R1 + 3) + 130) * np.array([0,-1])
             FA_left = self.FP + (self.dataObj.cleat_legsize - self.dataObj.end_dist - self.dataObj.gauge) * np.array([1,0])
             FB_left = FA_left + ((self.dataObj.beam_T + self.dataObj.beam_R1 + 3) + 130) * np.array([0,-1])
-            self.dataObj.drawFaintLine(FA, FB, dwg) 
+#             self.dataObj.drawFaintLine(FA, FB, dwg) 
             self.dataObj.drawFaintLine(FA_left, FB_left, dwg)
         
         # Gap Distance
@@ -1124,27 +1127,22 @@ class Fin2DCreatorFront(object):
         self.dataObj.drawOrientedArrow(dwg, pt, theta, "NW", offset, textUp,textDown)
       
         # Bolt Information for beam part
-        no_of_bolts = self.dataObj.no_of_rows
-        if self.dataObj.no_of_col > 1:
-            no_of_bolts = 2 * self.dataObj.no_of_rows
+        no_of_bolts = self.dataObj.no_of_rows * self.dataObj.no_of_col
              
         bltPtx = np.array(ptList[0][0])
         theta = 45
         offset = (self.dataObj.D_beam * 3)/8
         textUp = str(no_of_bolts) + " nos " + str(int(self.dataObj.bolt_dia)) + u'\u00d8' + " holes"
-        #textDown = "for M20 bolts (grade 8.8)"
+        textDown = "for M" + str(self.dataObj.bolt_dia) + 'bolts' + '(grade ' + str(self.dataObj.bolt_grade) + ')' ##NEED TO CHANGED AFTER IMPORTING SUPPORTED BEAM INFORMATION
         self.dataObj.drawOrientedArrow(dwg, bltPtx, theta, "NE", offset, textUp,textDown)
         
-        # Bolt Information for beam part
-        no_of_bolts = self.dataObj.no_of_crows *2
-        if self.dataObj.no_of_ccol > 1:
-            no_of_bolts = 2 * self.dataObj.no_of_crows
-             
+        # Bolt Information for column part
+        no_of_bolts = self.dataObj.no_of_crows * self.dataObj.no_of_ccol*2    
         bltPtx = np.array(ptList_c[-1])
         theta = 45
         offset = (self.dataObj.D_col + 10)
         textUp = str(no_of_bolts) + " nos " + str(int(self.dataObj.bolt_dia)) + u'\u00d8' + " holes"
-        #textDown = "for M20 bolts (grade 8.8)"
+        textDown = "for M" + str(self.dataObj.bolt_dia) + 'bolts' + '(grade ' + str(self.dataObj.bolt_grade) + ')' ##NEED TO CHANGED AFTER IMPORTING SUPPORTED BEAM INFORMATION
         self.dataObj.drawOrientedArrow(dwg, bltPtx, theta, "SW", offset, textUp,textDown)
         
         
@@ -1163,27 +1161,26 @@ class Fin2DCreatorFront(object):
         
         
         # 2D view name
-        ptx =  self.FA + 150 * np.array([1,0]) + 1300 * np.array([0,1])
+        ptx =  self.FA + 50 * np.array([1,0]) + 1150 * np.array([0,1])
         dwg.add(dwg.text('Front view (Sec C-C)', insert=(ptx), fill='black',font_family = "sans-serif",font_size = 30))
         ## All dimensions in "mm"
-        ptx =  self.FA + 600 * np.array([1,0]) + 1300 * np.array([0,1])
+        ptx =  self.FA + 600 * np.array([1,0]) + 1150 * np.array([0,1])
         dwg.add(dwg.text('(All distances are in "mm")', insert=(ptx), fill='black',font_family = "sans-serif",font_size = 30))
         
         dwg.save()
-        print"########### Column Flange Beam Web Saved ############"
         
         
         
     def callCWBWfront(self,fileName):
+        v_width = self.dataObj.col_B/2 + self.dataObj.gap + self.dataObj.beam_L + 1000
+        dwg = svgwrite.Drawing(fileName, size=('1250mm', '1240mm'), viewBox=('-500 -400 ' +str(v_width) + ' 1500'))
         
-        dwg = svgwrite.Drawing(fileName, size=('1250mm', '1240mm'), viewBox=('-410 -230 1500 1240'))
-        
-        ptSecA = self.A + (320 * np.array([0,-1]))
+        ptSecA = self.A + (280 * np.array([0,-1]))
         ptSecB = ptSecA + (50 * np.array([0,1]))
         txtpt = ptSecB +(10 * np.array([-1,0])) +(80 * np.array([0,1]))
         txt = "A"
         self.dataObj.draw_cross_section(dwg, ptSecA, ptSecB,txtpt,txt)
-        ptSecC = self.A3 + (520 * np.array([0,-1]))
+        ptSecC = ptSecA + (self.dataObj.beam_B/2 + 30 + self.dataObj.beam_L) * np.array([1,0])
         ptSecD = ptSecC + (50 * np.array([0,1]))
         txtpt = ptSecD +(10 * np.array([-1,0])) +(80 * np.array([0,1]))
         self.dataObj.draw_cross_section(dwg, ptSecC, ptSecD,txtpt,txt)
@@ -1266,8 +1263,8 @@ class Fin2DCreatorFront(object):
         ptx = self.dataObj.col_B /2
         pty = 0
         pt = np.array([ptx,pty])
-        theta = 30
-        offset = self.dataObj.col_L /10
+        theta = 90
+        offset = 100
         textUp =  "Column " + self.dataObj.col_Designation
         textDown = ""
         self.dataObj.drawOrientedArrow(dwg, pt, theta, "NW", offset, textUp,textDown)
@@ -1282,25 +1279,21 @@ class Fin2DCreatorFront(object):
         self.dataObj.drawOrientedArrow(dwg, beam_pt, theta, "SE", offset, textUp, textDown)
          
         # beam Bolt Information arrow
-        no_of_bolts = self.dataObj.no_of_rows
-        if self.dataObj.no_of_col > 1:
-            no_of_bolts  = 2 * self.dataObj.no_of_rows
+        no_of_bolts = self.dataObj.no_of_rows * self.dataObj.no_of_col
         bltPtx = np.array(ptList[0][0])
         theta = 45
         offset = (self.dataObj.D_beam * 3)/8
         textUp = str(no_of_bolts) + " nos " + str(self.dataObj.bolt_dia) + u'\u00d8' + " holes"
-        textDown = " "
+        textDown = "for M" + str(self.dataObj.bolt_dia) + 'bolts' + '(grade ' + str(self.dataObj.bolt_grade) + ')'
         self.dataObj.drawOrientedArrow(dwg, bltPtx, theta, "NE", offset, textUp,textDown)
 
       
        # column bolt marking Arrow
-        no_of_cbolts = self.dataObj.no_of_crows
-        if self.dataObj.no_of_ccol > 1:
-            no_of_cbolts  = 2 * self.dataObj.no_of_crows
+        no_of_cbolts = self.dataObj.no_of_crows * self.dataObj.no_of_ccol * 2
         theta = 45
-        offset = self.dataObj.col_B 
+        offset = (self.dataObj.col_B *3)/4
         textUp = str(no_of_cbolts) + " nos " + str(self.dataObj.bolt_dia) + u'\u00d8' + " holes"
-        textDown = ""  
+        textDown = "for M" + str(self.dataObj.bolt_dia) + 'bolts' + '(grade ' + str(self.dataObj.bolt_grade) + ')'  
         self.dataObj.drawOrientedArrow(dwg, np.array(ptList_c[0]), theta, "NW", offset, textUp, textDown) 
         
         
@@ -1391,17 +1384,16 @@ class Fin2DCreatorFront(object):
             self.dataObj.draw_dimension_outerArrow(dwg, rt_left, rt_left_left,  str(int(self.dataObj.gauge)), params) 
         
         # 2D view name
-        ptx =  self.A + 150 * np.array([1,0]) + 1100 * np.array([0,1])
+        ptx =  self.A + 50 * np.array([1,0]) + 1090 * np.array([0,1])
         dwg.add(dwg.text('Front view (Sec C-C)', insert=(ptx), fill='black',font_family = "sans-serif",font_size = 30))
         ## All dimensions in "mm"
         ptx2 =  ptx + 350 * np.array([1,0])
         dwg.add(dwg.text('(All distances are in "mm")', insert=(ptx2), fill='black',font_family = "sans-serif",font_size = 30))      
         dwg.save()
         
-        print"########### Column Web Beam Web Saved ############"
     
              
-class Fin2DCreatorTop(object):
+class cleat2DCreatorTop(object):
     
     def __init__(self,finCommonObj):
         
@@ -1589,24 +1581,24 @@ class Fin2DCreatorTop(object):
         dwg = svgwrite.Drawing(fileName, size=('100%', '100%'), viewBox=('-200 -250 1200 900'))
         
         ############ B-B section #################
-        ptSecA = self.FF + ((100+ self.dataObj.gap + self.dataObj.beam_L) * np.array([1,0]))
+        ptSecA = self.BB + ((300+ self.dataObj.gap + self.dataObj.beam_L) * np.array([1,0]))
         ptSecB = ptSecA + (50 * np.array([-1,0]))
         txtpt = ptSecB +(80 * np.array([-1,0])) +(20 * np.array([0,1]))
         txt = "B"
         self.dataObj.draw_cross_section(dwg, ptSecA, ptSecB,txtpt,txt)
-        ptSecC = self.FG + ((100+ self.dataObj.gap + self.dataObj.beam_L) * np.array([1,0]))
+        ptSecC = self.BC + ((300 + self.dataObj.gap + self.dataObj.beam_L) * np.array([1,0]))
         ptSecD = ptSecC + (50 * np.array([-1,0]))
         txtpt = ptSecD +(80 * np.array([-1,0])) +(20 * np.array([0,1]))
         self.dataObj.draw_cross_section(dwg, ptSecC, ptSecD,txtpt,txt)
         dwg.add(dwg.line((ptSecA),(ptSecC)).stroke('#666666',width = 1.0,linecap = 'square'))
          
         ############ C-C section #################
-        ptSecA = self.FL + (50)*np.array([-1,0]) + ((self.dataObj.D_beam * 3)/8 +100)*np.array([0,1])
+        ptSecA = self.FL + (50)*np.array([-1,0]) + ((self.dataObj.D_beam * 3)/8 +125)*np.array([0,1])
         ptSecB = ptSecA + (50 * np.array([0,-1]))
         txtpt = ptSecB +(20 * np.array([-1,0])) +(40 * np.array([0,-1]))
         txt = "C"
         self.dataObj.draw_cross_section(dwg, ptSecA, ptSecB,txtpt,txt)
-        ptSecC = ptSecA + (self.dataObj.D_col+self.dataObj.gap+self.dataObj.beam_L + 100)*np.array([1,0])
+        ptSecC = ptSecA + (self.dataObj.col_B+self.dataObj.gap+self.dataObj.beam_L + 50)*np.array([1,0])
         ptSecD = ptSecC + (50 * np.array([0,-1]))
         txtpt = ptSecD +(20 * np.array([-1,0])) +(40 * np.array([0,-1]))
         self.dataObj.draw_cross_section(dwg, ptSecC, ptSecD,txtpt,txt)
@@ -1777,16 +1769,16 @@ class Fin2DCreatorTop(object):
         theta = 45
         offset = (self.dataObj.beam_B) + 100
         textUp = str(self.dataObj.no_of_rows * self.dataObj.no_of_col) + " nos " + str(self.dataObj.bolt_dia) + u'\u00d8' + " holes"
-        textDown = "for M20 bolts (grade 8.8)"
+        textDown = "for M" + str(self.dataObj.bolt_dia) + 'bolts' + '(grade ' + str(self.dataObj.bolt_grade) + ')'
         self.dataObj.drawOrientedArrow(dwg, bltPt, theta, "NE", offset, textUp,textDown)
          
         # Bolt information for column connectivity
-        no_of_bolts = self.dataObj.no_of_crows * self.dataObj.no_of_ccol   
+        no_of_bolts = self.dataObj.no_of_crows * self.dataObj.no_of_ccol * 2  
         weldPt = np.array(ptList_c_1[-1])
         theta = 30
         offset =  (self.beam_beam_length -  2 * self.dataObj.cleat_legsize) /2  + 25
         textUp = str(no_of_bolts) + " nos " + str(self.dataObj.bolt_dia) + u'\u00d8' + " holes"
-        textDown = ""#u"\u25C1"
+        textDown = "for M" + str(self.dataObj.bolt_dia) + 'bolts' + '(grade ' + str(self.dataObj.bolt_grade) + ')'
         self.dataObj.drawOrientedArrow(dwg, weldPt, theta, "SE", offset, textUp, textDown)
         # Gap Informatoin
         ptG1 = self.BC + 100 * np.array([0,1])
@@ -1803,17 +1795,19 @@ class Fin2DCreatorTop(object):
         self.dataObj.drawFaintLine(ptC,ptD,dwg)
         
         # 2D view name
-        ptx =  self.FA + (250)* np.array([1,0]) + (740)*np.array([0,1])
-        dwg.add(dwg.text('Top view (Sec A-A)        (All dimensions are in mm)', insert=(ptx), fill='black',font_family = "sans-serif",font_size = 30)) 
-        dwg.save()
-        print"$$$$$$$$$ Saved Column Flange Beam Web Top $$$$$$$$$$$$"
-        
-        
+        ptx =  self.FA + (150)* np.array([1,0]) + (640)*np.array([0,1])
+        dwg.add(dwg.text('Top view (Sec A-A)', insert=(ptx), fill='black',font_family = "sans-serif",font_size = 30)) 
+        ptx =  ptx + 350 * np.array([1,0]) 
+        dwg.add(dwg.text('(All distances are in "mm")', insert=(ptx), fill='black',font_family = "sans-serif",font_size = 30))
         
         
         dwg.save()
         
-        print "######### Beam Beam Top Saved ############"
+        
+        
+        
+        dwg.save()
+        
 
     def callCFBWTop(self,fileName):
         '''
@@ -1994,20 +1988,17 @@ class Fin2DCreatorTop(object):
         bltPt = np.array(ptList[0])
         theta = 45
         offset = (self.dataObj.beam_B) + 50
-        textUp = str(self.dataObj.no_of_rows) + " nos " + str(self.dataObj.bolt_dia) + u'\u00d8' + " holes"
-        textDown = "for M20 bolts (grade 8.8)"
+        textUp = str(self.dataObj.no_of_rows*self.dataObj.no_of_col) + " nos " + str(self.dataObj.bolt_dia) + u'\u00d8' + " holes"
+        textDown = "for M" + str(self.dataObj.bolt_dia) + 'bolts' + '(grade ' + str(self.dataObj.bolt_grade) + ')'
         self.dataObj.drawOrientedArrow(dwg, bltPt, theta, "NE", offset, textUp,textDown)
          
         # Bolt information for column connectivity
-        no_of_bolts = self.dataObj.no_of_crows * 2
-        if self.dataObj.no_of_ccol > 1:
-            no_of_bolts = 2 * no_of_bolts
-            
+        no_of_bolts = self.dataObj.no_of_crows * 2 *self.dataObj.no_of_ccol  
         weldPt = np.array(ptList_c[0])
         theta = 40
         offset =  (self.dataObj.D_col -  self.dataObj.beam_B) /2 + 80
         textUp = str(no_of_bolts) + " nos " + str(self.dataObj.bolt_dia) + u'\u00d8' + " holes"
-        textDown = ""#u"\u25C1"
+        textDown = "for M" + str(self.dataObj.bolt_dia) + 'bolts' + '(grade ' + str(self.dataObj.bolt_grade) + ')'
         self.dataObj.drawOrientedArrow(dwg, weldPt, theta, "NW", offset, textUp, textDown)
         # Gap Informatoin
         ptG1 = self.FG + 50 * np.array([0,1])
@@ -2025,22 +2016,26 @@ class Fin2DCreatorTop(object):
         
         # 2D view name
         ptx =  self.FA + (250)* np.array([1,0]) + (740)*np.array([0,1])
-        dwg.add(dwg.text('Top view (Sec A-A)        (All dimensions are in mm)', insert=(ptx), fill='black',font_family = "sans-serif",font_size = 30)) 
+        dwg.add(dwg.text('Top view (Sec A-A)', insert=(ptx), fill='black',font_family = "sans-serif",font_size = 30)) 
+        ptx =  ptx + 350 * np.array([1,0]) 
+        dwg.add(dwg.text('(All distances are in "mm")', insert=(ptx), fill='black',font_family = "sans-serif",font_size = 30))
+        
+        
         dwg.save()
-        print"$$$$$$$$$ Saved Column Flange Beam Web Top $$$$$$$$$$$$"
     
     def callCWBWTop(self,fileName):
         '''
         '''
-        dwg = svgwrite.Drawing(fileName, size=('100%', '100%'), viewBox=('-300 -300 1200 1300'))
+        v_width = self.dataObj.beam_L + self.dataObj.col_B/2 + 850
+        dwg = svgwrite.Drawing(fileName, size=('100%', '100%'), viewBox=('-300 -300 '+str(v_width))+ ' 1400')
         
         # Cross section B-B and C-C            
-        ptSecA = self.B + (20 * np.array([0,-1])) + (700 * np.array([1,0]))
+        ptSecA = self.B + (20 * np.array([0,-1])) + (self.dataObj.beam_L + 350) * np.array([1,0])
         ptSecB = ptSecA + (50 * np.array([-1,0]))
         txtpt = ptSecB +(70 * np.array([-1,0])) +(20 * np.array([0,1]))
         txt = "B"
         self.dataObj.draw_cross_section(dwg, ptSecA, ptSecB,txtpt,txt)
-        ptSecC = self.G + (20 * np.array([0,1])) +(700 * np.array([1,0]))
+        ptSecC = self.G + (20 * np.array([0,1])) +(self.dataObj.beam_L + 350) * np.array([1,0])
         ptSecD = ptSecC + (50 * np.array([-1,0]))
         txtpt = ptSecD +(70 * np.array([-1,0])) +(20 * np.array([0,1]))
         self.dataObj.draw_cross_section(dwg, ptSecC, ptSecD,txtpt,txt)
@@ -2188,24 +2183,23 @@ class Fin2DCreatorTop(object):
         
         
         # beam Bolt Information
-        no_of_bbolts = self.dataObj.no_of_rows * self.dataObj.no_of_rows 
+        no_of_bbolts = self.dataObj.no_of_rows * self.dataObj.no_of_col 
         
         bltPt = np.array(ptList[0]) 
         theta = 45
         offset = (self.dataObj.D_col - self.dataObj.beam_B)/2 + 100
         textUp = str(no_of_bbolts ) + " nos " + str(self.dataObj.bolt_dia) + u'\u00d8' + " holes"
-        textDown = "for M20 bolts (grade 8.8)"
+        textDown = "for M" + str(self.dataObj.bolt_dia) + 'bolts' + '(grade ' + str(self.dataObj.bolt_grade) + ')'
         self.dataObj.drawOrientedArrow(dwg, bltPt, theta, "NE", offset, textUp,textDown)
         
         # column bolt information
-        no_of_cbolts = self.dataObj.no_of_crows * self.dataObj.no_of_ccol
-        if self.dataObj.no_of_ccol > 1:
-            no_of_cbolts  = 2 * no_of_cbolts
+        no_of_cbolts = self.dataObj.no_of_crows * self.dataObj.no_of_ccol * 2
+        
         weldPt = np.array(ptList_c[0])
         theta = 45
         offset = self.dataObj.D_col* 3/4 + 50
         textUp = str(no_of_cbolts ) + " nos " + str(self.dataObj.bolt_dia) + u'\u00d8' + " holes"
-        textDown = ""#u"\u25C1"
+        textDown = "for M" + str(self.dataObj.bolt_dia) + 'bolts' + '(grade ' + str(self.dataObj.bolt_grade) + ')'
         self.dataObj.drawOrientedArrow(dwg, weldPt, theta, "NE", offset, textUp, textDown)
         
         # Gap Informatoin
@@ -2225,16 +2219,16 @@ class Fin2DCreatorTop(object):
         
         
         # 2D view name
-        ptx =  self.G + (80)* np.array([1,0]) + (490 - self.dataObj.D_col )* np.array([0,1])
-        dwg.add(dwg.text('Top view (Sec A-A)         (All Dimensions are in mm)', insert=(ptx), fill='black',font_family = "sans-serif",font_size = 32)) 
-        
+        ptx =  self.A + (80)* np.array([1,0]) +1090* np.array([0,1])
+        dwg.add(dwg.text('Top view (Sec A-A)', insert=(ptx), fill='black',font_family = "sans-serif",font_size = 32)) 
+        ptx =  ptx + 350 * np.array([1,0]) 
+        dwg.add(dwg.text('(All distances are in "mm")', insert=(ptx), fill='black',font_family = "sans-serif",font_size = 30))
         dwg.save()
-        print"$$$$$$$$$ Saved Column Web Beam Web Top $$$$$$$$$$$"
 
 
 
             
-class Fin2DCreatorSide(object):
+class cleat2DCreatorSide(object):
     def __init__(self,finCommonObj):
         
         self.dataObj = finCommonObj
@@ -2422,18 +2416,7 @@ class Fin2DCreatorSide(object):
             pitchPts_c.append(colList)
             pitchPts_c_1.append(colList_c)
         
-#         ptList_c = []
-#         ptList_c_1 = []
-#         for row in pitchPts_c:
-#             if len(row) > 0:
-#                 pitchPts_c.append(row[0])
-#         for row in pitchPts_c_1:
-#             if len(row) > 0:
-#                 pitchPts_c_1.append(row[0])
-#         print "##############################"
-#         print ptList_c
-#         print ptList_c_1
-#         print pitchPts_c
+
         
  ##################### Faint Lines and outer arrow for suporting beam connectivity ############  
         length = (self.beam_beam_length - self.dataObj.cleat_legsize_1 * 2 - self.dataObj.beam_tw)/2 #beam_tw
@@ -2517,7 +2500,7 @@ class Fin2DCreatorSide(object):
             pt_down = np.array(pitchPts_c[-1][0]) + self.dataObj.cedge_dist * np.array([0,1])
             pt_down_left = np.array(pitchPts_c_1[-1][0]) + self.dataObj.cedge_dist * np.array([0,1])
             c_gauge = 2 * self.dataObj.cleat_legsize_1 - 2 * ( self.dataObj.cend_dist) - self.dataObj.beam_tw #Beam_tw
-            params = {"offset": v_length + 50, "textoffset": 50, "lineori": "left", "endlinedim":10}
+            params = {"offset": v_length + 100, "textoffset": 50, "lineori": "right", "endlinedim":10}
             self.dataObj.draw_dimension_outerArrow(dwg,pt_down, pt_down_left, str(int(c_gauge)) , params)
                
     
@@ -2561,10 +2544,9 @@ class Fin2DCreatorSide(object):
         textDown = ""
         self.dataObj.drawOrientedArrow(dwg, self.BA, theta, "NW", offset, textUp,textDown)
             
-        #  SUPORTED BEAM Bolt GROUP  Information
-        no_of_bolts = self.dataObj.no_of_rows#chages will come here
-        if self.dataObj.no_of_col > 1:
-            no_of_bolts = 2 * self.dataObj.no_of_rows    
+        #  primary BEAM Bolt GROUP  Information
+        no_of_bolts = self.dataObj.no_of_crows * 2 * self.dataObj.no_of_ccol
+                
         bltPtx = np.array(pitchPts_c_1[0][0])
         theta = 45
         offset = (self.dataObj.D_beam *3)/8 + 75 ##NEED TO CHANGED AFTER IMPORTING SUPPORTED BEAM INFORMATION
@@ -2572,10 +2554,9 @@ class Fin2DCreatorSide(object):
         textDown = "for M" + str(self.dataObj.bolt_dia) + 'bolts' + '(grade ' + str(self.dataObj.bolt_grade) + ')' ##NEED TO CHANGED AFTER IMPORTING SUPPORTED BEAM INFORMATION
         self.dataObj.drawOrientedArrow(dwg, bltPtx, theta, "NE", offset, textUp,textDown)
        
-        # SUPORTING BEAM Bolt GROUP  Information
-        no_of_bolts = self.dataObj.no_of_crows * 2 #Double Angle cleat
-        if self.dataObj.no_of_ccol > 1:
-            no_of_bolts = 2 * self.dataObj.no_of_crows    
+        # secondary BEAM Bolt GROUP  Information
+        no_of_bolts = self.dataObj.no_of_rows * self.dataObj.no_of_col#Double Angle cleat
+          
         bltPt = np.array(pitchPts[0])
         theta = 70
         offset = (self.beam_beam_length/2 + 50) ##
@@ -2594,17 +2575,19 @@ class Fin2DCreatorSide(object):
         self.dataObj.drawOrientedArrow(dwg, cleatPt, theta, "SW", offset, textUp, textDown)
         
         # 2D view name
-        ptx =  self.BA + 100 * np.array([1,0]) + 980 * np.array([0,1])
+        ptx =  self.BA + 50 * np.array([1,0]) + 980 * np.array([0,1])
         dwg.add(dwg.text('Side View (Sec B-B)', insert=(ptx), fill='black',font_family = "sans-serif",font_size = 30))
         ## All dimensions in "mm"
         ptx =  ptx +  350 * np.array([1,0])
         dwg.add(dwg.text('(All distances are in "mm")', insert=(ptx), fill='black',font_family = "sans-serif",font_size = 30))
         dwg.save()
+        
     
     def callCWBWSide(self,fileName):
         '''
         '''
-        dwg = svgwrite.Drawing(fileName,size=('100%', '100%'), viewBox=('-300 -300 1200 1600'))
+        v_width = self.dataObj.D_col + 500 + 500 
+        dwg = svgwrite.Drawing(fileName,size=('100%', '100%'), viewBox=('-500 -300 ' + str(v_width) + ' 1600'))
         dwg.add(dwg.rect(insert=(self.A), size=(self.dataObj.D_col, self.dataObj.col_L),fill = 'none', stroke='blue', stroke_width=2.5))
         dwg.add(dwg.line((self.C),(self.H)).stroke('blue',width = 2.5,linecap = 'square'))
         dwg.add(dwg.line((self.B),(self.G)).stroke('blue',width = 2.5,linecap = 'square'))
@@ -2742,7 +2725,7 @@ class Fin2DCreatorSide(object):
             pt_down = np.array(pitchPts_c[-1][0]) + self.dataObj.cedge_dist * np.array([0,1])
             pt_down_left = np.array(pitchPts_c_1[-1][0]) + self.dataObj.cedge_dist * np.array([0,1])
             c_gauge = 2 * self.dataObj.cleat_legsize_1 - 2 * ( self.dataObj.cend_dist) - self.dataObj.beam_tw
-            params = {"offset": v_length + 50, "textoffset": 35, "lineori": "left", "endlinedim":10}
+            params = {"offset": v_length + 50, "textoffset": 35, "lineori": "right", "endlinedim":10}
             self.dataObj.draw_dimension_outerArrow(dwg,pt_down, pt_down_left, str(int(c_gauge)) , params)
                
     
@@ -2797,35 +2780,31 @@ class Fin2DCreatorSide(object):
         self.dataObj.drawOrientedArrow(dwg, beam_pt, theta, "SE", offset, textUp, textDown)
          
 #       beam bolt information
-        no_of_bbolts = self.dataObj.no_of_rows
-        if nc > 1:
-            no_of_bbolts = nc * no_of_bbolts
+        no_of_bbolts = self.dataObj.no_of_rows * self.dataObj.no_of_col
         boltPt = np.array(pitchPts[0])
         theta = 45
         offset = (self.dataObj.D_col)/2 + 10
         textUp = str(no_of_bbolts ) + " nos " + str(self.dataObj.bolt_dia) + u'\u00d8' + " holes"
-        textDown = ""#u"\u25C1"
+        textDown = "for M" + str(self.dataObj.bolt_dia) + 'bolts' + '(grade ' + str(self.dataObj.bolt_grade) + ')'
         self.dataObj.drawOrientedArrow(dwg, boltPt, theta, "NW", offset, textUp, textDown)
 #       column bolt information
-        no_of_cbolts = self.dataObj.no_of_crows * 2
-        if c_nc > 1:
-            no_of_cbolts = nc * no_of_bbolts
+        no_of_cbolts = self.dataObj.no_of_crows * 2 * self.dataObj.no_of_ccol
+        
         boltPt = np.array(pitchPts_c_1[0][0])
         theta = 45
         offset = (self.dataObj.D_col - self.dataObj.beam_B)/2  + self.dataObj.cend_dist + 10
         textUp = str(no_of_cbolts ) + " nos " + str(self.dataObj.bolt_dia) + u'\u00d8' + " holes"
-        textDown = ""#u"\u25C1"
+        textDown = "for M" + str(self.dataObj.bolt_dia) + 'bolts' + '(grade ' + str(self.dataObj.bolt_grade) + ')'
         self.dataObj.drawOrientedArrow(dwg, boltPt, theta, "NE", offset, textUp, textDown)
     
         
         # 2D view name
-        ptx =  self.A + (1290)* np.array([0,1]) + 100 * np.array([1,0])
+        ptx =  self.A + (1290)* np.array([0,1]) + 75 * np.array([1,0])
         dwg.add(dwg.text('Side view (Sec B-B)', insert=(ptx), fill='black',font_family = "sans-serif",font_size = 30)) 
         ## All dimensions in "mm"
         ptx2 =  ptx + 350 * np.array([1,0])
         dwg.add(dwg.text('(All distances are in "mm")', insert=(ptx2), fill='black',font_family = "sans-serif",font_size = 30))      
         dwg.save()
-        print "********* Column Web Beam Web Side Saved ***********"
     
     def callCFBWSide(self,fileName):
         '''
@@ -2890,12 +2869,12 @@ class Fin2DCreatorSide(object):
 
         
          
-    ##################### Faint Lines and outer arrow for suporting beam connectivity ############  
-        length = (self.dataObj.D_col - self.dataObj.cleat_legsize_1 * 2 - self.dataObj.beam_tw)/2 + 50
-        pt_right = self.X1 + (length +200) * np.array([1,0])
-        self.dataObj.drawFaintLine(self.X1,pt_right,dwg)
-        pt  = self.X1 + self.dataObj.cleat_ht * np.array([0,1])
-        pt_right = self.X1 + self.dataObj.cleat_ht * np.array([0,1]) + (length +200) * np.array([1,0])
+    ##################### Faint Lines and outer arrow for Primary beam connectivity ############  
+        length = (self.dataObj.col_B - self.dataObj.cleat_legsize_1 * 2 - self.dataObj.beam_tw)/2 + 50
+        pt_right = self.FX1 + (length +200) * np.array([1,0])
+        self.dataObj.drawFaintLine(self.FX1,pt_right,dwg)
+        pt  = self.FX1 + self.dataObj.cleat_ht * np.array([0,1])
+        pt_right = self.FX1 + self.dataObj.cleat_ht * np.array([0,1]) + (length +200) * np.array([1,0])
         self.dataObj.drawFaintLine(pt,pt_right,dwg)
         
         pt_right = np.array(pitchPts_c_1[0][0])+ (self.dataObj.cend_dist + length +200) * np.array([1,0])
@@ -2920,8 +2899,8 @@ class Fin2DCreatorSide(object):
         
         ############Vertical column marking ###############
         v_length = (self.dataObj.col_L- self.dataObj.D_beam)/2 + self.dataObj.D_beam/2 - (self.dataObj.beam_T + self.dataObj.beam_R1 + 3)
-        ptY = self.X + self.dataObj.cleat_ht * np.array([0,1])
-        ptY1 = self.X1 + self.dataObj.cleat_ht * np.array([0,1])
+        ptY = self.FX + self.dataObj.cleat_ht * np.array([0,1])
+        ptY1 = self.FX1 + self.dataObj.cleat_ht * np.array([0,1])
         ptY_down = ptY + v_length * np.array([0,1])
         ptY1_down = ptY1 + v_length * np.array([0,1])
         self.dataObj.drawFaintLine(ptY,ptY_down,dwg)
@@ -2966,7 +2945,7 @@ class Fin2DCreatorSide(object):
             pt_down = np.array(pitchPts_c[-1][0]) + self.dataObj.cedge_dist * np.array([0,1])
             pt_down_left = np.array(pitchPts_c_1[-1][0]) + self.dataObj.cedge_dist * np.array([0,1])
             c_gauge = 2 * self.dataObj.cleat_legsize_1 - 2 * ( self.dataObj.cend_dist) - self.dataObj.beam_tw
-            params = {"offset": v_length + 50, "textoffset": 35, "lineori": "left", "endlinedim":10}
+            params = {"offset": v_length + 50, "textoffset": 35, "lineori": "right", "endlinedim":10}
             self.dataObj.draw_dimension_outerArrow(dwg,pt_down, pt_down_left, str(int(c_gauge)) , params)
                
     
@@ -3021,24 +3000,20 @@ class Fin2DCreatorSide(object):
         self.dataObj.drawOrientedArrow(dwg, beam_pt, theta, "SE", offset, textUp, textDown)
           
     #beam bolt information
-        no_of_bbolts = self.dataObj.no_of_rows
-        if self.dataObj.no_of_col > 1:
-            no_of_bbolts = self.dataObj.no_of_col * no_of_bbolts
+        no_of_bbolts = self.dataObj.no_of_rows * self.dataObj.no_of_col
         boltPt = np.array(pitchPts[0])
         theta = 45
         offset = (self.dataObj.col_B)/2 + 70
         textUp = str(no_of_bbolts ) + " nos " + str(self.dataObj.bolt_dia) + u'\u00d8' + " holes"
-        textDown = ""#u"\u25C1"
+        textDown = "for M" + str(self.dataObj.bolt_dia) + 'bolts' + '(grade ' + str(self.dataObj.bolt_grade) + ')'
         self.dataObj.drawOrientedArrow(dwg, boltPt, theta, "NW", offset, textUp, textDown)
     #column bolt information
-        no_of_cbolts = self.dataObj.no_of_crows * 2
-        if c_nc > 1:
-            no_of_cbolts = c_nc * no_of_bbolts
+        no_of_cbolts = self.dataObj.no_of_crows * 2 *self.dataObj.no_of_ccol
         boltPt = np.array(pitchPts_c_1[0][0])
         theta = 45
         offset = (self.dataObj.D_col - self.dataObj.beam_B)/2  + self.dataObj.cend_dist + 50
         textUp = str(no_of_cbolts ) + " nos " + str(self.dataObj.bolt_dia) + u'\u00d8' + " holes"
-        textDown = ""#u"\u25C1"
+        textDown = "for M" + str(self.dataObj.bolt_dia) + 'bolts' + '(grade ' + str(self.dataObj.bolt_grade) + ')'
         self.dataObj.drawOrientedArrow(dwg, boltPt, theta, "NE", offset, textUp, textDown)
     
         
@@ -3049,7 +3024,6 @@ class Fin2DCreatorSide(object):
         ptx2 =  ptx + 350 * np.array([1,0])
         dwg.add(dwg.text('(All distances are in "mm")', insert=(ptx2), fill='black',font_family = "sans-serif",font_size = 30))      
         dwg.save()
-        print "********* Column Web Beam Web Side Saved ***********"
         
 
 

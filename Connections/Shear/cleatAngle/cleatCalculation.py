@@ -621,7 +621,7 @@ def cleatAngleConn(uiObj):
         connection = "primary beam"
 
     if b_gauge < 90:
-        print b_gauge
+        
         design_check = False
         logger.error(':Cross center distance between bolt lines in %s on either side of the supported beam is less than the specified gauge [reference-JSC:ch.4 check-1]' %(str(connection)))
         logger.warning(':Minimum specified cross center gauge is 90 mm')
@@ -691,7 +691,7 @@ def cleatAngleConn(uiObj):
         for k in outputObj.keys():
             for key in outputObj[k].keys():
                 outputObj[k][key] = ""
-                print outputObj[k][key]
+                
     
                     
     if design_check == True:  
@@ -701,9 +701,9 @@ def cleatAngleConn(uiObj):
     else:
         logger.error(": Design is not safe \n ")
         logger.error(" :=========End Of design===========")
-    print "calc outPut obj  :" ,outputObj  
+     
     return outputObj                          
-    print "calc outPut obj  :" ,outputObj
+    
 
 
 

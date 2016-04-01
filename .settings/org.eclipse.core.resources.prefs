@@ -1,11 +1,5 @@
 eclipse.preferences.version=1
-encoding//Connections/Shear/Finplate/cleat_rc.py=utf-8
-encoding//Connections/Shear/Finplate/icons_rc.py=utf-8
-encoding//Connections/Shear/Finplate/ui_cleatAngle.py=utf-8
-encoding//Connections/Shear/Finplate/ui_cleatAngleR02.py=utf-8
-encoding//Connections/Shear/Finplate/ui_cleatAngleR03.py=utf-8
-encoding//Connections/Shear/Finplate/ui_cleatAngleR04.py=utf-8
-encoding//Connections/Shear/Finplate/ui_popUpDialog.py=utf-8
-encoding//Connections/Shear/Finplate/ui_popUpWindowR01.py=utf-8
+encoding//Connections/Shear/cleatAngle/ui_cleatAngle.py=utf-8
+encoding//Connections/Shear/cleatAngle/ui_popUpWindow.py=utf-8
 encoding/ui_cleat.py=utf-8
 encoding/ui_osdagpage.py=utf-8

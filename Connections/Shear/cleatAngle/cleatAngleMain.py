@@ -30,19 +30,18 @@ from ISection import ISection
 from angle import Angle
 from beamWebBeamWebConnectivity import BeamWebBeamWeb
 from bolt import Bolt
-# from cleatCalcR01 import cleatAngleConn
-from cleatCalcR01 import cleatAngleConn
+
+from cleatCalculation import cleatAngleConn
 from colFlangeBeamWebConnectivity import ColFlangeBeamWeb
 from colWebBeamWebConnectivity import ColWebBeamWeb
-# from ui_popUpDialog import Ui_Dialog
-from ui_popUpWindowR01 import Ui_Capacitydetals
+
+from Connections.Shear.cleatAngle.ui_popUpWindow import Ui_Capacitydetals
 from drawing2D import *
-from drawing_2D import Fin2DCreatorFront
 from model import *
 from notch import Notch
 from nut import Nut 
 from nutBoltPlacement import NutBoltArray
-from ui_cleatAngleR05 import Ui_MainWindow
+from Connections.Shear.cleatAngle.ui_cleatAngle import Ui_MainWindow
 from utilities import osdagDisplayShape
 
 
@@ -57,7 +56,8 @@ class myDialog(QDialog, Ui_Capacitydetals):
         x = cleatAngleConn(uiObj)
 #         x = MainController().outputdict()
 #         x = m.outputdict()
-        
+    
+            
         self.ui.shear_b.setText(str(x['Bolt']['shearcapacity']))
         self.ui.bearing_b.setText(str(x['Bolt']['bearingcapacity']))
         self.ui.capacity_b.setText(str(x['Bolt']['boltcapacity']))
@@ -83,16 +83,14 @@ class MainController(QtGui.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         
-#         self.uiPopUp = Ui_Dialog()
-#         self.uiPopUp.setupUi(self)
-        
+
         self.ui.combo_Beam.addItems(get_beamcombolist())
         self.ui.comboColSec.addItems(get_columncombolist())
         self.ui.comboCleatSection.addItems(get_anglecombolist())
         
         self.ui.inputDock.setFixedSize(310,710)
         
-        self.gradeType ={'Please Select Type':'',
+        self.gradeType ={'Select Bolt Type':'',
                          'HSFG': [8.8,10.8],
                          'Black Bolt':[3.6,4.6,4.8,5.6,5.8,6.8,9.8,12.9]}
         self.ui.comboBoltType.addItems(self.gradeType.keys())
@@ -116,8 +114,8 @@ class MainController(QtGui.QMainWindow):
         self.ui.btn3D.clicked.connect(lambda:self.call_3DModel(True))
         self.ui.chkBxBeam.clicked.connect(self.call_3DBeam)
         self.ui.chkBxCol.clicked.connect(self.call_3DColumn)
-#         self.ui.chkBxFinplate.clicked.connect(self.call_3DFinplate)
-        self.ui.checkBoxCleat.clicked.connect(self.call_3DFinplate)
+#         self.ui.chkBxFinplate.clicked.connect(self.call_3DCleatAngle)
+        self.ui.checkBoxCleat.clicked.connect(self.call_3DCleatAngle)
         
         validator = QtGui.QIntValidator()
         self.ui.txtFu.setValidator(validator)
@@ -137,10 +135,7 @@ class MainController(QtGui.QMainWindow):
         maxfyVal = 450
         self.ui.txtFy.editingFinished.connect(lambda: self.check_range(self.ui.txtFy,self.ui.lbl_fy, minfyVal, maxfyVal))
        
-         ##### MenuBar #####
-#         self.ui.actionQuit_cleat_angle_design.setShortcut('Ctrl+Q')
-#         self.ui.actionQuit_cleat_angle_design.setStatusTip('Exit application')
-#         self.ui.actionQuit_cleat_angle_design.triggered.connect(QtGui.qApp.quit)
+        
          
         self.ui.actionCreate_design_report.triggered.connect(self.save_design)
         self.ui.actionSave_log_message.triggered.connect(self.save_log)
@@ -157,7 +152,7 @@ class MainController(QtGui.QMainWindow):
         
         self.ui.actionShow_beam.triggered.connect(self.call_3DBeam)
         self.ui.actionShow_column.triggered.connect(self.call_3DColumn)
-        self.ui.actionShow_cleat_angle.triggered.connect(self.call_3DFinplate)
+        self.ui.actionShow_cleat_angle.triggered.connect(self.call_3DCleatAngle)
         self.ui.actionChange_background.triggered.connect(self.showColorDialog)
         ###############################MARCH_14#############################
         #populate cleat section and secondary beam according to user input
@@ -186,9 +181,7 @@ class MainController(QtGui.QMainWindow):
         # Saving and Restoring the finPlate window state.
         #self.retrieve_prevstate()
         
-#         self.ui.btnZmIn.clicked.connect(self.callZoomin)
-#         self.ui.btnZmOut.clicked.connect(self.callZoomout)
-#         self.ui.btnRotatCw.clicked.connect(self.callRotation)
+       
         self.ui.btn_Reset.clicked.connect(self.resetbtn_clicked)
         
         self.ui.btn_Design.clicked.connect(self.design_btnclicked)
@@ -196,9 +189,7 @@ class MainController(QtGui.QMainWindow):
         # Initialising the qtviewer
         self.display,_ = self.init_display(backend_str="pyqt4")
         
-#         self.ui.btnSvgSave.clicked.connect(self.save3DcadImages)
-        #self.ui.btnSvgSave.clicked.connect(lambda:self.saveTopng(self.display))
-        
+
         self.connectivity = None
         self.fuse_model = None
         self.disableViewButtons()
@@ -336,9 +327,7 @@ class MainController(QtGui.QMainWindow):
     def checkBeam_B(self):
         loc = self.ui.comboConnLoc.currentText()
         if loc  == "Column web-Beam web":
-#             if self.ui.comboColSec.currentIndex()== 0:
-#                 QtGui.QMessageBox.about(self,"Information", "Please select column section")
-#                 return
+             
             column = self.ui.comboColSec.currentText()
           
             dictBeamData = self.fetchBeamPara()
@@ -356,9 +345,7 @@ class MainController(QtGui.QMainWindow):
             else:
                 self.ui.btn_Design.setDisabled(False)
         elif loc == "Beam-Beam":
-#             if self.ui.comboColSec.currentIndex()== 0 or self.ui.combo_Beam.currentIndex()==0:
-#                 QtGui.QMessageBox.about(self,"Information", "Please select column section")
-#                 return
+
             primaryBeam = self.ui.comboColSec.currentText()
             dictSBeamData = self.fetchBeamPara()
             dictPBeamData = self.fetchColumnPara()
@@ -446,7 +433,30 @@ class MainController(QtGui.QMainWindow):
         '''
         Disables the all buttons in toolbar
         '''
+        
+        self.ui.actionShow_all.setEnabled(False)
+        self.ui.actionSave_3D_model_as.setEnabled(False)
+        self.ui.actionSave_CAD_image.setEnabled(False)
+        self.ui.actionSave_Front_View.setEnabled(False)
+        self.ui.actionSave_Top_View.setEnabled(False)
+        self.ui.actionSave_Side_View.setEnabled(False)
+        self.ui.actionSave_log_message.setEnabled(False)
+        self.ui.actionCreate_design_report.setEnabled(False)
+        self.ui.actionSave_design.setEnabled(False)
+        self.ui.actionZoom_in.setEnabled(False)
+        self.ui.actionZoom_out.setEnabled(False)
+        self.ui.actionRotate_3D_model.setEnabled(False)
+        self.ui.actionShow_beam.setEnabled(False)
+        self.ui.actionShow_column.setEnabled(False)
+        self.ui.actionShow_cleat_angle.setEnabled(False)
+        
+        
+        self.ui.btn_capacity.setEnabled(False)
+        self.ui.btn_SaveMessages.setEnabled(False)
+        self.ui.btn_CreateDesign.setEnabled(False)
+        
         self.ui.btn_front.setEnabled(False)
+        
         self.ui.btn_top.setEnabled(False)
         self.ui.btn_side.setEnabled(False)
         
@@ -459,6 +469,28 @@ class MainController(QtGui.QMainWindow):
         '''
         Enables the all buttons in toolbar
         '''
+        self.ui.actionSave_3D_model_as.setEnabled(True)
+        self.ui.actionSave_CAD_image.setEnabled(True)
+        self.ui.actionSave_Front_View.setEnabled(True)
+        self.ui.actionSave_Top_View.setEnabled(True)
+        self.ui.actionSave_Side_View.setEnabled(True)
+        self.ui.actionSave_log_message.setEnabled(True)
+        self.ui.actionCreate_design_report.setEnabled(True)
+        self.ui.actionSave_design.setEnabled(True)
+        self.ui.actionZoom_in.setEnabled(True)
+        self.ui.actionZoom_out.setEnabled(True)
+        self.ui.actionRotate_3D_model.setEnabled(True)
+        self.ui.actionShow_beam.setEnabled(True)
+        self.ui.actionShow_column.setEnabled(True)
+        self.ui.actionShow_cleat_angle.setEnabled(True)
+        self.ui.actionShow_all.setEnabled(True)
+
+        
+        self.ui.btn_capacity.setEnabled(True)
+        self.ui.btn_SaveMessages.setEnabled(True)
+        self.ui.btn_CreateDesign.setEnabled(True)
+        
+        
         self.ui.btn_front.setEnabled(True)
         self.ui.btn_top.setEnabled(True)
         self.ui.btn_side.setEnabled(True)
@@ -873,9 +905,6 @@ class MainController(QtGui.QMainWindow):
         
         
         
-
-         
-        
         # Newly included fields
         cleat_ht = resultObj['cleat']['height'] 
         self.ui.outputCleatHeight.setText(str(cleat_ht))
@@ -993,11 +1022,11 @@ class MainController(QtGui.QMainWindow):
         self.display.View_Iso()
         self.display.FitAll()
         if component == "Column":
-            osdagDisplayShape(self.display, self.connectivity.columnModel, update=True)
+            osdagDisplayShape(self.display, self.connectivity.get_columnModel(), update=True)
         elif component == "Beam":
             osdagDisplayShape(self.display, self.connectivity.get_beamModel(), material = Graphic3d_NOT_2D_ALUMINUM, update=True)
             #osdagDisplayShape(self.display, self.connectivity.beamModel, material = Graphic3d_NOT_2D_ALUMINUM, update=True)
-        elif component == "Finplate" :
+        elif component == "cleatAngle" :
 #             osdagDisplayShape(self.display, self.connectivity.weldModelLeft, color = 'red', update = True)
 #             osdagDisplayShape(self.display, self.connectivity.weldModelRight, color = 'red', update = True)
             osdagDisplayShape(self.display,self.connectivity.angleModel,color = 'blue', update = True)
@@ -1326,7 +1355,7 @@ class MainController(QtGui.QMainWindow):
             self.ui.mytabWidget.setCurrentIndex(0)
         self.display3Dmodel( "Column")
         
-    def call_3DFinplate(self):
+    def call_3DCleatAngle(self):
         '''Displaying FinPlate in 3D
         '''
         if self.ui.checkBoxCleat.isChecked():
@@ -1334,7 +1363,7 @@ class MainController(QtGui.QMainWindow):
             self.ui.chkBxCol.setChecked(QtCore.Qt.Unchecked)
             self.ui.mytabWidget.setCurrentIndex(0)
             
-        self.display3Dmodel( "Finplate")
+        self.display3Dmodel( "cleatAngle")
     
         
     def design_btnclicked(self):
@@ -1351,8 +1380,7 @@ class MainController(QtGui.QMainWindow):
         # FinPlate Design Calculations. 
         resultObj = cleatAngleConn(uiObj)
 #         self.outputdict()
-        print " print resultObj:",resultObj
-        print " inputObj :" ,uiObj
+        
         # Displaying Design Calculations To Output Window
         self.display_output(resultObj)
         
@@ -1534,7 +1562,7 @@ class MainController(QtGui.QMainWindow):
         dictbeamdata  = self.fetchBeamPara()
         dictcoldata = self.fetchColumnPara()
         dictangledata = self.fetchAnglePara()
-        finCommonObj = FinCommonData(uiObj,resultObj,dictbeamdata,dictcoldata,dictangledata)
+        finCommonObj = cleatCommonData(uiObj,resultObj,dictbeamdata,dictcoldata,dictangledata)
         finCommonObj.saveToSvg(str(fileName),view)
     
     def call_2d_Drawing(self,view):
@@ -1551,14 +1579,14 @@ class MainController(QtGui.QMainWindow):
             
         else:
             
-#             fileName = QtGui.QFileDialog.getSaveFileName(self,
-#                     "Save SVG", '/home/aravind/untitle.svg',
-#                     "SVG files (*.svg)")
-#             f = open(fileName,'w')
+            fileName = QtGui.QFileDialog.getSaveFileName(self,
+                    "Save SVG", '/home/aravind/untitle.svg',
+                    "SVG files (*.svg)")
+            f = open(fileName,'w')
             
-            self.callDesired_View("/home/aravind/front.svg", view)
+            self.callDesired_View(fileName, view)
            
-#             f.close()
+            f.close()
             
             
             
@@ -1680,11 +1708,11 @@ def launchCleatAngleController(osdagMainWindow):
     set_osdaglogger()
     rawLogger = logging.getLogger("raw")
     rawLogger.setLevel(logging.INFO)
-    fh = logging.FileHandler("./Connections/Shear/Finplate/fin.log", mode="w")
+    fh = logging.FileHandler("./Connections/Shear/cleatAngle/fin.log", mode="w")
     formatter = logging.Formatter('''%(message)s''')
     fh.setFormatter(formatter)
     rawLogger.addHandler(fh)
-    rawLogger.info('''<link rel="stylesheet" type="text/css" href="./Connections/Shear/Finplate/log.css"/>''')
+    rawLogger.info('''<link rel="stylesheet" type="text/css" href="./Connections/Shear/cleatAngle/log.css"/>''')
      
     #app = QtGui.QApplication(sys.argv)
     window = MainController()
