@@ -1,53 +1,32 @@
 <link rel="stylesheet" type="text/css" href="log.css"/>
 
-    <div  class="LOG INFO">
-        <span class="DATE">Fri, 01 Apr 2016 06:20:01</span>
-        <span class="LEVEL">INFO</span>
-        <span class="MSG">: Overall cleat Angle connection design is safe 
-</span>
+    <div  class="LOG ERROR">
+        <span class="DATE">Sat, 02 Apr 2016 17:38:28</span>
+        <span class="LEVEL">ERROR</span>
+        <span class="MSG">:Cross center distance between bolt lines in primary beam on either side of the supported beam is less than the specified gauge [reference-JSC:ch.4 check-1]</span>
+    </div>
+
+    <div  class="LOG WARNING">
+        <span class="DATE">Sat, 02 Apr 2016 17:38:28</span>
+        <span class="LEVEL">WARNING</span>
+        <span class="MSG">:Minimum specified cross center gauge is 90 mm</span>
     </div>
 
     <div  class="LOG INFO">
-        <span class="DATE">Fri, 01 Apr 2016 06:20:01</span>
+        <span class="DATE">Sat, 02 Apr 2016 17:38:28</span>
         <span class="LEVEL">INFO</span>
-        <span class="MSG"> :=========End Of design===========</span>
+        <span class="MSG">:Increase the cleat leg size</span>
     </div>
 
-    <div  class="LOG INFO">
-        <span class="DATE">Fri, 01 Apr 2016 06:20:01</span>
-        <span class="LEVEL">INFO</span>
-        <span class="MSG">: Overall cleat Angle connection design is safe 
-</span>
+    <div  class="LOG ERROR">
+        <span class="DATE">Sat, 02 Apr 2016 17:38:28</span>
+        <span class="LEVEL">ERROR</span>
+        <span class="MSG">: Design is not safe 
+ </span>
     </div>
 
-    <div  class="LOG INFO">
-        <span class="DATE">Fri, 01 Apr 2016 06:20:01</span>
-        <span class="LEVEL">INFO</span>
-        <span class="MSG"> :=========End Of design===========</span>
-    </div>
-
-    <div  class="LOG INFO">
-        <span class="DATE">Fri, 01 Apr 2016 06:20:36</span>
-        <span class="LEVEL">INFO</span>
-        <span class="MSG">: Overall cleat Angle connection design is safe 
-</span>
-    </div>
-
-    <div  class="LOG INFO">
-        <span class="DATE">Fri, 01 Apr 2016 06:20:36</span>
-        <span class="LEVEL">INFO</span>
-        <span class="MSG"> :=========End Of design===========</span>
-    </div>
-
-    <div  class="LOG INFO">
-        <span class="DATE">Fri, 01 Apr 2016 06:20:36</span>
-        <span class="LEVEL">INFO</span>
-        <span class="MSG">: Overall cleat Angle connection design is safe 
-</span>
-    </div>
-
-    <div  class="LOG INFO">
-        <span class="DATE">Fri, 01 Apr 2016 06:20:36</span>
-        <span class="LEVEL">INFO</span>
+    <div  class="LOG ERROR">
+        <span class="DATE">Sat, 02 Apr 2016 17:38:28</span>
+        <span class="LEVEL">ERROR</span>
         <span class="MSG"> :=========End Of design===========</span>
     </div>

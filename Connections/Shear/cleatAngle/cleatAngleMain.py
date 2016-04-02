@@ -24,8 +24,9 @@ import os.path
 import pickle
 import svgwrite
 import yaml
+import pdfkit
 
-
+from ui_summary_popup import Ui_Dialog
 from ISection import ISection
 from angle import Angle
 from beamWebBeamWebConnectivity import BeamWebBeamWeb
@@ -43,9 +44,79 @@ from nut import Nut
 from nutBoltPlacement import NutBoltArray
 from Connections.Shear.cleatAngle.ui_cleatAngle import Ui_MainWindow
 from utilities import osdagDisplayShape
+from designReport import *
 
 
 # Developed by aravind
+class MyPopupDialog(QtGui.QDialog):
+    
+    def __init__(self, parent = None):
+        
+        QtGui.QDialog.__init__(self, parent)
+        self.ui = Ui_Dialog()
+        self.ui.setupUi(self)
+        self.mainController = parent
+        self.ui.btn_browse.clicked.connect(lambda:self.getLogoFilePath(self.ui.lbl_browse))
+        self.ui.btn_saveProfile.clicked.connect(self.saveUserProfile)
+        self.ui.btn_useProfile.clicked.connect(self.useUserProfile)
+        self.accepted.connect(self.save_inputSummary)
+    
+    def save_inputSummary(self):
+        input_summary = self.getPopUpInputs()
+        
+        self.mainController.save_design(input_summary)
+        #return input_summary
+        
+    def getLogoFilePath(self,lblwidget):
+        
+        self.ui.lbl_browse.clear
+        filename = QtGui.QFileDialog.getOpenFileName(self, 'Open File', " ", 'Images (*.png *.svg *.jpg)',None, QtGui.QFileDialog.DontUseNativeDialog)
+
+        base = os.path.basename(str(filename))
+        lblwidget.setText(base)
+        
+    def saveUserProfile(self):
+        inputData = self.getPopUpInputs()
+        print"printing user profile"
+        print inputData["ProfileSummary"]
+        filename= QtGui.QFileDialog.getSaveFileName(self, 'Save Files', "output/finplate/Profile",  '*.txt')
+        
+        infile = open(filename, 'w')
+        pickle.dump(inputData, infile)
+        infile.close()                                
+        
+    def getPopUpInputs(self):
+        
+        input_summary = {}
+        input_summary["ProfileSummary"] = {}
+        input_summary["ProfileSummary"]["CompanyName"] = str(self.ui.lineEdit_companyName.text())
+        input_summary["ProfileSummary"]["CompanyLogo"] = str(self.ui.lbl_browse.text())
+        input_summary["ProfileSummary"]["Group/TeamName"] = str(self.ui.lineEdit_groupName.text())
+        input_summary["ProfileSummary"]["Designer"] = str(self.ui.lineEdit_designer.text())
+        
+        input_summary["ProjectTitle"] = str(self.ui.lineEdit_projectTitle.text())
+        input_summary["Subtitle"] = str(self.ui.lineEdit_subtitle.text())
+        input_summary["JobNumber"] = str(self.ui.lineEdit_jobNumber.text())
+        input_summary["AdditionalComments"] = str(self.ui.txt_additionalComments.toPlainText())
+        input_summary["Method"] = str(self.ui.comboBox_method.currentText())
+        
+        return input_summary
+    
+    def useUserProfile(self):
+        files_types = "All Files (*))"
+        filename = QtGui.QFileDialog.getOpenFileName(self, 'Open Files', "output/finplate/Profile", "All Files (*)")
+        if os.path.isfile(filename):
+            outfile = open(filename, 'r')
+            reportsummary = pickle.load(outfile)            
+            self.ui.lineEdit_companyName.setText(reportsummary["ProfileSummary"]['CompanyName'])
+            self.ui.lbl_browse.setText(reportsummary["ProfileSummary"]['CompanyLogo'])                      
+            self.ui.lineEdit_groupName.setText(reportsummary["ProfileSummary"]['Group/TeamName'])
+            self.ui.lineEdit_designer.setText(reportsummary["ProfileSummary"]['Designer'])
+           
+        else:
+            pass
+
+
 class myDialog(QDialog, Ui_Capacitydetals):     
       
     def __init__(self, parent = None): 
@@ -193,6 +264,8 @@ class MainController(QtGui.QMainWindow):
         self.connectivity = None
         self.fuse_model = None
         self.disableViewButtons()
+        self.resultObj = None
+        self.uiObj = None
     
     
   
@@ -503,7 +576,7 @@ class MainController(QtGui.QMainWindow):
     def retrieve_prevstate(self):
         uiObj = self.get_prevstate()
         if(uiObj != None):
-            
+            print "prev_state",uiObj
             self.ui.comboConnLoc.setCurrentIndex(self.ui.comboConnLoc.findText(str(uiObj['Member']['Connectivity'])))
             
             if uiObj['Member']['Connectivity'] == 'Beam-Beam':
@@ -544,19 +617,19 @@ class MainController(QtGui.QMainWindow):
         if loc == "Column flange-Beam web":
             
             #pixmap = QtGui.QPixmap(":/newPrefix/images/beam2.jpg")
-            pixmap = QtGui.QPixmap(":/ResourceFiles/images/colF2.png")
+            pixmap = QtGui.QPixmap(":/newPrefix/images/colF2.png")
             pixmap.scaledToHeight(60)
             pixmap.scaledToWidth(50)
             self.ui.lbl_connectivity.setPixmap(pixmap)
             #self.ui.lbl_connectivity.show()
         elif(loc == "Column web-Beam web"):
             #picmap = QtGui.QPixmap(":/newPrefix/images/beam.jpg")
-            picmap = QtGui.QPixmap(":/ResourceFiles/images/colW3.png")
+            picmap = QtGui.QPixmap(":/newPrefix/images/colW3.png")
             picmap.scaledToHeight(60)
             picmap.scaledToWidth(50)
             self.ui.lbl_connectivity.setPixmap(picmap)
         else:
-            picmap = QtGui.QPixmap(":/ResourceFiles/images/b-b.png")
+            picmap = QtGui.QPixmap(":/newPrefix/images/b-b.png")
             picmap.scaledToHeight(60)
             picmap.scaledToWidth(50)
             self.ui.lbl_connectivity.setPixmap(picmap)
@@ -628,51 +701,43 @@ class MainController(QtGui.QMainWindow):
         uiObj = self.getuser_inputs()
         outputobj = cleatAngleConn(uiObj)
         return outputobj
-#         outObj = {}
-#         outObj['cleat'] ={}
-#         outObj['cleat']["height"] = float(self.ui.outputCleatHeight.text())
-# #         outObj['cleat']["External Moment (kN-m)"] = float(self.ui.txtExtMomnt.text())
-#         outObj['cleat']["External Moment (kN-m)"] = self.ui.txtExtMomnt.text()
-#         outObj['cleat']["Moment Capacity (kN-m)"] = float(self.ui.txtMomntCapacity.text())
-#         
-# #         outObj['Weld'] ={}
-# #         #outObj['Weld']["Weld Thickness(mm)"] = float(self.ui.txtWeldThick.text())
-# #         outObj['Weld']["Resultant Shear (kN/mm)"] = float(self.ui.txtResltShr.text())
-# #         outObj['Weld']["Weld Strength (kN/mm)"] = float(self.ui.txtWeldStrng.text())
-#         
-#         outObj['Bolt'] = {}
-#         outObj['Bolt']["Shear Capacity (kN)"] = float(self.ui.txtShrCapacity.text())
-#         outObj['Bolt']["Bearing Capacity (kN)"] = float(self.ui.txtbearCapacity.text())
-#         outObj['Bolt']["Capacity Of Bolt (kN)"] = float(self.ui.txtBoltCapacity.text())
-#         outObj['Bolt']["No Of Bolts"] = float(self.ui.txtNoBolts.text())
-#         outObj['Bolt']["No.Of Row"] = int(self.ui.txt_row.text())
-#         outObj['Bolt']["No.Of Column"] = int(self.ui.txt_col.text())
-#         outObj['Bolt']["Pitch Distance (mm)"] = float(self.ui.txtBeamPitch.text())
-#         outObj['Bolt']["Guage Distance (mm)"] = float(self.ui.txtBeamGuage.text())
-#         outObj['Bolt']["End Distance (mm)"]= float(self.ui.txtEndDist.text())
-#         outObj['Bolt']["Edge Distance (mm)"]= float(self.ui.txtEdgeDist.text())
-#         
-#         return outObj
     
     
-    def save_design(self):
+    def show_dialog(self):
+        
+        dialog = MyPopupDialog(self)
+        dialog.show()
+    
+    def createDesignReport(self):
+        
+        self.show_dialog()
+        
+    
+    def save_design(self,popup_summary):
+        
         fileName,pat =QtGui.QFileDialog.getSaveFileNameAndFilter(self,"Save File As","output/finplate/","All Files (*);;Html Files (*.html)")
-        self.call_2d_Drawing("All")
-        self.outdict = self.resultObj#self.outputdict()
-        self.inputdict = self.uiObj#self.getuser_inputs()
-        #self.save_yaml(self.outdict,self.inputdict)
+        fileName = str(fileName)
+        self.call2D_Drawing("All")
+#         self.outdict = self.resultObj#self.outputdict()
+        
+        self.inputdict = self.getuser_inputs()#self.getuser_inputs()
+        self.outdict = cleatAngleConn(self.inputdict)
         dictBeamData  = self.fetchBeamPara()
+    
         dictColData  = self.fetchColumnPara()
-#         save_html(self.outdict, self.inputdict, dictBeamData, dictColData,fileName)
-#         self.htmlToPdf()
+        dictCleatData = self.fetchAnglePara()
+        save_html(self.outdict, self.inputdict, dictBeamData, dictColData , dictCleatData,popup_summary,fileName)
+        print 'printing html file path'
+        print fileName
+        pdfkit.from_file(fileName,'output/finplate/report.pdf')
         
         QtGui.QMessageBox.about(self,'Information',"Report Saved")
     
-        #self.save(self.outdict,self.inputdict)cleatAngleConn
+    #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
         
     def save_log(self):
         
-        fileName,pat =QtGui.QFileDialog.getSaveFileNameAndFilter(self,"Save File As","/home/aravind/Desktop/eclipseWorkspace/osdag/cleatAngle/SaveMessages","Text files (*.txt)")
+        fileName,pat = QtGui.QFileDialog.getSaveFileNameAndFilter(self,"Save File As","/home/deepa/","Text files (*.txt)")
         return self.save_file(fileName+".txt")
           
     def save_file(self, fileName):
@@ -693,7 +758,6 @@ class MainController(QtGui.QMainWindow):
         #self.setCurrentFile(fileName);
         
         #QtGui.QMessageBox.about(self,'Information',"File saved")
-       
     
     ################
     def save_yaml(self,outObj,uiObj):
@@ -708,28 +772,13 @@ class MainController(QtGui.QMainWindow):
           
         '''
         newDict = {"INPUT": uiObj, "OUTPUT": outObj} 
-        fileName = QtGui.QFileDialog.getSaveFileName(self,"Save File As","/home/aravind/Desktop/eclipseWorkspace/osdag/cleatAngle/SaveDesign","Text File (*.txt)")
+        fileName = QtGui.QFileDialog.getSaveFileName(self,"Save File As","output/SaveDesign","Text File (*.txt)")
         f = open(fileName,'w')
         yaml.dump(newDict,f,allow_unicode=True, default_flow_style=False)
         
         #return self.save_file(fileName+".txt")
         #QtGui.QMessageBox.about(self,'Information',"File saved")
-        
-    def htmlToPdf(self):
-        
-        self.web.load(QtCore.QUrl("file:///home/deepa/EclipseWorkspace/OsdagLive/output/finplate/finPlateReport.html"))
-        printer = QtGui.QPrinter(QtGui.QPrinter.HighResolution)
-        printer.setPageSize(QPrinter.A4)
-        printer.setOutputFormat(QPrinter.PdfFormat)
-        printer.setColorMode(QPrinter.Color)
-        printer.setOutputFileName("output/finplate/designReport.pdf")
-        
-        def convertIt():
-            self.web.print_(printer)
-          
-        QtCore.QObject.connect(self.web, QtCore.SIGNAL("loadFinished(bool)"), convertIt)
-
-        
+            
     def resetbtn_clicked(self):
         '''(NoneType) -> NoneType
         
@@ -1419,7 +1468,7 @@ class MainController(QtGui.QMainWindow):
         shape = self.fuse_model
         
         files_types = "IGS (*.igs);;STEP (*.stp);;STL (*.stl);;BREP(*.brep)"
-        fileName  = QtGui.QFileDialog.getSaveFileName(self, 'Export', "/home/aravind/Cadfiles/untitled.igs", files_types )
+        fileName  = QtGui.QFileDialog.getSaveFileName(self, 'Export', "output/untitled.igs", files_types )
         
         fName = str(fileName)
         file_extension = fName.split(".")[-1]
@@ -1575,12 +1624,12 @@ class MainController(QtGui.QMainWindow):
             self.callDesired_View(fileName, view)
             
             self.display.set_bg_gradient_color(255,255,255,255,255,255)
-            self.display.ExportToImage('/home/aravind/3D_Model.png')
+            self.display.ExportToImage('output/3D_Model.png')
             
         else:
             
             fileName = QtGui.QFileDialog.getSaveFileName(self,
-                    "Save SVG", '/home/aravind/untitle.svg',
+                    "Save SVG", 'output/untitle.svg',
                     "SVG files (*.svg)")
             f = open(fileName,'w')
             

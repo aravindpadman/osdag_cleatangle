@@ -190,17 +190,19 @@ def cleatAngleConn(uiObj):
     bolt_fu = int(bolt_grade) * 100
     bolt_fy = (bolt_grade - int(bolt_grade))*bolt_fu
     
-    t_thinner = min(beam_w_t.real,cleat_thk.real);
+    t_thinner_b = min(beam_w_t.real,cleat_thk.real);
     bolt_shear_capacity = 0
     if bolt_type == 'HSFG':
         bolt_shear_capacity = HSFG_bolt_shear(0.48, bolt_dia, 2, bolt_fu)
     if bolt_type == 'Black Bolt':
         bolt_shear_capacity = black_bolt_shear(bolt_dia, 2, bolt_fu)
         
-    bolt_bearing_capacity = bearing_capacity(bolt_dia, beam_w_t, bolt_fu)
-    bearing_capacity_cleatLeg =  bearing_capacity(bolt_dia, cleat_thk , cleat_fu)
-    bolt_capacity = min(bolt_shear_capacity, bolt_bearing_capacity, 2*bearing_capacity_cleatLeg)
+    bolt_bearing_capacity = 2 * bearing_capacity(bolt_dia, beam_w_t, bolt_fu)
+    bearing_capacity_beam =  bearing_capacity(bolt_dia, t_thinner_b , cleat_fu)
+    bearing_capacity_plt = 2 * bearing_capacity(bolt_dia, t_thinner_b , cleat_fu)
+    bolt_capacity = min(bolt_shear_capacity, bolt_bearing_capacity, bearing_capacity_plt,bearing_capacity_beam)
     bolt_capacity = bolt_capacity/2.0
+    print "capacity details" ,bolt_bearing_capacity ,bearing_capacity_plt ,bolt_shear_capacity,bearing_capacity_beam
     
      
     bolts_required = int(math.ceil(shear_load/(2*bolt_capacity)))
@@ -218,7 +220,7 @@ def cleatAngleConn(uiObj):
     min_pitch = int(2.5 * bolt_dia)
     min_gauge = int(2.5 * bolt_dia)
     min_edge_dist = int(1.7 * (dia_hole))
-    max_edge_dist = int((12 * t_thinner * math.sqrt(250/bolt_fy)))-1
+    max_edge_dist = int((12 * t_thinner_b * math.sqrt(250/bolt_fy)))-1
     ###########################Capacity Details for column bolts #######################################
     bolt_shear_capacity_c = bolt_shear_capacity/2
     if connectivity == 'Column web-Beam web' or connectivity == "Beam-beam":
@@ -615,7 +617,7 @@ def cleatAngleConn(uiObj):
         logger.error(':Edge distance in the beam web is less than the minimum edge distance as per IS 800:2007[cl.10.2.4.2]')    
         logger.warning(':Minimum leg size of the cleat Angle required is %s mm' %(str(2*min_edge_dist + 20 + gauge)))
         logger.info(':Increase the cleat leg size')#change reference
-    b_gauge  = (2 * cleat_legsize_1 + beam_w_t) - 2*end_dist_c
+    b_gauge  = (2 * cleat_legsize_1 + beam_w_t) - 2*(end_dist_c + gauge_c)
     connection = "column"
     if connectivity == "Beam-Beam":
         connection = "primary beam"
@@ -656,12 +658,14 @@ def cleatAngleConn(uiObj):
     outputObj['Bolt']['boltcapacity'] = round(2 * bolt_capacity,3)
     outputObj['Bolt']['numofbolts'] = no_row_b * no_col_b
     outputObj['Bolt']['boltgrpcapacity'] = round(2 * bolt_capacity * no_row_b * no_col_b,3)
-    outputObj['Bolt']['numofrow'] = no_row_b
-    outputObj['Bolt']['numofcol'] = no_col_b 
-    outputObj['Bolt']['pitch'] = pitch_b
+    outputObj['Bolt']['numofrow'] = int(no_row_b)
+    outputObj['Bolt']['numofcol'] = int(no_col_b) 
+    outputObj['Bolt']['pitch'] = int(pitch_b)
     outputObj['Bolt']['enddist'] = int(end_dist_b)
     outputObj['Bolt']['edge'] = int(edge_dist_b)
     outputObj['Bolt']['gauge'] =int(gauge_b)
+    outputObj['Bolt']['thinner'] =int(t_thinner_b)
+    
 #     outputObj['Bolt']['grade'] = bolt_grade
       
      
@@ -673,11 +677,12 @@ def cleatAngleConn(uiObj):
     outputObj['cleat']['numofrow'] = no_row_c
     outputObj['cleat']['numofcol'] = no_col_c
     
-    outputObj['cleat']['pitch'] = pitch_c
-    outputObj['cleat']['guage'] = gauge_c
+    outputObj['cleat']['pitch'] = int(pitch_c)
+    outputObj['cleat']['guage'] = int(gauge_c)
     outputObj['cleat']['edge'] = edge_dist_c
     outputObj['cleat']['end'] = end_dist_c
     outputObj['cleat']['legsize'] = cleat_legsize_1
+    outputObj['cleat']['thinner'] = float(thinner)
  
     outputObj['cleat']['shearcapacity'] = round(bolt_shear_capacity_c,3)
     outputObj['cleat']['bearingcapacity'] = round(bolt_bearing_capacity_c,3)
