@@ -4,7 +4,7 @@ p1
 (dp2
 S'ColumSection'
 p3
-S'ISMB 550'
+S'ISHB 300*'
 p4
 sS'fu (MPa)'
 p5
@@ -18,7 +18,7 @@ p8
 I250
 sS'Connectivity'
 p9
-S'Beam-Beam'
+S'Column web-Beam web'
 p10
 ssS'Load'
 p11
@@ -44,7 +44,7 @@ p21
 F10.8
 sS'Diameter (mm)'
 p22
-I16
+I20
 sS'Type'
 p23
 S'HSFG'
