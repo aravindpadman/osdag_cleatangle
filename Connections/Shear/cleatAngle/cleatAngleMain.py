@@ -79,7 +79,7 @@ class MyPopupDialog(QtGui.QDialog):
         inputData = self.getPopUpInputs()
         print"printing user profile"
         print inputData["ProfileSummary"]
-        filename= QtGui.QFileDialog.getSaveFileName(self, 'Save Files', "output/finplate/Profile",  '*.txt')
+        filename= QtGui.QFileDialog.getSaveFileName(self, 'Save Files', "output/Profile",  '*.txt')
         
         infile = open(filename, 'w')
         pickle.dump(inputData, infile)
@@ -104,7 +104,7 @@ class MyPopupDialog(QtGui.QDialog):
     
     def useUserProfile(self):
         files_types = "All Files (*))"
-        filename = QtGui.QFileDialog.getOpenFileName(self, 'Open Files', "output/finplate/Profile", "All Files (*)")
+        filename = QtGui.QFileDialog.getOpenFileName(self, 'Open Files', "output/Profile", "All Files (*)")
         if os.path.isfile(filename):
             outfile = open(filename, 'r')
             reportsummary = pickle.load(outfile)            
@@ -358,13 +358,14 @@ class MainController(QtGui.QMainWindow):
             dictbeamdata = self.fetchBeamPara()
             dictcoldata = self.fetchColumnPara()
             angleList = get_anglecombolist()
+            col_R1 = float(dictcoldata[QString("R1")])
             col_D = float(dictcoldata[QString("D")])
             col_B = float(dictcoldata[QString("B")])
             col_T = float(dictcoldata[QString("T")])
             beam_tw = float(dictbeamdata[QString("tw")])
             
             if loc == "Column web-Beam web":
-                colWeb = col_D - 2 * col_T
+                colWeb = col_D - 2 * (col_T + col_R1)
             elif loc == "Column flange-Beam web":
                 colWeb = col_B
             newlist = ['Select Cleat']
@@ -417,6 +418,7 @@ class MainController(QtGui.QMainWindow):
                 QtGui.QMessageBox.about(self,'Information',"Beam flange is wider than clear depth of column web (No provision in Osdag till now)")
             else:
                 self.ui.btn_Design.setDisabled(False)
+        
         elif loc == "Beam-Beam":
 
             primaryBeam = self.ui.comboColSec.currentText()
@@ -433,6 +435,9 @@ class MainController(QtGui.QMainWindow):
                 QtGui.QMessageBox.about(self,'Information',"Secondary beam depth is higher than clear depth of primary beam web (No provision in Osdag till now)")
             else:
                 self.ui.btn_Design.setDisabled(False)
+                
+    
+                
                 
     def checkCleatHeight(self,widget):
         loc = self.ui.comboConnLoc.currentText()
@@ -711,13 +716,14 @@ class MainController(QtGui.QMainWindow):
     def createDesignReport(self):
         
         self.show_dialog()
+    
         
     
     def save_design(self,popup_summary):
         
-        fileName,pat =QtGui.QFileDialog.getSaveFileNameAndFilter(self,"Save File As","output/finplate/","All Files (*);;Html Files (*.html)")
+        fileName,pat =QtGui.QFileDialog.getSaveFileNameAndFilter(self,"Save File As","output/","All Files (*);;Html Files (*.html)")
         fileName = str(fileName)
-        self.call2D_Drawing("All")
+        self.call_2d_Drawing("All")
 #         self.outdict = self.resultObj#self.outputdict()
         
         self.inputdict = self.getuser_inputs()#self.getuser_inputs()
@@ -726,10 +732,10 @@ class MainController(QtGui.QMainWindow):
     
         dictColData  = self.fetchColumnPara()
         dictCleatData = self.fetchAnglePara()
-        save_html(self.outdict, self.inputdict, dictBeamData, dictColData , dictCleatData,popup_summary,fileName)
+        save_html(self.outdict, self.inputdict, dictBeamData, dictColData , dictCleatData,popup_summary)
         print 'printing html file path'
         print fileName
-        pdfkit.from_file(fileName,'output/finplate/report.pdf')
+        pdfkit.from_file('ouput/finPlateReport3.html','output/report.pdf')
         
         QtGui.QMessageBox.about(self,'Information',"Report Saved")
     
@@ -1594,14 +1600,7 @@ class MainController(QtGui.QMainWindow):
         
     
              
-#     def call2D_Drawing(self):
-#         uiObj = self.getuser_inputs()
-#         
-#         resultObj = cleatAngleConn(uiObj)
-#         dictbeamdata  = self.fetchBeamPara()
-#         dictcoldata = self.fetchColumnPara()
-#         fin2DFront = Fin2DCreatorFront(uiObj,resultObj,dictbeamdata,dictcoldata)
-#         fin2DFront.saveToSvg()
+
         
         
     def callDesired_View(self,fileName,view):
@@ -1636,25 +1635,7 @@ class MainController(QtGui.QMainWindow):
             self.callDesired_View(fileName, view)
            
             f.close()
-            
-            
-            
-            
-            
-#         loc = self.ui.comboConnLoc.currentText()
-#         uiObj = self.getuser_inputs()
-#         
-#         resultObj = cleatAngleConn(uiObj)
-#         dictbeamdata  = self.fetchBeamPara()
-#         dictcoldata = self.fetchColumnPara()
-#         dictangledata = self.fetchAnglePara()
-#         if loc == "Column flange-Beam web" or "Column web-Beam web":
-#             cleat2Dfront = FinCommonData(uiObj,resultObj,dictbeamdata,dictcoldata,dictangledata)
-#         else:
-#             cleat2Dfront = FinCommonData(uiObj,resultObj,dictbeamdata,dictcoldata,dictangledata)
-#         cleat2Dfront.saveToSvg('/home/aravind/cleattestFront.svg', 'Front')
-#         cleat2Dfront.saveToSvg('/home/aravind/cleattestSide.svg', 'Side')
-#         cleat2Dfront.saveToSvg('/home/aravind/cleattestTop.svg', 'Top')
+
 
         
         

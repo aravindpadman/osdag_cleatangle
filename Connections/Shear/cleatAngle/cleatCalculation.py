@@ -184,8 +184,33 @@ def cleatAngleConn(uiObj):
     cleat_legsize_1 = int(dictCleatData[QString("B")])
     cleat_thk = int(dictCleatData[QString("t")])
 #####################Calculation Begins########################
+    design_check = True   
+    if connectivity == 'Column flange-Beam web':
+        avbl_space = column_B 
+        required_space = 2 * cleat_legsize_1 + beam_w_t
+        maxLegsize = int((avbl_space - beam_w_t)/10) * 5
+        if avbl_space < required_space:
+            design_check = False
+            logger.error(':Column cannot accommodate the given cleat agle due to space restriction  ')
+            logger.warning(':The width of the column flange(B)  should be greater than %2.2f mm' %(int(required_space))) 
+            logger.info('Cleat legsize(B)of the cleat angle should be less than or equal to %2.2f mm' %(maxLegsize))
+        
+    elif connectivity == 'Column web-Beam web':
+        avbl_space = column_D - 2 * (column_f_t + column_R1)
+        required_space = 2 * cleat_legsize_1 + beam_w_t
+        maxLegsize = int((avbl_space - beam_w_t)/10) * 5
+        if avbl_space < required_space:
+            design_check = False
+            logger.error(':Column cannot accommodate the given cleat agle due to space restriction  ')
+            logger.warning(':The depth of the column(D) should be greater than %2.2f mm' %(int(required_space))) 
+            logger.info('Cleat legsize(B)of the cleat angle should be less than or equal to %2.2f mm' %(maxLegsize))
+    else:
+        #Always feasible in this case.No checks required
+        pass 
+    ################################################################################
+      
 # Bolt design:
-    design_check = True
+#     design_check = True
 # I: Check for number of bolts -------------------
     bolt_fu = int(bolt_grade) * 100
     bolt_fy = (bolt_grade - int(bolt_grade))*bolt_fu
@@ -197,12 +222,16 @@ def cleatAngleConn(uiObj):
     if bolt_type == 'Black Bolt':
         bolt_shear_capacity = black_bolt_shear(bolt_dia, 2, bolt_fu)
         
-    bolt_bearing_capacity = 2 * bearing_capacity(bolt_dia, beam_w_t, bolt_fu)
-    bearing_capacity_beam =  bearing_capacity(bolt_dia, t_thinner_b , cleat_fu)
-    bearing_capacity_plt = 2 * bearing_capacity(bolt_dia, t_thinner_b , cleat_fu)
-    bolt_capacity = min(bolt_shear_capacity, bolt_bearing_capacity, bearing_capacity_plt,bearing_capacity_beam)
+    bolt_bearing_capacity =  bearing_capacity(bolt_dia, beam_w_t, bolt_fu)
+    bearing_capacity_beam =  bearing_capacity(bolt_dia, beam_w_t , beam_fu)
+    bearing_capacity_plt = 2 * bearing_capacity(bolt_dia, cleat_thk , cleat_fu)
+    bearing_capacity_b =  min(bolt_bearing_capacity, bearing_capacity_beam,bearing_capacity_plt)
+    bolt_capacity = min(bolt_shear_capacity, bearing_capacity_b)
     bolt_capacity = bolt_capacity/2.0
-    print "capacity details" ,bolt_bearing_capacity ,bearing_capacity_plt ,bolt_shear_capacity,bearing_capacity_beam
+    
+    
+    
+#     print "capacity details" ,bolt_bearing_capacity ,bearing_capacity_plt ,bolt_shear_capacity,bearing_capacity_beam
     
      
     bolts_required = int(math.ceil(shear_load/(2*bolt_capacity)))
@@ -225,15 +254,19 @@ def cleatAngleConn(uiObj):
     bolt_shear_capacity_c = bolt_shear_capacity/2
     if connectivity == 'Column web-Beam web' or connectivity == "Beam-beam":
         thinner = min(column_w_t,cleat_thk)
-        bolt_bearing_capacity = bearing_capacity(bolt_dia, thinner, bolt_fu)
-        bearing_capacity_c = bearing_capacity(dia_hole, thinner, beam_fu)
-        bolt_bearing_capacity_c = min(bolt_bearing_capacity,bearing_capacity_c)
+        bolt_bearing_capacity_c = bearing_capacity(bolt_dia, thinner, bolt_fu)
+        bearing_capacity_column = bearing_capacity(dia_hole, column_w_t, beam_fu)
+        bearing_capacity_cleat_c = bearing_capacity(dia_hole, cleat_thk, beam_fu)
+        bearing_capacity_c = min(bolt_bearing_capacity_c,bearing_capacity_column,bearing_capacity_cleat_c)
     else:
         thinner = min(column_f_t,cleat_thk)
-        bolt_bearing_capacity = bearing_capacity(bolt_dia, thinner, bolt_fu)
-        bearing_capacity_c = bearing_capacity(dia_hole, thinner, beam_fu)
-        bolt_bearing_capacity_c = min(bolt_bearing_capacity,bearing_capacity_c)
-    bolt_capacity_c = min(bolt_shear_capacity_c,bolt_bearing_capacity_c,bearing_capacity_c)
+        bolt_bearing_capacity_c = bearing_capacity(bolt_dia, thinner, bolt_fu)
+        bearing_capacity_column = bearing_capacity(dia_hole, column_f_t, beam_fu)
+        bearing_capacity_cleat_c = bearing_capacity(dia_hole, cleat_thk, beam_fu)
+        bearing_capacity_c = min(bolt_bearing_capacity_c,bolt_bearing_capacity_c,bearing_capacity_column)
+
+        
+    bolt_capacity_c = min(bolt_shear_capacity_c,bearing_capacity_c)
     
     bolts_required_c= int(math.ceil(shear_load/(2*bolt_capacity_c)))
     if bolts_required_c < 3:
@@ -315,6 +348,7 @@ def cleatAngleConn(uiObj):
                     if pitch < min_pitch:
                         design_check = False
                         logger.error(':Critical shear force on the bolts due to loading is exceeding the bolt capacity')    
+                        logger.warning(':Bolt capacity of the critical bolt should be greater than %2.2f KN' %(crit_shear))   
                         logger.info(':Re-design with increased bolt diameter or bolt grade')                        
                     elif bolt_capacity > crit_shear and pitch>min_pitch:
                         pass 
@@ -326,7 +360,8 @@ def cleatAngleConn(uiObj):
         edge_dist_b = min_edge_dist 
         end_dist_b = min_edge_dist
         cleat_length_b = cleat_length
-        
+        critboltshear_b = crit_shear
+        b_eccentricity  = eccentricity
         
     ################################## Column Calculation ###############################################
         no_row = bolts_required_c
@@ -363,15 +398,15 @@ def cleatAngleConn(uiObj):
                 end_dist = min_edge_dist
             
         crit_shear = column_critical_shear(shear_load, eccentricity, pitch, gauge, no_row,min_edge_dist)
-        if crit_shear > bolt_capacity :
+        if crit_shear > bolt_capacity_c :
             if no_col == 1:
-                while crit_shear > bolt_capacity and pitch > min_pitch:
+                while crit_shear > bolt_capacity_c and pitch > min_pitch:
                     no_row = no_row + 1
                     pitch = avbl_length/(no_row - 1)
                     crit_shear = column_critical_shear(shear_load, eccentricity, pitch, gauge, no_row,min_edge_dist)
                 if pitch < min_pitch:
                     no_col = 2
-                elif bolt_capacity > crit_shear and pitch>min_pitch:
+                elif bolt_capacity_c > crit_shear and pitch>min_pitch:
                     pass    
                 
             if no_col ==2:#Call math.ceil(x)
@@ -393,17 +428,18 @@ def cleatAngleConn(uiObj):
                     end_dist = min_edge_dist
         
                 crit_shear = column_critical_shear(shear_load, eccentricity, pitch, gauge, no_row,min_edge_dist)
-                if crit_shear > bolt_capacity :
+                if crit_shear > bolt_capacity_c :
                     
-                    while crit_shear > bolt_capacity and pitch > min_pitch:
+                    while crit_shear > bolt_capacity_c and pitch > min_pitch:
                         no_row = no_row + 1
                         pitch = avbl_length/(no_row - 1)
                         crit_shear = column_critical_shear(shear_load, eccentricity, pitch, gauge, no_row,min_edge_dist)
                     if pitch < min_pitch:
                         design_check = False
                         logger.error(':Critical shear force on the bolts due to loading is exceeding the bolt capacity')    
+                        logger.warning(':Bolt capacity of the critical bolt should be greater than %2.2f KN' %(crit_shear))   
                         logger.info(':Re-design with increased bolt diameter or bolt grade')        
-                    elif bolt_capacity > crit_shear and pitch>min_pitch:
+                    elif bolt_capacity_c > crit_shear and pitch>min_pitch:
                         pass 
     ##########################################################################
         no_row_c = no_row
@@ -414,7 +450,7 @@ def cleatAngleConn(uiObj):
         end_dist_c = end_dist
         cleat_length_c = cleat_length
         c_eccentricity = eccentricity     
-   
+        critboltshear_c = crit_shear
  
 ########################################### length of the cleat angle not given #########################
     else:
@@ -482,6 +518,7 @@ def cleatAngleConn(uiObj):
                     if cleat_length > max_cleat_length:
                         design_check = False
                         logger.error(':Critical shear force on the bolts due to loading is exceeding the bolt capacity')    
+                        logger.warning(':Bolt capacity of the critical bolt should be greater than %2.2f KN' %(crit_shear))   
                         logger.info(':Re-design with increased bolt diameter or bolt grade')        
                     elif bolt_capacity > crit_shear and cleat_length <= max_cleat_length:
                         pass       
@@ -499,6 +536,8 @@ def cleatAngleConn(uiObj):
         edge_dist_b = edge_dist
         end_dist_b = min_edge_dist
         cleat_length_b = cleat_length
+        critboltshear_b = crit_shear
+        b_eccentricity  = eccentricity
     ################################## Column Calculation ###############################################
         no_row = bolts_required_c
         no_col = 1
@@ -538,15 +577,15 @@ def cleatAngleConn(uiObj):
            
              
         crit_shear = column_critical_shear(shear_load, eccentricity, pitch, gauge, no_row,edge_dist)
-        if crit_shear > bolt_capacity :
+        if crit_shear > bolt_capacity_c :
             if no_col == 1:
-                while crit_shear > bolt_capacity and cleat_length <  max_cleat_length:
+                while crit_shear > bolt_capacity_c and cleat_length <  max_cleat_length:
                     no_row = no_row + 1
                     cleat_length = cleat_length + pitch
                     crit_shear = column_critical_shear(shear_load, eccentricity, pitch, gauge, no_row,edge_dist)
                 if cleat_length > max_cleat_length:
                     no_col = 2
-                elif bolt_capacity > crit_shear and cleat_length < max_cleat_length:
+                elif bolt_capacity_c > crit_shear and cleat_length < max_cleat_length:
                     pass    
                  
             if no_col ==2:#Call math.ceil(x)
@@ -556,7 +595,7 @@ def cleatAngleConn(uiObj):
                         no_row = no_row/2
                     else:
                         no_row = (no_row+1)/2
-                if no_row == 1:
+                if no_row < 2:
                     no_row = 2
                     
                 cleat_length = (no_row - 1) * min_pitch + 2 * min_edge_dist
@@ -574,18 +613,18 @@ def cleatAngleConn(uiObj):
                     end_dist = min_edge_dist
                     
                 crit_shear = column_critical_shear(shear_load, eccentricity, pitch, gauge, no_row,edge_dist) 
-                if crit_shear > bolt_capacity :
+                if crit_shear > bolt_capacity_c :
                      
-                    while crit_shear > bolt_capacity and cleat_length <  max_cleat_length:
+                    while crit_shear > bolt_capacity_c and cleat_length <  max_cleat_length:
                         no_row = no_row + 1
                         cleat_length = cleat_length + pitch
                         crit_shear = column_critical_shear(shear_load, eccentricity, pitch, gauge, no_row,edge_dist)
                     if cleat_length > max_cleat_length:
                         design_check = False
                         logger.error(':Shear force on the crtitical bolt due to external load is exceeding the bolt capacity') 
-                        logger.warning(':Bolt capacity of the critical bolt should be greater than ')   
+                        logger.warning(':Bolt capacity of the critical bolt should be greater than %2.2f KN' %(crit_shear))   
                         logger.info(':Re-design with increased bolt diameter or bolt grade')        
-                    elif bolt_capacity > crit_shear and cleat_length <= max_cleat_length:
+                    elif bolt_capacity_c > crit_shear and cleat_length <= max_cleat_length:
                         pass       
         #             if end_dist > min_edge_dist and cleat_length > 0.6 * beam_D :
         #                 end_dist = min_edge_dist
@@ -602,6 +641,7 @@ def cleatAngleConn(uiObj):
         end_dist_c = end_dist
         cleat_length_c = cleat_length
         c_eccentricity = eccentricity 
+        critboltshear_c = crit_shear
     #################################################Deciding final Design outcomes based on column and beam connectivity design #######
     if cleat_length_b > cleat_length_c:
         cleat_length = cleat_length_b
@@ -615,7 +655,7 @@ def cleatAngleConn(uiObj):
     if b_end_distance < min_edge_dist:#is it neccessary to treat single and double line seperately?
         design_check = False
         logger.error(':Edge distance in the beam web is less than the minimum edge distance as per IS 800:2007[cl.10.2.4.2]')    
-        logger.warning(':Minimum leg size of the cleat Angle required is %s mm' %(str(2*min_edge_dist + 20 + gauge)))
+        logger.warning(':Minimum leg size of the cleat Angle required is %s mm' %(str(2*min_edge_dist + 20 + gauge_b)))
         logger.info(':Increase the cleat leg size')#change reference
     b_gauge  = (2 * cleat_legsize_1 + beam_w_t) - 2*(end_dist_c + gauge_c)
     connection = "column"
@@ -637,15 +677,23 @@ def cleatAngleConn(uiObj):
     #block shear
     Tdb_B = blockshear(no_row_b, no_col_b, dia_hole, beam_fy, beam_fu, end_dist_b, edge_dist_b, pitch_b, gauge_b, cleat_thk)
     Tdb_C = blockshear(no_row_c, no_col_c, dia_hole, beam_fy, beam_fu, end_dist_c, edge_dist_c, pitch_c, gauge_c, cleat_thk)  
+    
+    Tdb = min(Tdb_B,Tdb_C)
     if Tdb_B <= shear_load or Tdb_C <= shear_load :
         design_check = False
         logger.error(": The block shear capacity of the cleat Angle is lass than the applied shear force [cl. 6.4.1]")
-        logger.warning(": Minimum block shear capacity required is %2.2f KN " %(shear_load))
+        logger.warning(": Minimum block shear capacity required is %2.2f KN " %(Tdb))
         logger.info(": Increase the cleat angle thickness")  
     ###############Moment Demand and Moment Capacity ##################
-    moment_demand = 0.5 * shear_load * c_eccentricity / 1000
-    moment_capacity = 1.2 * cleat_fy * cleat_thk * cleat_length * cleat_length / 1000000
-    if moment_capacity < moment_demand:
+    moment_demand_c = 0.5 * shear_load * c_eccentricity / 1000
+    moment_capacity_c = 1.2 * cleat_fy * cleat_thk * cleat_length * cleat_length / 1000000
+    if moment_capacity_c < moment_demand_c:
+        design_check = False
+        logger.error(":Moment capacity of the cleat angle leg  is less than the moment demand")
+        logger.warning(":Re-design with increased plate dimensions")
+    moment_demand_b = 0.5 * shear_load * c_eccentricity / 1000
+    moment_capacity_b = 1.2 * cleat_fy * cleat_thk * cleat_length * cleat_length / 1000000
+    if moment_capacity_b < moment_demand_b:
         design_check = False
         logger.error(":Moment capacity of the cleat angle leg  is less than the moment demand")
         logger.warning(":Re-design with increased plate dimensions")
@@ -654,8 +702,17 @@ def cleatAngleConn(uiObj):
     outputObj['Bolt'] ={}
     outputObj['Bolt']['status'] = True
     outputObj['Bolt']['shearcapacity'] = round(bolt_shear_capacity,3)
-    outputObj['Bolt']['bearingcapacity'] = round(bolt_bearing_capacity,3)
+    outputObj['Bolt']['bearingcapacity'] = round(bearing_capacity_b,3)
+    outputObj['Bolt']['bearingcapacitybeam'] = round(bearing_capacity_beam,3)
+    outputObj['Bolt']['bearingcapacitycleat'] = round(bearing_capacity_plt,3)
     outputObj['Bolt']['boltcapacity'] = round(2 * bolt_capacity,3)
+    outputObj['Bolt']['boltbearingcapacity'] = round(bolt_bearing_capacity,3)
+    outputObj['Bolt']['externalmoment'] = round(moment_demand_b,3)
+    outputObj['Bolt']['momentcapacity'] = round(moment_capacity_b,3)
+
+    outputObj['Bolt']['blockshear'] = round(Tdb_B,3)
+    outputObj['Bolt']['critshear'] = round(critboltshear_b,3)
+    
     outputObj['Bolt']['numofbolts'] = no_row_b * no_col_b
     outputObj['Bolt']['boltgrpcapacity'] = round(2 * bolt_capacity * no_row_b * no_col_b,3)
     outputObj['Bolt']['numofrow'] = int(no_row_b)
@@ -664,16 +721,18 @@ def cleatAngleConn(uiObj):
     outputObj['Bolt']['enddist'] = int(end_dist_b)
     outputObj['Bolt']['edge'] = int(edge_dist_b)
     outputObj['Bolt']['gauge'] =int(gauge_b)
-    outputObj['Bolt']['thinner'] =int(t_thinner_b)
+    outputObj['Bolt']['thinner'] = float(t_thinner_b)
+    outputObj['Bolt']['diahole'] = float(dia_hole)
     
 #     outputObj['Bolt']['grade'] = bolt_grade
+
       
      
     outputObj['cleat'] = {}
     outputObj['cleat']['numofbolts'] = 2* no_row_c * no_col_c
     outputObj['cleat']['height'] = int(cleat_length)
-    outputObj['cleat']['externalmoment'] = round(moment_demand ,3)
-    outputObj['cleat']['momentcapacity'] = round(moment_capacity,3)
+    outputObj['cleat']['externalmoment'] = round(moment_demand_c ,3)
+    outputObj['cleat']['momentcapacity'] = round(moment_capacity_c,3)
     outputObj['cleat']['numofrow'] = no_row_c
     outputObj['cleat']['numofcol'] = no_col_c
     
@@ -685,11 +744,15 @@ def cleatAngleConn(uiObj):
     outputObj['cleat']['thinner'] = float(thinner)
  
     outputObj['cleat']['shearcapacity'] = round(bolt_shear_capacity_c,3)
-    outputObj['cleat']['bearingcapacity'] = round(bolt_bearing_capacity_c,3)
+    outputObj['cleat']['bearingcapacity'] = round(bearing_capacity_c,3)
     outputObj['cleat']['boltcapacity'] = round(bolt_capacity_c,3)
+    outputObj['cleat']['bearingcapacitycolumn'] = round(bearing_capacity_column,3)
+    outputObj['cleat']['bearingcapacitycleat'] = round(bearing_capacity_cleat_c,3)
     outputObj['cleat']['boltgrpcapacity'] = round(2 * bolt_capacity_c * no_row_c * no_col_c,3)
-         
-    
+    outputObj['cleat']['boltbearingcapacity'] = round(bolt_bearing_capacity_c,3)
+    outputObj['cleat']['blockshear'] = round(Tdb_C,3)     
+    outputObj['cleat']['critshear'] = round(critboltshear_c,3)
+
           
 
     if design_check == False:
