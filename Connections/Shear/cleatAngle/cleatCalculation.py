@@ -192,8 +192,8 @@ def cleatAngleConn(uiObj):
         if avbl_space < required_space:
             design_check = False
             logger.error(':Column cannot accommodate the given cleat agle due to space restriction  ')
-            logger.warning(':The width of the column flange(B)  should be greater than %2.2f mm' %(int(required_space))) 
-            logger.info('Cleat legsize(B)of the cleat angle should be less than or equal to %2.2f mm' %(maxLegsize))
+            logger.warning(':Cleat legsize of the cleat angle should be less than or equal to %2.2f mm' %(maxLegsize)) 
+            logger.info(':Decrease the cleat legsize')
         
     elif connectivity == 'Column web-Beam web':
         avbl_space = column_D - 2 * (column_f_t + column_R1)
@@ -201,9 +201,9 @@ def cleatAngleConn(uiObj):
         maxLegsize = int((avbl_space - beam_w_t)/10) * 5
         if avbl_space < required_space:
             design_check = False
-            logger.error(':Column cannot accommodate the given cleat agle due to space restriction  ')
-            logger.warning(':The depth of the column(D) should be greater than %2.2f mm' %(int(required_space))) 
-            logger.info('Cleat legsize(B)of the cleat angle should be less than or equal to %2.2f mm' %(maxLegsize))
+            logger.error(':Column cannot accommodate the given cleat agle due to space restriction')
+            logger.warning(':Cleat legsize(B)of the cleat angle should be less than or equal to %2.2f mm' %(maxLegsize)) 
+            logger.info(':Decrease the cleat legsize')
     else:
         #Always feasible in this case.No checks required
         pass 

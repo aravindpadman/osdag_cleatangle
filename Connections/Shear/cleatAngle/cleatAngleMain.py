@@ -208,7 +208,7 @@ class MainController(QtGui.QMainWindow):
        
         
          
-        self.ui.actionCreate_design_report.triggered.connect(self.save_design)
+        self.ui.actionCreate_design_report.triggered.connect(self.createDesignReport)
         self.ui.actionSave_log_message.triggered.connect(self.save_log)
         self.ui.actionEnlarge_font_size.triggered.connect(self.showFontDialogue)
         self.ui.actionZoom_in.triggered.connect(self.callZoomin)
@@ -241,7 +241,7 @@ class MainController(QtGui.QMainWindow):
         ######################################################################################
         self.ui.menuView.addAction(self.ui.inputDock.toggleViewAction())
         self.ui.menuView.addAction(self.ui.outputDock.toggleViewAction())
-        self.ui.btn_CreateDesign.clicked.connect(self.save_design)#Saves the create design report
+        self.ui.btn_CreateDesign.clicked.connect(self.createDesignReport)#Saves the create design report
         self.ui.btn_SaveMessages.clicked.connect(self.save_log)
         #################################################################
         self.ui.btn_capacity.clicked.connect(self.showButton_clicked)
@@ -732,10 +732,10 @@ class MainController(QtGui.QMainWindow):
     
         dictColData  = self.fetchColumnPara()
         dictCleatData = self.fetchAnglePara()
-        save_html(self.outdict, self.inputdict, dictBeamData, dictColData , dictCleatData,popup_summary)
+        save_html(self.outdict, self.inputdict, dictBeamData, dictColData , dictCleatData,popup_summary, fileName)
         print 'printing html file path'
         print fileName
-        pdfkit.from_file('ouput/finPlateReport3.html','output/report.pdf')
+        pdfkit.from_file(fileName,'output/report.pdf')
         
         QtGui.QMessageBox.about(self,'Information',"Report Saved")
     
@@ -1101,6 +1101,88 @@ class MainController(QtGui.QMainWindow):
             for nutbolt in nutboltlist:
                 osdagDisplayShape(self.display,nutbolt,color = Quantity_NOC_SADDLEBROWN,update = True)
             #self.display.DisplayShape(self.connectivity.nutBoltArray.getModels(), color = Quantity_NOC_SADDLEBROWN, update=True)
+     
+     
+     
+    
+    def validateInputsOnDesignBtn(self):
+        if self.ui.comboConnLoc.currentIndex()== 0:
+            QtGui.QMessageBox.about(self,"Information","Please select connectivity")
+        
+        pass
+    
+    #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    def boltHeadThick_Calculation(self,boltDia):
+        '''
+        This routine takes the bolt diameter and return bolt head thickness as per IS:3757(1989)
+       
+       bolt Head Dia
+        <-------->
+        __________
+        |        | | T = Thickness
+        |________| |
+           |  |
+           |  |
+           |  |
+        
+        '''
+        boltHeadThick = {5:4, 6:5, 8:6, 10:7, 12:8, 16:10, 20:12.5, 22:14, 24:15, 27:17, 30:18.7, 36:22.5 }
+        return boltHeadThick[boltDia]
+        
+        
+    def boltHeadDia_Calculation(self,boltDia):
+        '''
+        This routine takes the bolt diameter and return bolt head diameter as per IS:3757(1989)
+       
+       bolt Head Dia
+        <-------->
+        __________
+        |        |
+        |________|
+           |  |
+           |  |
+           |  |
+        
+        '''
+        boltHeadDia = {5:7, 6:8, 8:10, 10:15, 12:20, 16:27, 20:34, 22:36, 24:41, 27:46, 30:50, 36:60 }
+        return boltHeadDia[boltDia]
+    
+    def boltLength_Calculation(self,boltDia):
+        '''
+        This routine takes the bolt diameter and return bolt head diameter as per IS:3757(1985)
+       
+       bolt Head Dia
+        <-------->
+        __________  ______
+        |        |    |
+        |________|    | 
+           |  |       |
+           |  |       |
+           |  |       |
+           |  |       | 
+           |  |       |  l= length
+           |  |       |
+           |  |       |
+           |  |       |
+           |__|    ___|__ 
+        
+        '''
+        boltHeadDia = {5:40, 6:40, 8:40, 10:40, 12:40, 16:50, 20:50, 22:50, 24:50, 27:60, 30:65, 36:75 }
+       
+        return boltHeadDia[boltDia]
+    
+    def nutThick_Calculation(self,boltDia):
+        '''
+        Returns the thickness of the nut depending upon the nut diameter as per IS1363-3(2002)
+        '''
+        nutDia = {5:5, 6:5.65, 8:7.15, 10:8.75, 12:11.3, 16:15, 20:17.95, 22:19.0, 24:21.25, 27:23, 30:25.35, 36:30.65 }
+        
+        return nutDia[boltDia] 
+     
+     
+     
+     
+     
         
     def create3DBeamWebBeamWeb(self):
         '''
@@ -1158,14 +1240,26 @@ class MainController(QtGui.QMainWindow):
 #         angle_B = 90
         
         
+#         bolt_dia = uiObj["Bolt"]["Diameter (mm)"]
+#         bolt_r = bolt_dia/2
+#         bolt_R = bolt_r + 7
+#         nut_R = bolt_R
+#         bolt_T = 10.0 # minimum bolt thickness As per Indian Standard
+#         bolt_Ht = 50.0 # minimum bolt length as per Indian Standard IS 3750(1985)
+#         nut_T = 12.0 # minimum nut thickness As per Indian Standard
+#         nut_Ht = 12.2 #
+    
         bolt_dia = uiObj["Bolt"]["Diameter (mm)"]
         bolt_r = bolt_dia/2
-        bolt_R = bolt_r + 7
+        bolt_R = self.boltHeadDia_Calculation(bolt_dia) /2
         nut_R = bolt_R
-        bolt_T = 10.0 # minimum bolt thickness As per Indian Standard
-        bolt_Ht = 50.0 # minimum bolt length as per Indian Standard IS 3750(1985)
-        nut_T = 12.0 # minimum nut thickness As per Indian Standard
-        nut_Ht = 12.2 #
+        bolt_T = self.boltHeadThick_Calculation(bolt_dia) 
+        bolt_Ht = self.boltLength_Calculation(bolt_dia)
+        #bolt_Ht = 50.0 # minimum bolt length as per Indian Standard IS 3757(1989)
+        nut_T = self.nutThick_Calculation(bolt_dia)# bolt_dia = nut_dia
+        nut_Ht = 12.2 #150
+    
+    
         
         #plate = Plate(L= 300,W =100, T = 10)
         angle = Angle(L= cleat_length,A= angle_A, B= angle_B, T = cleat_thick)
@@ -1188,6 +1282,12 @@ class MainController(QtGui.QMainWindow):
         beamwebconn.create_3dmodel()
          
         return  beamwebconn
+    
+    
+    
+    
+    
+    
              
     def create3DColWebBeamWeb(self):
         '''
@@ -1238,14 +1338,26 @@ class MainController(QtGui.QMainWindow):
 #         angle_B = 90
         
         
+#         bolt_dia = uiObj["Bolt"]["Diameter (mm)"]
+#         bolt_r = bolt_dia/2
+#         bolt_R = bolt_r + 7
+#         nut_R = bolt_R
+#         bolt_T = 10.0 # minimum bolt thickness As per Indian Standard
+#         bolt_Ht = 50.0 # minimum bolt length as per Indian Standard IS 3750(1985)
+#         nut_T = 12.0 # minimum nut thickness As per Indian Standard
+#         nut_Ht = 12.2 #
+        #####################
         bolt_dia = uiObj["Bolt"]["Diameter (mm)"]
         bolt_r = bolt_dia/2
-        bolt_R = bolt_r + 7
+        bolt_R = self.boltHeadDia_Calculation(bolt_dia) /2
         nut_R = bolt_R
-        bolt_T = 10.0 # minimum bolt thickness As per Indian Standard
-        bolt_Ht = 50.0 # minimum bolt length as per Indian Standard IS 3750(1985)
-        nut_T = 12.0 # minimum nut thickness As per Indian Standard
-        nut_Ht = 12.2 #
+        bolt_T = self.boltHeadThick_Calculation(bolt_dia) 
+        bolt_Ht = self.boltLength_Calculation(bolt_dia)
+        #bolt_Ht = 50.0 # minimum bolt length as per Indian Standard IS 3757(1989)
+        nut_T = self.nutThick_Calculation(bolt_dia)# bolt_dia = nut_dia
+        nut_Ht = 12.2 #150
+        
+        ######################
         
         #plate = Plate(L= 300,W =100, T = 10)
         angle = Angle(L= cleat_length,A= angle_A, B= angle_B, T = cleat_thick)
@@ -1318,15 +1430,28 @@ class MainController(QtGui.QMainWindow):
 #         cleat_thick = 10
 #         angle_A = 120
 #         angle_B = 90
-        
+#         
+#         bolt_dia = uiObj["Bolt"]["Diameter (mm)"]
+#         bolt_r = bolt_dia/2
+#         bolt_R = bolt_r + 7
+#         nut_R = bolt_R
+#         bolt_T = 10.0 # minimum bolt thickness As per Indian Standard
+#         bolt_Ht = 50.0 # minimum bolt length as per Indian Standard
+#         nut_T = 12.0 # minimum nut thickness As per Indian Standard
+#         nut_Ht = 12.2 #
+    ####################################################
         bolt_dia = uiObj["Bolt"]["Diameter (mm)"]
         bolt_r = bolt_dia/2
-        bolt_R = bolt_r + 7
+        bolt_R = self.boltHeadDia_Calculation(bolt_dia) /2
         nut_R = bolt_R
-        bolt_T = 10.0 # minimum bolt thickness As per Indian Standard
-        bolt_Ht = 50.0 # minimum bolt length as per Indian Standard
-        nut_T = 12.0 # minimum nut thickness As per Indian Standard
-        nut_Ht = 12.2 #
+        bolt_T = self.boltHeadThick_Calculation(bolt_dia) 
+        bolt_Ht = self.boltLength_Calculation(bolt_dia)
+        #bolt_Ht = 50.0 # minimum bolt length as per Indian Standard IS 3757(1989)
+        nut_T = self.nutThick_Calculation(bolt_dia)# bolt_dia = nut_dia
+        nut_Ht = 12.2 #150
+    
+    
+    ####################################################
         
         #plate = Plate(L= 300,W =100, T = 10)
         angle = Angle(L= cleat_length,A= angle_A, B= angle_B, T = cleat_thick)
@@ -1445,6 +1570,8 @@ class MainController(QtGui.QMainWindow):
         # Displaying 3D Cad model
         status = resultObj['Bolt']['status']
         self.call_3DModel(status)
+        
+        self.validateInputsOnDesignBtn()
         
         
         

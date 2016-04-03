@@ -13,9 +13,18 @@ from numpy.core.defchararray import rstrip
 from PyQt4.Qt import QString 
 
 
+def space(n):
+    rstr = "&nbsp;" * 4 * n
+    return rstr
 
-def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsummary):
-    fileName = ("output/finPlateReport3.html")
+def t(n):
+    return '<' + n + '/>'
+
+def quote(m):
+    return '"' + m + '"'
+
+def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsummary,filename):
+    fileName = (filename)
     myfile = open(fileName, 'w')
     myfile.write(t('! DOCTYPE html'))
     myfile.write(t('html'))
@@ -29,11 +38,11 @@ def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsu
 # DATA PARAMS
 #&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 #Project summary data
-    companyname = str(reportsummary['CompanyName'])
-    companylogo = str(reportsummary['CompanyLogo'])
-    groupteamname = str(reportsummary['Group/TeamName'])
-    designer = str(reportsummary['Designer'])
-    projecttitle = str(reportsummary['CompanyName'])
+    companyname = str(reportsummary["ProfileSummary"]['CompanyName'])
+    companylogo = str(reportsummary["ProfileSummary"]['CompanyLogo'])
+    groupteamname = str(reportsummary["ProfileSummary"]['Group/TeamName'])
+    designer = str(reportsummary["ProfileSummary"]['Designer'])
+    projecttitle = str(reportsummary['ProjectTitle'])
     subtitle = str(reportsummary['Subtitle'])
     jobnumber = str(reportsummary['JobNumber'])
     method = str(reportsummary['Method'])
@@ -68,26 +77,26 @@ def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsu
     
     
 #     dictbeamdata  = get_beamdata(beam_sec)
-    beam_tw = float(dictBeamData[QString("tw")])
-    beam_f_t = float(dictBeamData[QString("T")])
-    beam_d = float(dictBeamData[QString("D")])
-    beam_R1 =float(dictBeamData[QString("R1")])
-    beam_B =float(dictBeamData[QString("B")])
-    beam_D =float(dictBeamData[QString("D")])
+    beam_tw = str(float(dictBeamData[QString("tw")]))
+    beam_f_t = str(float(dictBeamData[QString("T")]))
+    beam_d = str(float(dictBeamData[QString("D")]))
+    beam_R1 =str(float(dictBeamData[QString("R1")]))
+    beam_B =str(float(dictBeamData[QString("B")]))
+    beam_D =str(float(dictBeamData[QString("D")]))
        
 #      dictcolumndata = get_columndata(column_sec)
-    column_w_t = float(dictColData[QString("tw")])
-    column_f_t = float(dictColData[QString("T")])
-    column_R1 =float(dictColData[QString("R1")])
-    column_D = float(dictColData[QString("D")])
-    column_B = float(dictColData[QString("B")])
+    column_w_t = str(float(dictColData[QString("tw")]))
+    column_f_t = str(float(dictColData[QString("T")]))
+    column_R1 =str(float(dictColData[QString("R1")]))
+    column_D = str(float(dictColData[QString("D")]))
+    column_B = str(float(dictColData[QString("B")]))
 
         
    
 #     dictCleatData = get_angledata(cleat_sec)
-    cleat_legsize= int(dictCleatData[QString("A")])
-    cleat_legsize_1 = int(dictCleatData[QString("B")])
-    cleat_thk = int(dictCleatData[QString("t")])
+    cleat_legsize= str(int(dictCleatData[QString("A")]))
+    cleat_legsize_1 = str(int(dictCleatData[QString("B")]))
+    cleat_thk = str(int(dictCleatData[QString("t")]))
     
     
     
@@ -142,6 +151,7 @@ def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsu
 #     gap = '20'
     
     ##################output beam part ###########
+    kb = "0.5"
     shearCapacity_b = str(outputObj['Bolt']['shearcapacity'])  
     bearingcapacity_b = str(outputObj['Bolt']['bearingcapacity']) 
     boltbearingcapacity_b = str(outputObj['Bolt']['boltbearingcapacity'])
@@ -185,9 +195,9 @@ def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsu
     noOfRows_c =  str(outputObj['cleat']['numofrow'])
     noOfCol_c = str(outputObj['cleat']['numofcol'])
     pitch_c = str(outputObj['cleat']['pitch'])
-    edge_c  = str(outputObj['cleat']['enddist']) 
+    edge_c  = str(outputObj['cleat']['end']) 
     end_c   = str(outputObj['cleat']['edge'])
-    gauge_c =  str(outputObj['cleat']['gauge'])  
+    gauge_c =  str(outputObj['cleat']['guage'])  
     boltGrpCapacity_c = str(outputObj['cleat']['boltgrpcapacity'])
     thinner_c = str(outputObj['cleat']['thinner'])
     gap = '20'
@@ -241,7 +251,7 @@ def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsu
     rstr += t('td class= "header1_3"') + space(row[0]) + row[1] + t('/td')
     row = [0, time.strftime("%d /%m /%Y")]
     rstr += t('td class= "header1_3"') + space(row[0]) + row[1] + t('/td')
-    row = [0, 'Metdod']
+    row = [0, 'Method']
     rstr += t('td class= "header1_3"') + space(row[0]) + row[1] + t('/td')
     row = [0, method]
     rstr += t('td class= "header1_3"') + space(row[0]) + row[1] + t('/td')
@@ -627,7 +637,7 @@ def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsu
     rstr += t('td class= "header1_3"') + space(row[0]) + row[1] + t('/td')
     row = [0, time.strftime("%d /%m /%Y")]
     rstr += t('td class= "header1_3"') + space(row[0]) + row[1] + t('/td')
-    row = [0, 'Metdod']
+    row = [0, 'Method']
     rstr += t('td class= "header1_3"') + space(row[0]) + row[1] + t('/td')
     row = [0, method]
     rstr += t('td class= "header1_3"') + space(row[0]) + row[1] + t('/td')
@@ -666,7 +676,6 @@ def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsu
     rstr += t('/tr')
      
     rstr += t('tr')
-    kb = "0.5"
     #row =[0,"Bolt bearing capacity (kN)",""," <i>V</i><sub>dsb</sub> = (2.5*0.5*20*8.9*410)  = 72.98<br> [cl. 10.3.4]"]
     row =[0,"Bolt bearing capacity (kN)",""," <i>V</i><sub>dsb</sub> = (2.5*"+ kb +"*" + bolt_dia + "*" + thinner_b +"*"+bolt_fu +")/(1.25*1000)  = " + boltbearingcapacity_b + "<br> [cl. 10.3.4]", ""]
     rstr += t('td class="header2_col1"') + space(row[0]) + row[1] + t('/td')
@@ -805,10 +814,10 @@ def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsu
      
     rstr += t('tr')
     if connectivity == "Beam-Beam":
-        maxLen = float(beam_D) - float(column_R1) - float(column_f_t) - float(beam_f_t) - float(beam_R1) - 5
+        maxLen = str(float(beam_D) - float(column_R1) - float(column_f_t) - float(beam_f_t) - float(beam_R1) - 5)
         strmaxLen = "-"+beam_f_t+ "-"+beam_R1+"-"+column_f_t+"-"+column_R1+"- 5"
     else:
-        maxLen = float(beam_D) - 2*(float(beam_f_t) + float(beam_R1) + 5)
+        maxLen = str(float(beam_D) - 2*(float(beam_f_t) + float(beam_R1) + 5))
         strmaxLen = "-"+beam_f_t+ "-"+beam_R1+"-"+beam_f_t+"-"+beam_R1+"- 10"
     minLen = str(0.6 * float(beam_D))
     row = [0, "Cleat height (mm)", "&#8805;0.6*" + beam_D+ "=" + minLen+ ", &#8804;" + beam_D+ strmaxLen+ "="+maxLen+"<br> [cl. 10.2.4, Insdag Detailing Manual, 2002]",cleat_length," <p align=right style=color:green><b>Pass</b></p>","300", ""]
@@ -874,21 +883,21 @@ def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsu
     rstr += t('/tr')
     
     
-    t = 0.0
+    thk = 0.0
     strCon = " "
     if connectivity == "Column falange-Beam web":
-        t = str(column_f_t)
+        thk  = str(column_f_t)
         strCon = "Bearing capacity of column flange (kN)"
     elif connectivity == "Column web-Beam web":
-        t = str(column_w_t)
+        thk  = str(column_w_t)
         strCon = "Bearing capacity of column flange (kN)"
     else:
-        t = str(column_w_t)
+        thk  = str(column_w_t)
         strCon = "Bearing capacity of Primary beam web (kN)"
            
     rstr += t('tr')
     #row =[0,"Bearing capacity of beam web (kN)",""," <i>V</i><sub>dsb</sub> = (2.5*0.5*20*8.9*410)  = 72.98<br> [cl. 10.3.4]"]
-    row =[0,strCon,""," <i>V</i><sub>dsb</sub> = (2.5*"+ kb +"*" + dia_hole + "*" + t +"*"+beam_fu +")/(1.25*1000)  = " + bearingcapacitycolumn_c + "<br> [cl. 10.3.4]", ""]
+    row =[0,strCon,""," <i>V</i><sub>dsb</sub> = (2.5*"+ kb +"*" + dia_hole + "*" + thk +"*"+beam_fu +")/(1.25*1000)  = " + bearingcapacitycolumn_c + "<br> [cl. 10.3.4]", ""]
     rstr += t('td class="header2_col1"') + space(row[0]) + row[1] + t('/td')
     rstr += t('td class="header2"') + space(row[0]) + row[2] + t('/td')
     rstr += t('td class="header2"') + space(row[0]) + row[3] + t('/td')
@@ -1015,10 +1024,10 @@ def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsu
      
     rstr += t('tr')
     if connectivity == "Beam-Beam":
-        maxLen = float(beam_D) - float(column_R1) - float(column_f_t) - float(beam_f_t) - float(beam_R1) - 5
+        maxLen = str(float(beam_D) - float(column_R1) - float(column_f_t) - float(beam_f_t) - float(beam_R1) - 5)
         strmaxLen = "-"+beam_f_t+ "-"+beam_R1+"-"+column_f_t+"-"+column_R1+"- 5"
     else:
-        maxLen = float(beam_D) - 2*(float(beam_f_t) + float(beam_R1) + 5)
+        maxLen = str(float(beam_D) - 2*(float(beam_f_t) + float(beam_R1) + 5))
         strmaxLen = "2*("+beam_f_t+ "+"+beam_R1 + "+5)"
     minLen = str(0.6 * float(beam_D))
     row = [0, "Cleat height (mm)", "&#8805;0.6*" + beam_D+ "=" + minLen+ ", &#8804;" + beam_D+ strmaxLen+ "="+maxLen+"<br> [cl. 10.2.4, Insdag Detailing Manual, 2002]",edge_c," <p align=right style=color:green><b>Pass</b></p>","300", ""]
@@ -1093,7 +1102,7 @@ def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsu
     rstr += t('td class= "header1_3"') + space(row[0]) + row[1] + t('/td')
     row = [0, time.strftime("%d /%m /%Y")]
     rstr += t('td class= "header1_3"') + space(row[0]) + row[1] + t('/td')
-    row = [0, 'Metdod']
+    row = [0, 'Method']
     rstr += t('td class= "header1_3"') + space(row[0]) + row[1] + t('/td')
     row = [0, method]
     rstr += t('td class= "header1_3"') + space(row[0]) + row[1] + t('/td')
@@ -1181,7 +1190,7 @@ def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsu
     rstr += t('td class= "header1_3"') + space(row[0]) + row[1] + t('/td')
     row = [0, time.strftime("%d /%m /%Y")]
     rstr += t('td class= "header1_3"') + space(row[0]) + row[1] + t('/td')
-    row = [0, 'Metdod']
+    row = [0, 'Method']
     rstr += t('td class= "header1_3"') + space(row[0]) + row[1] + t('/td')
     row = [0, method]
     rstr += t('td class= "header1_3"') + space(row[0]) + row[1] + t('/td')
@@ -1215,15 +1224,15 @@ def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsu
     myfile.write(t('/html'))
     myfile.close()
     
-def space(n):
-    rstr = "&nbsp;" * 4 * n
-    return rstr
-
-def t(n):
-    return '<' + n + '/>'
-
-def quote(m):
-    return '"' + m + '"'
+# def space(n):
+#     rstr = "&nbsp;" * 4 * n
+#     return rstr
+# 
+# def t(n):
+#     return '<' + n + '/>'
+# 
+# def quote(m):
+#     return '"' + m + '"'
 
 
 # reportsummary = useUserProfile()

@@ -4,21 +4,21 @@ p1
 (dp2
 S'ColumSection'
 p3
-S'ISSC 250'
+S'ISMB 550'
 p4
 sS'fu (MPa)'
 p5
 I410
 sS'BeamSection'
 p6
-S'ISMB 400'
+S'ISMB 500'
 p7
 sS'fy (MPa)'
 p8
 I250
 sS'Connectivity'
 p9
-S'Column flange-Beam web'
+S'Beam-Beam'
 p10
 ssS'Load'
 p11
@@ -41,12 +41,12 @@ p19
 (dp20
 S'Grade'
 p21
-F8.8
+F12.9
 sS'Diameter (mm)'
 p22
-I20
+I16
 sS'Type'
 p23
-S'HSFG'
+S'Black Bolt'
 p24
 ss.
