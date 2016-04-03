@@ -25,7 +25,7 @@ p11
 (dp12
 S'ShearForce (kN)'
 p13
-F200.0
+F250.0
 ssS'cleat'
 p14
 (dp15
@@ -41,12 +41,12 @@ p19
 (dp20
 S'Grade'
 p21
-F12.9
+F10.8
 sS'Diameter (mm)'
 p22
 I16
 sS'Type'
 p23
-S'Black Bolt'
+S'HSFG'
 p24
 ss.

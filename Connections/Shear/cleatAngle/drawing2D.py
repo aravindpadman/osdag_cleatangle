@@ -381,11 +381,11 @@ class cleatCommonData(object):
             elif view == "Top":
                 fin2DTop.callCFBWTop(fileName)
             else:
-                fileName = 'output/finFront.svg'
+                fileName = 'output/cleatFront.svg'
                 fin2DFront.callCFBWfront(fileName)
-                fileName = 'output/finSide.svg'
+                fileName = 'output/cleatSide.svg'
                 fin2DSide.callCFBWSide(fileName)
-                fileName = 'output/finTop.svg'
+                fileName = 'output/cleatTop.svg'
                 fin2DTop.callCFBWTop(fileName)
                 
             
@@ -397,11 +397,11 @@ class cleatCommonData(object):
             elif view == "Top":
                 fin2DTop.callCWBWTop(fileName)
             else:
-                fileName = 'output/finFront.svg'
+                fileName = 'output/cleatFront.svg'
                 fin2DFront.callCWBWfront(fileName)
-                fileName = 'output/finSide.svg'
+                fileName = 'output/cleatSide.svg'
                 fin2DSide.callCWBWSide(fileName)
-                fileName = 'output/finTop.svg'
+                fileName = 'output/cleatTop.svg'
                 fin2DTop.callCWBWTop(fileName)
             
         else:
@@ -412,11 +412,11 @@ class cleatCommonData(object):
             elif view == "Top":
                 fin2DTop.callBWBWTop(fileName)
             else:
-                fileName = 'output/finFront.svg'
+                fileName = 'output/cleatFront.svg'
                 fin2DFront.callBWBWfront(fileName)
-                fileName = 'output/finSide.svg'
+                fileName = 'output/cleatSide.svg'
                 fin2DSide.callBWBWSide(fileName)
-                fileName = 'output/finTop.svg'
+                fileName = 'output/cleatTop.svg'
                 fin2DTop.callBWBWTop(fileName)
 
 class cleat2DCreatorFront(object):

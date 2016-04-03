@@ -77,8 +77,7 @@ class MyPopupDialog(QtGui.QDialog):
         
     def saveUserProfile(self):
         inputData = self.getPopUpInputs()
-        print"printing user profile"
-        print inputData["ProfileSummary"]
+        
         filename= QtGui.QFileDialog.getSaveFileName(self, 'Save Files', "output/Profile",  '*.txt')
         
         infile = open(filename, 'w')
@@ -498,7 +497,7 @@ class MainController(QtGui.QMainWindow):
         
     def save2DcadImages(self):
         files_types = "PNG (*.png);;JPG (*.jpg);;GIF (*.gif)"
-        fileName  = QtGui.QFileDialog.getSaveFileName(self, 'Export', "/home/aravind/Cadfiles/untitled.png", files_types )
+        fileName  = QtGui.QFileDialog.getSaveFileName(self, 'Export', "output/untitled.png", files_types )
         fName = str(fileName)
         file_extension = fName.split(".")[-1]
         
@@ -581,7 +580,7 @@ class MainController(QtGui.QMainWindow):
     def retrieve_prevstate(self):
         uiObj = self.get_prevstate()
         if(uiObj != None):
-            print "prev_state",uiObj
+            
             self.ui.comboConnLoc.setCurrentIndex(self.ui.comboConnLoc.findText(str(uiObj['Member']['Connectivity'])))
             
             if uiObj['Member']['Connectivity'] == 'Beam-Beam':
@@ -733,8 +732,7 @@ class MainController(QtGui.QMainWindow):
         dictColData  = self.fetchColumnPara()
         dictCleatData = self.fetchAnglePara()
         save_html(self.outdict, self.inputdict, dictBeamData, dictColData , dictCleatData,popup_summary, fileName)
-        print 'printing html file path'
-        print fileName
+        
         pdfkit.from_file(fileName,'output/report.pdf')
         
         QtGui.QMessageBox.about(self,'Information',"Report Saved")
@@ -743,7 +741,7 @@ class MainController(QtGui.QMainWindow):
         
     def save_log(self):
         
-        fileName,pat = QtGui.QFileDialog.getSaveFileNameAndFilter(self,"Save File As","/home/deepa/","Text files (*.txt)")
+        fileName,pat = QtGui.QFileDialog.getSaveFileNameAndFilter(self,"Save File As","output/","Text files (*.txt)")
         return self.save_file(fileName+".txt")
           
     def save_file(self, fileName):
@@ -1743,7 +1741,7 @@ class MainController(QtGui.QMainWindow):
     def call_2d_Drawing(self,view):
         
         ''' This routine saves the 2D SVG image as per the connectivity selected
-        SVG image created through svgwrite pacage which takes design INPUT and OUTPUT parameters from Finplate GUI.
+        SVG image created through svgwrite pacage which takes design INPUT and OUTPUT parameters from CleatAngle GUI.
         '''
         if view == "All":
             fileName = ''

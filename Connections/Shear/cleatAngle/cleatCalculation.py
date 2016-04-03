@@ -184,6 +184,19 @@ def cleatAngleConn(uiObj):
     cleat_legsize_1 = int(dictCleatData[QString("B")])
     cleat_thk = int(dictCleatData[QString("t")])
 #####################Calculation Begins########################
+    pitch =0.0
+    gauge = 0.0
+    eccentricity = 0.0
+    dia_hole = 0
+    thinner = 0.0
+    bolt_shear_capacity = 0.0
+    bolt_bearing_capacity_c = 0.0
+    bearing_capacity_column = 0.0
+    bearing_capacity_cleat_c = 0.0
+    bearing_capacity_c =0.0
+    
+
+##################################################################
     design_check = True   
     if connectivity == 'Column flange-Beam web':
         avbl_space = column_B 
@@ -202,7 +215,7 @@ def cleatAngleConn(uiObj):
         if avbl_space < required_space:
             design_check = False
             logger.error(':Column cannot accommodate the given cleat agle due to space restriction')
-            logger.warning(':Cleat legsize(B)of the cleat angle should be less than or equal to %2.2f mm' %(maxLegsize)) 
+            logger.warning(':Cleat legsize of the cleat angle should be less than or equal to %2.2f mm' %(maxLegsize)) 
             logger.info(':Decrease the cleat legsize')
     else:
         #Always feasible in this case.No checks required
@@ -238,7 +251,7 @@ def cleatAngleConn(uiObj):
     
     if bolts_required < 3:
         bolts_required = 3
-
+    
     if bolt_dia == 12 or bolt_dia == 14:
         dia_hole = bolt_dia + 1
     elif bolt_dia == 16 or bolt_dia == 18 or bolt_dia == 20 or bolt_dia == 22 or bolt_dia == 24:
@@ -621,7 +634,7 @@ def cleatAngleConn(uiObj):
                         crit_shear = column_critical_shear(shear_load, eccentricity, pitch, gauge, no_row,edge_dist)
                     if cleat_length > max_cleat_length:
                         design_check = False
-                        logger.error(':Shear force on the crtitical bolt due to external load is exceeding the bolt capacity') 
+                        logger.error(':Shear force on the critical bolt due to external load is exceeding the bolt capacity') 
                         logger.warning(':Bolt capacity of the critical bolt should be greater than %2.2f KN' %(crit_shear))   
                         logger.info(':Re-design with increased bolt diameter or bolt grade')        
                     elif bolt_capacity_c > crit_shear and cleat_length <= max_cleat_length:
@@ -682,21 +695,22 @@ def cleatAngleConn(uiObj):
     if Tdb_B <= shear_load or Tdb_C <= shear_load :
         design_check = False
         logger.error(": The block shear capacity of the cleat Angle is lass than the applied shear force [cl. 6.4.1]")
-        logger.warning(": Minimum block shear capacity required is %2.2f KN " %(Tdb))
+        logger.warning(": Minimum block shear capacity required is %2.2f KN " %(shear_load))
+        logger.info(":Block shear capacity of the cleat angle is %2.2f KN" %(Tdb))
         logger.info(": Increase the cleat angle thickness")  
     ###############Moment Demand and Moment Capacity ##################
     moment_demand_c = 0.5 * shear_load * c_eccentricity / 1000
     moment_capacity_c = 1.2 * cleat_fy * cleat_thk * cleat_length * cleat_length / 1000000
     if moment_capacity_c < moment_demand_c:
         design_check = False
-        logger.error(":Moment capacity of the cleat angle leg  is less than the moment demand")
-        logger.warning(":Re-design with increased plate dimensions")
-    moment_demand_b = 0.5 * shear_load * c_eccentricity / 1000
+        logger.error(":Moment capacity of the cleat angle leg  is less than the moment demand [cl. 8.2.1.2]")
+        logger.info(":Re-design with increased plate dimensions")
+    moment_demand_b = 0.5 * shear_load * b_eccentricity / 1000
     moment_capacity_b = 1.2 * cleat_fy * cleat_thk * cleat_length * cleat_length / 1000000
     if moment_capacity_b < moment_demand_b:
         design_check = False
-        logger.error(":Moment capacity of the cleat angle leg  is less than the moment demand")
-        logger.warning(":Re-design with increased plate dimensions")
+        logger.error(":Moment capacity of the cleat angle leg  is less than the moment demand [cl. 8.2.1.2]")
+        logger.info(":Re-design with increased plate dimensions")
     #########################feeding output to array ###############
     outputObj = {}
     outputObj['Bolt'] ={}

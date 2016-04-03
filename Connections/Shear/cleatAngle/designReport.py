@@ -29,7 +29,7 @@ def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsu
     myfile.write(t('! DOCTYPE html'))
     myfile.write(t('html'))
     myfile.write(t('head'))
-    myfile.write(t('link type="text/css" rel="stylesheet" href="newstyle.css"/'))
+    myfile.write(t('link type="text/css" rel="stylesheet" href="myStyle.css"'))
     myfile.write(t('/head'))
     myfile.write(t('body'))
     
@@ -295,7 +295,7 @@ def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsu
     rstr += t('td colspan="2" class="header1"') + space(row[0]) + row[1] + t('/td')
     rstr += t('/tr')
      
-    row = [1, "Connection Title", " Double Angle Cleat Angle"]
+    row = [1, "Connection Title", " Double Angle Web Cleat"]
     rstr += t('tr')
     rstr += t('td class="header2"') + space(row[0]) + row[1] + t('/td')
     rstr += t('td class="header2 "') + row[2] + t('/td')
@@ -1126,13 +1126,13 @@ def save_html(outputObj, uiObj, dictBeamData, dictColData,dictCleatData,reportsu
     #rstr += t('td class=" viewtbl "') + row[2] + t('/td')
     rstr += t('/tr')
      
-    row = [0, '<object type="image/PNG" data="3D_Model.png" width ="550"></object>', '<object type="image/PNG" data="finTop.png" width ="480"></object>']
+    row = [0, '<object type="image/PNG" data="3D_Model.png" width ="550"></object>', '<object type="image/svg+xml" data="cleatTop.svg" width ="480"></object>']
     rstr += t('tr')
     rstr += t('td  align="center" class=" viewtbl"') + space(row[0]) + row[1] + t('/td')
     rstr += t('td  align="center" class=" viewtbl"') + row[2] + t('/td')
     rstr += t('/tr')
      
-    row = [0, '<object type="image/PNG" data="finSide.png" width ="480"></object>', '<object type="image/PNG" data="finFront.png" width ="480"></object>']
+    row = [0, '<object type="image/svg+xml" data="cleatSide.svg" width ="480"></object>', '<object type="image/svg+xml" data="cleatFront.svg" width ="480"></object>']
     rstr += t('tr')
     rstr += t('td align="center" class=" viewtbl"') + space(row[0]) + row[1] + t('/td')
     rstr += t('td align="center" class=" viewtbl "') + row[2] + t('/td')
